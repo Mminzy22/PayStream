@@ -1,0 +1,59 @@
+name: "코드 개선(Tech Debt)"
+description: "리팩터링, 성능 개선, 구조 개선 등 기술 부채 이슈"
+title: "[DEBT] "
+labels:
+  - tech-debt
+assignees:
+  - your-github-username
+
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "심각도"
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: input
+    id: scope
+    attributes:
+      label: "개선 범위/모듈"
+      placeholder: "예: user-service / MatchService.java"
+
+  - type: textarea
+    id: background
+    attributes:
+      label: "배경"
+      description: "현재 문제와 기술 부채의 원인"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "개선 제안"
+      description: "어떻게 바꿀지 구체적으로"
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "완료 조건"
+      description: "성능 목표나 테스트 통과 조건"
+      placeholder: "예: p95 응답 시간 300ms 이하, 테스트 커버리지 70% 이상"
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: "리스크/롤백 계획"
+      description: "운영 위험과 대응책"
+
+  - type: input
+    id: related
+    attributes:
+      label: "관련 이슈/PR"
+      placeholder: "#123"
