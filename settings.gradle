@@ -1,0 +1,6 @@
+rootProject.name = 'PayStream'
+
+include ':services:api-gateway'
+include ':services:eureka-server'
+include ':services:inventory-service'
+
