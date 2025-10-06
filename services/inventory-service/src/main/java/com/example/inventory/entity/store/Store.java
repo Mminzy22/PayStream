@@ -62,4 +62,7 @@ public class Store extends BaseEntity {
     private Double rating; // 평균 별점
     private Integer reviewCount; // 리뷰 수
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
+
 }
