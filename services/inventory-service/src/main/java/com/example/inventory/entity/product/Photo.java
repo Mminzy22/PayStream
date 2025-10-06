@@ -1,7 +1,9 @@
 package com.example.inventory.entity.product;
 
+import com.example.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
@@ -11,8 +13,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
-public class Photo {
+@SuperBuilder
+public class Photo extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

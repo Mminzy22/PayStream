@@ -1,4 +1,4 @@
-package com.example.inventory.entity.store;
+package com.example.inventory.entity;
 
 import lombok.*;
 
