@@ -1,0 +1,14 @@
+version: '3.8' # 파일 최상단에 버전을 명시하는 것이 좋습니다.
+
+services:
+  postgres:
+    image: postgres:15
+    restart: always # 컨테이너가 어떤 이유로든 멈췄을 때 도커가 자동으로 즉시 다시 시작
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
