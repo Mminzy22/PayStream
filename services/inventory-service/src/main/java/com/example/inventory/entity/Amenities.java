@@ -1,5 +1,6 @@
 package com.example.inventory.entity;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.*;
 
 @Getter
@@ -19,5 +20,10 @@ public enum Amenities {
     ;
 
     private final String displayName;
+
+    @JsonValue // Jackson이 이 메서드의 반환값을 JSON 값으로 사용하도록 지정
+    public String getDisplayName() {
+        return displayName;
+    }
 
 }
