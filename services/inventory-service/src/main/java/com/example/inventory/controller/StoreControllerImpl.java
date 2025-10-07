@@ -41,12 +41,13 @@ public class StoreControllerImpl implements StoreController {
     @PutMapping("{id}")
     @Override
     public ResponseEntity<StoreDto.Response> updateStore(@PathVariable String id, @RequestBody StoreDto.Request request) {
-        return null;
+        return ResponseEntity.ok(storeService.update(id, request));
     }
 
     @DeleteMapping("{id}")
     @Override
     public ResponseEntity<StoreDto.Response> deleteStore(@PathVariable String id) {
-        return null;
+        storeService.delete(id);
+        return ResponseEntity.noContent().build(); // 204
     }
 }

@@ -7,20 +7,26 @@ import com.example.inventory.entity.Category;
 import com.example.inventory.entity.product.Product;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.annotations.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Table
+@Table(name = "store")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @SuperBuilder
+@DynamicUpdate // update시 변경된 필드만 쿼리에 포함
+@DynamicInsert // insert시 null은 제외
+@SQLRestriction("deleted = false") // 엔티티 검색 시 자동으로 where 절에 추가
+@SQLDelete(sql = "update store set deleted = true, updated_at = CURRENT_TIMESTAMP where id = ?") // 엔티티 삭제 시 사용할 쿼리 (soft delete)
 public class Store extends BaseEntity {
 
     @Id

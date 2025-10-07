@@ -61,4 +61,11 @@ public class StoreService {
         return StoreDto.Response.from(updateStore);
     }
 
+    public void delete(String id) {
+        UUID uuid = UUID.fromString(id);
+        Store store = storeRepository.findById(uuid)
+                .orElseThrow(EntityNotFoundException::new);
+        storeRepository.delete(store);
+    }
+
 }
