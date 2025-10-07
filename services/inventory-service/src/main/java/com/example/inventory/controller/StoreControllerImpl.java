@@ -21,34 +21,32 @@ public class StoreControllerImpl implements StoreController {
     @GetMapping
     @Override
     public ResponseEntity<List<StoreDto.Response>> getStores() {
-        log.info("getStores trace");
         List<StoreDto.Response> response = storeService.findAll();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("{id}")
     @Override
-    public ResponseEntity<StoreDto.Response> getStoreById(@PathVariable Integer id) {
-        return null;
+    public ResponseEntity<StoreDto.Response> getStoreById(@PathVariable String id) {
+        return ResponseEntity.ok(storeService.findById(id));
     }
 
     @PostMapping
     @Override
     public ResponseEntity<UUID> addStore(@RequestBody StoreDto.Request request) {
-        log.info("addStore request: {}", request);
         UUID uuid = storeService.create(request);
         return ResponseEntity.ok(uuid);
     }
 
-    @PutMapping
+    @PutMapping("{id}")
     @Override
-    public ResponseEntity<StoreDto.Response> updateStore(@RequestBody StoreDto.Request request) {
+    public ResponseEntity<StoreDto.Response> updateStore(@PathVariable String id, @RequestBody StoreDto.Request request) {
         return null;
     }
 
     @DeleteMapping("{id}")
     @Override
-    public ResponseEntity<StoreDto.Response> deleteStore(@PathVariable Integer id) {
+    public ResponseEntity<StoreDto.Response> deleteStore(@PathVariable String id) {
         return null;
     }
 }

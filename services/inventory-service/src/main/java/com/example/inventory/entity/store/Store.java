@@ -1,22 +1,19 @@
 package com.example.inventory.entity.store;
 
 import com.example.core.BaseEntity;
+import com.example.inventory.dto.StoreDto;
 import com.example.inventory.entity.Amenities;
 import com.example.inventory.entity.Category;
 import com.example.inventory.entity.product.Product;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table
@@ -39,12 +36,17 @@ public class Store extends BaseEntity {
     private String description;
     private String address;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Category category; // 호텔, 펜션, 리조트
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "store_amenities",  // 1. 생성될 테이블 이름을 'store_amenities'로 지정
+            joinColumns = @JoinColumn(name = "store_id") // 2. 부모를 가리킬 FK 컬럼명을 'store_id'로 지정
+    )
+    @Column(name = "amenity") // 3. Enum 값이 저장될 컬럼명을 'amenity'로 지정
     @Enumerated(EnumType.STRING)
-    private List<Amenities> amenities; // 부대시설
+    private Set<Amenities> amenities = new HashSet<>(); // 부대시설
 
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -57,11 +59,23 @@ public class Store extends BaseEntity {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
-    private String status; // 가게 등록상태
     private Double rating; // 평균 별점
     private Integer reviewCount; // 리뷰 수
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+    private String rules; // 이용규칙
+
+    public void update(StoreDto.Request request) {
+        this.name = request.getName();
+        this.description = request.getDescription();
+        this.address = request.getAddress();
+        this.category = Category.valueOf(request.getCategory());
+        this.amenities = request.getAmenities().stream().map(Amenities::valueOf).collect(Collectors.toSet());
+        this.checkInTime = request.getCheckInTime();
+        this.checkOutTime = request.getCheckOutTime();
+        this.rules = request.getRules();
+    }
 
 }

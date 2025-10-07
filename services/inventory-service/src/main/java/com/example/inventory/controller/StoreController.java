@@ -15,15 +15,15 @@ public interface StoreController {
     public ResponseEntity<List<StoreDto.Response>> getStores();
 
     @Operation(description = "가게 id 검색, 상세조회")
-    public ResponseEntity<StoreDto.Response> getStoreById(Integer id);
+    public ResponseEntity<StoreDto.Response> getStoreById(String id);
 
     @Operation(description = "가게 등록")
     public ResponseEntity<UUID> addStore(StoreDto.Request request);
 
     @Operation(description = "가게 수정")
-    public ResponseEntity<StoreDto.Response> updateStore(StoreDto.Request request);
+    public ResponseEntity<StoreDto.Response> updateStore(String id, StoreDto.Request request);
 
     @Operation(description = "가게 삭제")
-    public ResponseEntity<StoreDto.Response> deleteStore(Integer id);
+    public ResponseEntity<StoreDto.Response> deleteStore(String id);
 
 }

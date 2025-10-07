@@ -2,6 +2,8 @@ package com.example.inventory.dto;
 
 import com.example.inventory.entity.Amenities;
 import com.example.inventory.entity.Category;
+import com.example.inventory.entity.product.Photo;
+import com.example.inventory.entity.product.Product;
 import com.example.inventory.entity.store.Store;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
@@ -10,10 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class StoreDto {
@@ -110,6 +109,32 @@ public class StoreDto {
 
         private Double rating;
         private Integer reviewCount;
+
+        public static Response from(Store store) {
+            // 가게에서 첫번째 상품의 사진을 조회
+            List<String> photoUrls = store.getProducts().stream()
+                    .filter(product -> !product.getPhotos().isEmpty())
+                    .findFirst()
+                    .map(Product::getPhotos)
+                    .map(photos -> photos.stream().map(Photo::getUrl).toList())
+                    .orElse(Collections.emptyList());
+
+            return Response.builder()
+                    .storeId(store.getId())
+                    .hostId(store.getHostId())
+                    .name(store.getName())
+                    .description(store.getDescription())
+                    .address(store.getAddress())
+                    .category(store.getCategory().getName())
+                    .checkInTime(store.getCheckInTime())
+                    .checkOutTime(store.getCheckOutTime())
+                    .amenities(store.getAmenities())
+                    .photos(photoUrls)
+                    .rules(store.getRules())
+                    .rating(store.getRating())
+                    .reviewCount(store.getReviewCount())
+                    .build();
+        }
     }
 
 }
