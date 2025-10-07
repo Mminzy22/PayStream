@@ -26,6 +26,16 @@ spring:
         show_sql: true
         highlight_sql: true
 
+# swgger 설정
+springdoc:
+  api-docs:
+    enabled: true # OpenAPI 인터페이스의 사용 여부 결정
+  swagger-ui:
+    enabled: true # Swagger-ui의 사용 여부 결정
+    tagsSorter: alpha # Swagger-ui에서 Tag의 정렬 기준을 설정 (알파벳순)
+    operations-sorter: alpha # Swagger-ui에서 개별 API에 해당하는 Operation의 정렬 기준을 설정 (알파벳순)
+    display-request-duration: true # Swagger-ui에서 API 실행 시 처리 소요 시간의 표시 여부를 설정
+
 logging:
   level:
     org.hibernate.type.descriptor.sql: trace # jpa logging
