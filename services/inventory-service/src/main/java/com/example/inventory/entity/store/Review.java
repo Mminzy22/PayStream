@@ -1,7 +1,6 @@
 package com.example.inventory.entity.store;
 
 import com.example.core.BaseEntity;
-import com.example.inventory.entity.product.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

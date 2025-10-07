@@ -4,7 +4,10 @@ import com.example.core.BaseEntity;
 import com.example.inventory.entity.Category;
 import com.example.inventory.entity.DealStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.UuidGenerator;
 
