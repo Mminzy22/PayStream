@@ -1,7 +1,7 @@
 package com.example.inventory.service.store;
 
-import com.example.inventory.dto.StoreDto;
-import com.example.inventory.entity.product.Photo;
+import com.example.inventory.dto.request.StoreRequest;
+import com.example.inventory.dto.response.StoreResponse;
 import com.example.inventory.entity.store.Store;
 import com.example.inventory.repository.store.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,26 +20,26 @@ public class StoreService {
     private final StoreRepository storeRepository;
 
     @Transactional(readOnly = true)
-    public List<StoreDto.Response> findAll() {
+    public List<StoreResponse> findAll() {
         List<Store> stores = storeRepository.findAllByFetchJoin().orElse(Collections.emptyList());
 
         // 연관 관계 매핑으로 데이터를 가져오려면 @Transactional이 있어야한다.
         return stores.stream()
-                .map(StoreDto.Response::from)
+                .map(StoreResponse::of)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public StoreDto.Response findById(String id) {
+    public StoreResponse findById(String id) {
         UUID uuid = UUID.fromString(id);
 
         Store store = storeRepository.findByIdByFetchJoin(uuid)
                 .orElseThrow(EntityNotFoundException::new);
 
-        return StoreDto.Response.from(store);
+        return StoreResponse.of(store);
     }
 
-    public UUID create(StoreDto.Request request) {
+    public UUID create(StoreRequest request) {
         // 실제 있는 호스트(유저) 인지 확인하는 로직
         // 코드 --
 
@@ -49,7 +49,7 @@ public class StoreService {
         return uuid;
     }
 
-    public StoreDto.Response update(String id, StoreDto.Request request) {
+    public StoreResponse update(String id, StoreRequest request) {
         UUID uuid = UUID.fromString(id);
 
         Store store = storeRepository.findById(uuid)
@@ -58,7 +58,7 @@ public class StoreService {
         store.update(request);
         Store updateStore = storeRepository.save(store);
 
-        return StoreDto.Response.from(updateStore);
+        return StoreResponse.of(updateStore);
     }
 
     public void delete(String id) {

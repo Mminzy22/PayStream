@@ -1,7 +1,7 @@
 package com.example.inventory.entity.store;
 
 import com.example.core.BaseEntity;
-import com.example.inventory.dto.StoreDto;
+import com.example.inventory.dto.request.StoreRequest;
 import com.example.inventory.entity.Amenities;
 import com.example.inventory.entity.Category;
 import com.example.inventory.entity.product.Product;
@@ -9,7 +9,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
 
@@ -73,7 +76,7 @@ public class Store extends BaseEntity {
 
     private String rules; // 이용규칙
 
-    public void update(StoreDto.Request request) {
+    public void update(StoreRequest request) {
         this.name = request.getName();
         this.description = request.getDescription();
         this.address = request.getAddress();
