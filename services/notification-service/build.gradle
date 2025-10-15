@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.paystream'
+version = '0.0.1-SNAPSHOT'
+description = 'NotificationService'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2025.0.0")
+}
+
+dependencies {
+    // Spring Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    
+    // Eureka Client - 서비스 디스커버리 등록
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    
+    // Actuator - 헬스 체크 및 모니터링
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    
+    // Kafka - 이벤트 기반 알림 수신 (추후 활성화)
+    // implementation 'org.springframework.kafka:spring-kafka'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // DevTools - 개발 편의성
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+

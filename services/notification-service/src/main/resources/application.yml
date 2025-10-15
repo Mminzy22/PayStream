@@ -1,0 +1,33 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: notification-service
+
+# Eureka Client 설정
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/ # Eureka Server 주소
+    register-with-eureka: true # Eureka에 서비스 등록
+    fetch-registry: true # 다른 서비스 정보 가져오기
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    prefer-ip-address: true # IP 주소 우선 사용
+
+# Actuator 설정 - 헬스 체크 및 모니터링
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics # 노출할 엔드포인트
+  endpoint:
+    health:
+      show-details: always # 헬스 상세 정보 표시
+
+# 로그 레벨 설정
+logging:
+  level:
+    com.paystream.notification: INFO
+    org.springframework.cloud: DEBUG
