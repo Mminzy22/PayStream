@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: payment-service-test
+  profiles:
+    active: test
+
+server:
+  port: 0  # 랜덤 포트 사용
+
+eureka:
+  client:
+    enabled: false  # 테스트 시 Eureka 비활성화
+    register-with-eureka: false
+    fetch-registry: false
+
+logging:
+  level:
+    com.paystream.payment: DEBUG
