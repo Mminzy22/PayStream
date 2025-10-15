@@ -7,3 +7,5 @@ include ':services:eureka-server'
 include ':services:inventory-service'
 include ':services:payment-service'
 include ':services:notification-service'
+include ':services:user-service'
+
