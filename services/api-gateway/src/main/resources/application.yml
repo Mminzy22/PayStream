@@ -1,0 +1,46 @@
+server:
+  port: 8000
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        exclude: health,info
+    jmx:
+      exposure:
+        include: *
+
+# swgger 설정
+springdoc:
+  api-docs:
+    enabled: true # OpenAPI 인터페이스의 사용 여부 결정
+  swagger-ui:
+    enabled: true # Swagger-ui의 사용 여부 결정
+    tagsSorter: alpha # Swagger-ui에서 Tag의 정렬 기준을 설정 (알파벳순)
+    operations-sorter: alpha # Swagger-ui에서 개별 API에 해당하는 Operation의 정렬 기준을 설정 (알파벳순)
+    display-request-duration: true # Swagger-ui에서 API 실행 시 처리 소요 시간의 표시 여부를 설정
+
+spring:
+  application:
+    name: ApiGateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users/** # /api/users 으로 들어온 경우 user-service로 request 전달
+    #                - Method-GET, POST # GET, POST만 들어오게 함
+              filters:
+                - name: AuthenticationFilter # 인증 필터
+                - RewritePath=/api/users/(?<segment>.*), /users/$\{segment} # /api/users/1 -> /users/1
+                - AddRequestHeader=X-Service-Name, user-service # 헤더 정보에 user-service를 남겨 어떤 경로로 가는지 확인
