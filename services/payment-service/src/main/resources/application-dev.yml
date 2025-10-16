@@ -4,7 +4,7 @@ spring:
       on-profile: dev
 
 server:
-  port: 8083
+  port: 8084
 
 eureka:
   client:
@@ -18,3 +18,4 @@ logging:
   level:
     com.paystream.payment: INFO
     org.springframework.cloud: INFO
+
