@@ -1,0 +1,64 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: inventory-service
+  profiles:
+    default: local
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# swgger 설정
+springdoc:
+  api-docs:
+    enabled: true # OpenAPI 인터페이스의 사용 여부 결정
+  swagger-ui:
+    enabled: true # Swagger-ui의 사용 여부 결정
+    tagsSorter: alpha # Swagger-ui에서 Tag의 정렬 기준을 설정 (알파벳순)
+    operations-sorter: alpha # Swagger-ui에서 개별 API에 해당하는 Operation의 정렬 기준을 설정 (알파벳순)
+    display-request-duration: true # Swagger-ui에서 API 실행 시 처리 소요 시간의 표시 여부를 설정
+
+logging:
+  level:
+    org.hibernate.type.descriptor.sql: trace # jpa logging
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "local"
+  # DB 설정
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres # local -> docker postgresql
+    username: postgres
+    password: postgres
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        highlight_sql: true
+        default_batch_fetch_size: 1000
+        dialect: org.hibernate.dialect.PostgreSQLDialect
