@@ -5,4 +5,4 @@ include ':common:core'
 include ':services:api-gateway'
 include ':services:eureka-server'
 include ':services:inventory-service'
-
+include ':services:payment-service'
