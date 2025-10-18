@@ -1,4 +1,4 @@
-package com.example.inventory;
+package com.example.inventory.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +10,7 @@ import java.util.Map;
 @RestController
 public class HealthCheckController {
 
-    @GetMapping("/actuator/ping")
+    @GetMapping("/inventory/ping")
     public ResponseEntity<Map<String, Object>> ping() {
         return ResponseEntity.ok(Map.of(
                 "service", "inventory-service",
