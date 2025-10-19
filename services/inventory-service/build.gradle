@@ -55,8 +55,14 @@ dependencies {
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0'
 
+    // QueryDSL
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
     // 공통 라이브러리 가져옴
-//    implementation project(':common:core')
+    implementation project(':common:core')
 }
 
 dependencyManagement {

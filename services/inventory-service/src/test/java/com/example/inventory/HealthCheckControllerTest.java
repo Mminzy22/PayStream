@@ -22,7 +22,7 @@ class HealthCheckControllerTest {
     @Test
     void application_heath_check() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/actuator/ping")
+                        .get("/inventory/ping")
                 )
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
