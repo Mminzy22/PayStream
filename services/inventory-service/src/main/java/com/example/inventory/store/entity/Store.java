@@ -2,6 +2,7 @@ package com.example.inventory.store.entity;
 
 import com.example.core.BaseEntity;
 import com.example.inventory.product.entity.Product;
+import com.example.inventory.store.dto.request.StoreUpdateRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,12 +51,14 @@ public class Store extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH")
     private LocalTime checkOutTime;
 
+    private int basePersonCount;
+
     @Builder.Default
     private double rating = 0.0;
 
     @Builder.Default
     private int reviewCount = 0;
-    private String rules;
+    private String rule;
 
     @Builder.Default
     @ElementCollection
@@ -82,5 +85,13 @@ public class Store extends BaseEntity {
         if (products != null) {
             this.products.addAll(products);
         }
+    }
+
+    public void update(StoreUpdateRequest request) {
+        this.checkInTime = request.getCheckInTime();
+        this.checkOutTime = request.getCheckOutTime();
+        this.basePersonCount = request.getBasePersonCount();
+        this.amenities = request.getAmenities();
+        this.rule = request.getRule();
     }
 }

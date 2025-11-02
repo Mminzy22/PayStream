@@ -51,7 +51,8 @@ public class StoreCreateRequest {
                 .checkInTime(checkInTime)
                 .checkOutTime(checkOutTime)
                 .amenities(amenities)
-                .rules(rule)
+                .basePersonCount(Math.max(basePersonCount, 2))
+                .rule(rule)
                 .build();
     }
 

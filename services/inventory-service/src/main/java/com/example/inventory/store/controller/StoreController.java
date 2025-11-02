@@ -8,6 +8,7 @@ import com.example.inventory.store.dto.response.StoreResponse;
 import com.example.inventory.store.repository.StoreRepository;
 import com.example.inventory.store.service.StoreCreateService;
 import com.example.inventory.store.service.StoreFindService;
+import com.example.inventory.store.service.StoreUpdateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ public class StoreController {
 
     private final StoreFindService storeService;
     private final StoreCreateService storeCreateService;
+    private final StoreUpdateService storeUpdateService;
 
     @GetMapping
     public BaseResponse<List<StoreResponse>> findAll(@Valid @ModelAttribute StoreUserFindRequest request,
@@ -38,8 +40,9 @@ public class StoreController {
     }
 
     @PutMapping("{id}")
-    public BaseResponse<Void> updated(@RequestBody StoreUpdateRequest request) {
-        return BaseResponse.ok();
+    public BaseResponse<StoreResponse> updated(@PathVariable Long id, @RequestBody StoreUpdateRequest request) {
+        StoreResponse response = storeUpdateService.update(id, request);
+        return BaseResponse.ok(response);
     }
 
 }

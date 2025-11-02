@@ -47,4 +47,20 @@ public class StoreResponse {
                 .build();
     }
 
+    public static StoreResponse of(Store store) {
+        return StoreResponse.builder()
+                .id(store.getId())
+                .hostId(store.getHostId())
+                .name(store.getName())
+                .description(store.getDescription())
+                .address(store.getAddress())
+                .category(store.getCategory())
+                .checkInTime(store.getCheckInTime())
+                .checkOutTime(store.getCheckOutTime())
+                .rating(store.getRating())
+                .reviewCount(store.getReviewCount())
+                .amenities(store.getAmenities())
+                .build();
+    }
+
 }
