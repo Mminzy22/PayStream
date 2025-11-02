@@ -2,6 +2,7 @@ package com.example.inventory.store.controller;
 
 import com.example.core.BaseResponse;
 import com.example.inventory.store.dto.request.StoreCreateRequest;
+import com.example.inventory.store.dto.request.StoreUpdateRequest;
 import com.example.inventory.store.dto.request.StoreUserFindRequest;
 import com.example.inventory.store.dto.response.StoreResponse;
 import com.example.inventory.store.repository.StoreRepository;
@@ -33,7 +34,12 @@ public class StoreController {
     @PostMapping
     public BaseResponse<Long> created(@RequestBody StoreCreateRequest request) {
         Long id = storeCreateService.create(request);
-        return BaseResponse.ok(id);
+        return BaseResponse.created(id);
+    }
+
+    @PutMapping("{id}")
+    public BaseResponse<Void> updated(@RequestBody StoreUpdateRequest request) {
+        return BaseResponse.ok();
     }
 
 }

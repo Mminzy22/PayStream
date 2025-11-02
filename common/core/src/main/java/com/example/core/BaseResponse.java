@@ -32,6 +32,10 @@ public class BaseResponse<T> {
         return of(HttpStatus.OK, data);
     }
 
+    public static <T> BaseResponse<T> ok() {
+        return of(HttpStatus.OK, null);
+    }
+
     public static <T> BaseResponse<T> badRequest(T data) {
         return of(HttpStatus.BAD_REQUEST, data);
     }

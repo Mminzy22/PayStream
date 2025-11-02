@@ -6,14 +6,18 @@ import com.example.inventory.store.entity.Category;
 import com.example.inventory.store.entity.Store;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 import java.util.List;
 
+@Builder
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class StoreCreateRequest {
 
 //    @NotBlank(message = "hostId는 반드시 입력되어야 합니다.")

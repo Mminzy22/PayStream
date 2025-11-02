@@ -3,14 +3,17 @@ package com.example.inventory.store.controller;
 import com.example.core.BaseResponse;
 import com.example.inventory.inventory.entity.DailyInventory;
 import com.example.inventory.product.entity.Product;
+import com.example.inventory.store.dto.request.StoreCreateRequest;
 import com.example.inventory.store.dto.request.StoreUserFindRequest;
 import com.example.inventory.store.dto.response.StoreResponse;
+import com.example.inventory.store.entity.Address;
 import com.example.inventory.store.entity.Amenities;
 import com.example.inventory.store.entity.Category;
 import com.example.inventory.store.entity.Store;
 import com.example.inventory.store.repository.StoreQueryDslRepository;
 import com.example.inventory.store.repository.StoreRepository;
 import com.example.inventory.store.service.StoreFindService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +31,7 @@ import java.util.List;
 import static com.example.inventory.store.entity.Amenities.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -110,6 +114,37 @@ public class StoreControllerIntegrationTest {
                 .andExpect(jsonPath("$.code").value("200"))
                 .andExpect(jsonPath("$.message").value("OK"))
                 .andExpect(content().json(objectMapper.writeValueAsString(result)));
+    }
+
+    @DisplayName("가게 생성")
+    @Test
+    void createStore() throws Exception {
+        // given
+        StoreCreateRequest request = StoreCreateRequest.builder()
+                .hostId("1")
+                .name("한강 뷰 호텔")
+                .address(new Address("서울시", "여의도"))
+                .category(Category.HOTEL)
+                .checkInTime(LocalTime.now())
+                .checkOutTime(LocalTime.now())
+                .amenities(List.of(BAR_LOUNGE, PARKING))
+                .basePersonCount(2)
+                .rule("")
+                .build();
+
+        // when
+        // then
+        mockMvc.perform(
+                post("/stores")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request))
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value("201"))
+                .andExpect(jsonPath("$.message").value("CREATED"))
+                .andExpect(jsonPath("$.data").value("1"));
     }
 
     private Product createProduct(String name, int price) {
