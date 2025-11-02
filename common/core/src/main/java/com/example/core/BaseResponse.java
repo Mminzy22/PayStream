@@ -36,4 +36,8 @@ public class BaseResponse<T> {
         return of(HttpStatus.BAD_REQUEST, data);
     }
 
+    public static <T> BaseResponse<T> created(T data) {
+        return of(HttpStatus.CREATED, data);
+    }
+
 }
