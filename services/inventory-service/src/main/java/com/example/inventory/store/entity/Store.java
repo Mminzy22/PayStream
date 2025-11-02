@@ -50,8 +50,11 @@ public class Store extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH")
     private LocalTime checkOutTime;
 
-    private double rating;
-    private int reviewCount;
+    @Builder.Default
+    private double rating = 0.0;
+
+    @Builder.Default
+    private int reviewCount = 0;
     private String rules;
 
     @Builder.Default

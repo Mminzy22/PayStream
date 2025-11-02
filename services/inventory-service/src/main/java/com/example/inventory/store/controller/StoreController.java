@@ -2,9 +2,11 @@ package com.example.inventory.store.controller;
 
 import com.example.core.BaseResponse;
 import com.example.inventory.store.dto.request.StoreCreateRequest;
-import com.example.inventory.store.dto.response.StoreResponse;
 import com.example.inventory.store.dto.request.StoreUserFindRequest;
-import com.example.inventory.store.service.StoreService;
+import com.example.inventory.store.dto.response.StoreResponse;
+import com.example.inventory.store.repository.StoreRepository;
+import com.example.inventory.store.service.StoreCreateService;
+import com.example.inventory.store.service.StoreFindService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +20,8 @@ import java.util.List;
 @RequestMapping("stores")
 public class StoreController {
 
-    private final StoreService storeService;
+    private final StoreFindService storeService;
+    private final StoreCreateService storeCreateService;
 
     @GetMapping
     public BaseResponse<List<StoreResponse>> findAll(@Valid @ModelAttribute StoreUserFindRequest request,
@@ -28,8 +31,9 @@ public class StoreController {
     }
 
     @PostMapping
-    public BaseResponse<String> created(@RequestBody StoreCreateRequest request) {
-        return null;
+    public BaseResponse<Long> created(@RequestBody StoreCreateRequest request) {
+        Long id = storeCreateService.create(request);
+        return BaseResponse.ok(id);
     }
 
 }

@@ -1,0 +1,33 @@
+package com.example.inventory.store.service;
+
+import com.example.inventory.store.dto.request.StoreCreateRequest;
+import com.example.inventory.store.entity.Store;
+import com.example.inventory.store.repository.StoreRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class StoreCreateService {
+
+    private final StoreRepository storeRepository;
+
+    @Transactional
+    public Long create(StoreCreateRequest request) {
+        Store store = request.toEntity();
+
+        // 1. 호스트ID가 실제 존재하는 회원인지 확인
+
+        // 2. 동일한 이름의 가게가 이미 등록되어 있는지 확인
+        Boolean existsName = storeRepository.existsByName(store.getName());
+        if (existsName) {
+            throw new IllegalArgumentException("이미 존재하는 가게 이름입니다.");
+        }
+
+        return storeRepository.save(store).getId();
+    }
+
+}

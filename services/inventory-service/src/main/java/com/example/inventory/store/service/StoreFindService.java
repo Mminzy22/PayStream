@@ -27,11 +27,12 @@ import static java.util.stream.Collectors.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class StoreService {
+public class StoreFindService {
 
     private final StoreQueryDslRepository storeQueryDslRepository;
     private final DailyInventoryRepository dailyInventoryRepository;
 
+    // 조회 성능 향상을 위한 Redis 캐싱 기능 추가하기
     @Transactional(readOnly = true)
     public List<StoreResponse> userFindStoreList(StoreUserFindRequest request, Pageable reqPageable) {
         Pageable pageable = PageRequest.of(reqPageable.getPageNumber() - 1, reqPageable.getPageSize());

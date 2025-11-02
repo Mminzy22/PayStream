@@ -31,10 +31,10 @@ import static org.assertj.core.groups.Tuple.tuple;
 //@Transactional
 @ActiveProfiles("test")
 @SpringBootTest
-class StoreServiceTest {
+class StoreFindServiceTest {
 
     @Autowired
-    private StoreService storeService;
+    private StoreFindService storeService;
 
     @Autowired
     private StoreRepository storeRepository;

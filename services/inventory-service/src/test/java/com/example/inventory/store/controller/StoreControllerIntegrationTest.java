@@ -1,16 +1,16 @@
 package com.example.inventory.store.controller;
 
 import com.example.core.BaseResponse;
-import com.example.inventory.store.dto.response.StoreResponse;
-import com.example.inventory.store.dto.request.StoreUserFindRequest;
 import com.example.inventory.inventory.entity.DailyInventory;
 import com.example.inventory.product.entity.Product;
+import com.example.inventory.store.dto.request.StoreUserFindRequest;
+import com.example.inventory.store.dto.response.StoreResponse;
 import com.example.inventory.store.entity.Amenities;
 import com.example.inventory.store.entity.Category;
 import com.example.inventory.store.entity.Store;
 import com.example.inventory.store.repository.StoreQueryDslRepository;
 import com.example.inventory.store.repository.StoreRepository;
-import com.example.inventory.store.service.StoreService;
+import com.example.inventory.store.service.StoreFindService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
@@ -26,11 +26,9 @@ import java.time.LocalTime;
 import java.util.List;
 
 import static com.example.inventory.store.entity.Amenities.*;
-import static com.example.inventory.store.entity.Amenities.BREAKFAST_INCLUDED;
-import static com.example.inventory.store.entity.Amenities.PARKING;
-import static org.springframework.http.MediaType.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -48,7 +46,7 @@ public class StoreControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private StoreService storeService;
+    private StoreFindService storeService;
 
     @Autowired
     private StoreRepository storeRepository;

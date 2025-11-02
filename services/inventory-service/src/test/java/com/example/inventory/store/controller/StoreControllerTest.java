@@ -1,9 +1,9 @@
 package com.example.inventory.store.controller;
 
 import com.example.core.BaseResponse;
-import com.example.inventory.store.dto.response.StoreResponse;
 import com.example.inventory.store.dto.request.StoreUserFindRequest;
-import com.example.inventory.store.service.StoreService;
+import com.example.inventory.store.dto.response.StoreResponse;
+import com.example.inventory.store.service.StoreFindService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.example.inventory.store.entity.Amenities.*;
+import static com.example.inventory.store.entity.Amenities.BREAKFAST_INCLUDED;
+import static com.example.inventory.store.entity.Amenities.PARKING;
 
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -40,7 +41,7 @@ class StoreControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private StoreService mockService;
+    private StoreFindService mockService;
 
     @DisplayName("가게 전체 조회 Controller 단위 테스트")
     @Test
