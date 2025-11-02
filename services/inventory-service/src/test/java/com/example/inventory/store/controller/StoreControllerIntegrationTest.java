@@ -118,7 +118,7 @@ public class StoreControllerIntegrationTest {
 
     @DisplayName("가게 생성")
     @Test
-    void createStore() throws Exception {
+    void createStoreTest() throws Exception {
         // given
         StoreCreateRequest request = StoreCreateRequest.builder()
                 .hostId("1")
