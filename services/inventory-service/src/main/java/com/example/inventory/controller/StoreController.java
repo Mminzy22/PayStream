@@ -1,5 +1,6 @@
 package com.example.inventory.controller;
 
+import com.example.core.BaseResponse;
 import com.example.inventory.dto.store.StoreResponse;
 import com.example.inventory.dto.store.request.StoreUserFindRequest;
 import com.example.inventory.service.StoreService;
@@ -24,10 +25,10 @@ public class StoreController {
     private final StoreService storeService;
 
     @GetMapping
-    public ResponseEntity<List<StoreResponse>> findAll(@Valid @ModelAttribute StoreUserFindRequest request,
-                                                       @PageableDefault(page = 1, size = 10) Pageable pageable) {
+    public BaseResponse<List<StoreResponse>> findAll(@Valid @ModelAttribute StoreUserFindRequest request,
+                                                     @PageableDefault(page = 1, size = 10) Pageable pageable) {
         List<StoreResponse> responses = storeService.userFindStoreList(request, pageable);
-        return ResponseEntity.ok(responses);
+        return BaseResponse.ok(responses);
     }
 
 }

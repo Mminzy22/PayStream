@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -66,7 +67,7 @@ public class StoreService {
     }
 
     private Map<Long, Optional<Integer>> storesToMap(List<Store> stores, List<DailyInventory> dailyInventories) {
-        Predicate<Product> isProductAvailableForPeriod = getAvailableForPeriod2(dailyInventories);
+        Predicate<Product> isProductAvailableForPeriod = getAvailableForPeriod(dailyInventories);
 
         return stores.stream()
                 .collect(groupingBy(
@@ -82,9 +83,10 @@ public class StoreService {
                 ));
     }
 
-    private static Predicate<Product> getAvailableForPeriod2(List<DailyInventory> dailyInventories) {
+    private static Predicate<Product> getAvailableForPeriod(List<DailyInventory> dailyInventories) {
         return product -> {
             Map<Long, List<Integer>> dailyInventoryToMap = dailyInventories.stream()
+                    .filter(dailyInventory -> dailyInventory.getProduct().getId().equals(product.getId()))
                     .collect(groupingBy(
                             dailyInventory -> dailyInventory.getProduct().getId(),
                             mapping(
@@ -94,52 +96,14 @@ public class StoreService {
                     ));
 
             // 필수 날짜 목록을 순회하면서 하나라도 재고가 없거나, 인벤토리 기록이 없으면 false를 반환
-            return dailyInventoryToMap.get(product.getId()).stream()
-                    .allMatch(stock -> stock != null && stock > 0); // 인벤토리 기록이 존재하고, Stock != NULL, 재고가 0보다 커야함.
-        };
-    }
+            List<Integer> stocks = dailyInventoryToMap.get(product.getId());
+            if(stocks == null || stocks.isEmpty()) {
+                return false;
+            }
 
-    private Map<Long, Optional<Integer>> storesToMap(List<Store> stores, LocalDate checkIn, LocalDate checkOut) {
-        // 필요한 모든 날짜 목록을 생성 (checkIn 포함, checkOut 미포함)
-        List<LocalDate> requiredDates = checkIn.datesUntil(checkOut).toList();
-
-        if(requiredDates.isEmpty()) {
-            throw new IllegalArgumentException("Required dates are empty");
-        }
-
-        Predicate<Product> isProductAvailableForPeriod = getAvailableForPeriod(requiredDates);
-
-        return stores.stream()
-                .collect(groupingBy(
-                        Store::getId, // 키: Store ID (s -> s.getId())
-                        flatMapping( // Store 리스트를 Product 스트림으로 펼치기 (중복 처리)
-                                s -> s.getProducts().stream()
-                                        .filter(isProductAvailableForPeriod), // Product 스트림에서 basePrice의 최솟값을 찾기
-                                mapping(
-                                        Product::getBasePrice, // Product 객체에서 basePrice (Integer) 추출
-                                        minBy(Comparator.naturalOrder()) // 추출된 값들 중 가장 작은 값 찾기
-                                )
-                        )
-                ));
-    }
-
-    private static Predicate<Product> getAvailableForPeriod(List<LocalDate> requiredDates) {
-        return product -> {
-            Map<LocalDate, Integer> inventoryMap = product.getDailyInventories().stream()
-                    .collect(toMap(
-                            DailyInventory::getDate,
-                            DailyInventory::getStockAvailable
-                    ));
-
-
-            // 필수 날짜 목록을 순회하면서 하나라도 재고가 없거나, 인벤토리 기록이 없으면 false를 반환
-            return requiredDates.stream()
-                    .allMatch(date -> {
-                        Integer stock = inventoryMap.get(date);
-
-                        // 인벤토리 기록이 존재하고, Stock != NULL, 재고가 0보다 커야함.
-                        return stock != null && stock > 0;
-                    });
+            // 인벤토리 기록이 존재하고, Stock != NULL, 재고가 0보다 커야함.
+            return stocks.stream()
+                    .allMatch(stock -> stock != null && stock > 0);
         };
     }
 

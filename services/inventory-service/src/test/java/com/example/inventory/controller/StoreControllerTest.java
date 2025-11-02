@@ -1,5 +1,6 @@
 package com.example.inventory.controller;
 
+import com.example.core.BaseResponse;
 import com.example.inventory.dto.store.StoreResponse;
 import com.example.inventory.dto.store.request.StoreUserFindRequest;
 import com.example.inventory.entity.inventory.DailyInventory;
@@ -70,6 +71,7 @@ class StoreControllerTest {
                         .minPrice(25000)
                         .build()
         );
+        BaseResponse<List<StoreResponse>> result = BaseResponse.ok(mockResponse);
 
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -88,7 +90,7 @@ class StoreControllerTest {
         )
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(mockResponse)));
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(result)));
 
     }
 

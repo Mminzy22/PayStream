@@ -1,5 +1,6 @@
 package com.example.inventory.controller;
 
+import com.example.core.BaseResponse;
 import com.example.inventory.dto.store.StoreResponse;
 import com.example.inventory.dto.store.request.StoreUserFindRequest;
 import com.example.inventory.entity.inventory.DailyInventory;
@@ -17,9 +18,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -31,6 +34,10 @@ import java.util.List;
 import static com.example.inventory.entity.store.Amenities.*;
 import static com.example.inventory.entity.store.Amenities.BREAKFAST_INCLUDED;
 import static com.example.inventory.entity.store.Amenities.PARKING;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -65,52 +72,52 @@ public class StoreControllerIntegrationTest {
         Store foundStore = createStore(
                 "1", "한강 뷰 맛집", List.of(PARKING, BREAKFAST_INCLUDED), Category.HOTEL);
         Product foundProduct = createProduct("한강 뷰 상품", 25000);
+        Store foundStore2 = createStore(
+                "2", "강남 뷰 상품", List.of(PARKING, BREAKFAST_INCLUDED), Category.HOTEL);
+        Product foundProduct2 = createProduct("강남 뷰 상품", 30000);
 
         foundProduct.addDailyInventory(DailyInventory.builder().date(today).stockAvailable(1).build());
         foundProduct.addDailyInventory(DailyInventory.builder().date(today.plusDays(1)).stockAvailable(1).build());
         foundProduct.addDailyInventory(DailyInventory.builder().date(today.plusDays(2)).stockAvailable(1).build());
         foundStore.addProduct(foundProduct);
 
+        foundProduct2.addDailyInventory(DailyInventory.builder().date(today).stockAvailable(2).build());
+        foundProduct2.addDailyInventory(DailyInventory.builder().date(today.plusDays(1)).stockAvailable(2).build());
+        foundProduct2.addDailyInventory(DailyInventory.builder().date(today.plusDays(2)).stockAvailable(2).build());
+        foundStore2.addProduct(foundProduct2);
+
         Store notFoundStore = createStore(
                 "2", "남산 뷰 펜션", List.of(RESTAURANT), Category.PENSION);
         notFoundStore.addProduct(createProduct("남산 상품", 10000));
 
-        List<Store> savedStores = storeRepository.saveAll(List.of(foundStore, notFoundStore));
+        List<Store> savedStores = storeRepository.saveAll(List.of(foundStore, foundStore2, notFoundStore));
 
         StoreUserFindRequest request = StoreUserFindRequest.builder()
-                .name("한강 뷰")
+//                .name("한강 뷰")
                 .checkIn(today)
                 .checkOut(today.plusDays(2))
                 .build();
 
         List<StoreResponse> expectedResponse = List.of(
-                StoreResponse.builder()
-                        .id(foundStore.getId())
-                        .hostId(foundStore.getHostId())
-                        .name(foundStore.getName())
-                        .description(foundStore.getDescription())
-                        .address(foundStore.getAddress())
-                        .category(foundStore.getCategory())
-                        .checkInTime(foundStore.getCheckInTime())
-                        .checkOutTime(foundStore.getCheckOutTime())
-                        .rating(foundStore.getRating())
-                        .reviewCount(foundStore.getReviewCount())
-                        .amenities(List.of(PARKING, BREAKFAST_INCLUDED))
-                        .minPrice(25000)
-                        .build()
+                StoreResponse.of(foundStore, 25000),
+                StoreResponse.of(foundStore2, 30000)
         );
+        BaseResponse<List<StoreResponse>> result = BaseResponse.ok(expectedResponse);
 
         // when
         // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/stores")
-                                .queryParam("name", request.getName())
+                        get("/stores")
+                                .param("name", request.getName())
                                 .param("checkIn", request.getCheckIn().toString())
                                 .param("checkOut", request.getCheckOut().toString())
                 )
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(expectedResponse)));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(content().json(objectMapper.writeValueAsString(result)));
     }
 
     private Product createProduct(String name, int price) {
