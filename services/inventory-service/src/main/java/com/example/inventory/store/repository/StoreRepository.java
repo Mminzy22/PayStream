@@ -4,9 +4,12 @@ import com.example.inventory.store.entity.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
     Boolean existsByName(String name);
 
+    List<Store> findByIdIn(List<Long> ids);
 }
