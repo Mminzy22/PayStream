@@ -22,7 +22,6 @@ import static com.example.inventory.store.entity.Amenities.BREAKFAST_INCLUDED;
 import static com.example.inventory.store.entity.Amenities.PARKING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -40,11 +39,11 @@ class StoreDeleteServiceTest {
         Store foundStore = createStore(
                 "1", "한강 뷰 맛집", List.of(PARKING, BREAKFAST_INCLUDED), Category.HOTEL);
 
-        storeRepository.save(foundStore);
+        Store savedStore = storeRepository.save(foundStore);
 
         StoreDeleteRequest request = StoreDeleteRequest.builder()
                 .hostId("1")
-                .storeIds(List.of(1L, 2L))
+                .storeIds(List.of(savedStore.getId(), 2L))
                 .build();
 
         // when
@@ -59,10 +58,11 @@ class StoreDeleteServiceTest {
     @Test
     void deleteStoreWithProduct() {
         // given
-        createTemplate();
+        List<Store> storeList = createTemplate();
+        List<Long> deleteStoreIds = storeList.stream().map(Store::getId).limit(storeList.size() - 1).toList();
         StoreDeleteRequest request = StoreDeleteRequest.builder()
                 .hostId("1")
-                .storeIds(List.of(1L, 2L))
+                .storeIds(deleteStoreIds)
                 .build();
 
         // when
@@ -71,7 +71,7 @@ class StoreDeleteServiceTest {
         // then
         assertThat(storeRepository.findAll())
                 .extracting(Store::getId)
-                .containsExactlyInAnyOrder(3L);
+                .containsExactlyInAnyOrder(storeList.get(2).getId());
     }
 
     private Store createStore(String hostId, String name, List<Amenities> amenities, Category category) {
@@ -92,7 +92,7 @@ class StoreDeleteServiceTest {
                 .build();
     }
 
-    private void createTemplate() {
+    private List<Store> createTemplate() {
         Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL);
         Store store2 = createStore("1", "testStore2", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION);
         Store store3 = createStore("1", "testStore3", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING);
@@ -148,6 +148,6 @@ class StoreDeleteServiceTest {
         store3.addProduct(product6);
 
         // Repository 저장
-        storeRepository.saveAll(List.of(store1, store2, store3));
+        return storeRepository.saveAll(List.of(store1, store2, store3));
     }
 }

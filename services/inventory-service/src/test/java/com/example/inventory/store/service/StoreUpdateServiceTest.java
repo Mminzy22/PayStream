@@ -36,9 +36,9 @@ class StoreUpdateServiceTest {
         Store foundStore = createStore(
                 "1", "한강 뷰 맛집", List.of(PARKING, BREAKFAST_INCLUDED), Category.HOTEL);
 
-        storeRepository.save(foundStore);
+        Store savedStore = storeRepository.save(foundStore);
 
-        Long updateId = 1L;
+        Long updateId = savedStore.getId();
         StoreUpdateRequest request = StoreUpdateRequest.builder()
                 .hostId("1")
                 .checkInTime(LocalTime.of(15, 0))
