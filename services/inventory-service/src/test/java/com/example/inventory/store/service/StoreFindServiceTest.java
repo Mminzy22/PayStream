@@ -1,7 +1,7 @@
 package com.example.inventory.store.service;
 
 import com.example.inventory.store.dto.response.StoreResponse;
-import com.example.inventory.store.dto.request.StoreUserFindRequest;
+import com.example.inventory.store.dto.request.StoreListFindRequest;
 import com.example.inventory.inventory.entity.DailyInventory;
 import com.example.inventory.product.entity.Product;
 import com.example.inventory.store.entity.Address;
@@ -11,7 +11,7 @@ import com.example.inventory.store.entity.Store;
 import com.example.inventory.inventory.repository.DailyInventoryRepository;
 import com.example.inventory.product.repository.ProductRepository;
 import com.example.inventory.store.repository.StoreRepository;
-import org.junit.jupiter.api.AfterEach;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
-//@Transactional
+@Transactional
 @ActiveProfiles("test")
 @SpringBootTest
 class StoreFindServiceTest {
@@ -42,6 +42,8 @@ class StoreFindServiceTest {
     private ProductRepository productRepository;
     @Autowired
     private DailyInventoryRepository dailyInventoryRepository;
+    @Autowired
+    private StoreFindService storeFindService;
 
     @EnableJpaAuditing
     @TestConfiguration
@@ -49,12 +51,12 @@ class StoreFindServiceTest {
 
     }
 
-    @AfterEach
-    void tearDown() {
-        dailyInventoryRepository.deleteAllInBatch();
-        productRepository.deleteAllInBatch();
-        storeRepository.deleteAllInBatch();
-    }
+//    @AfterEach
+//    void tearDown() {
+//        dailyInventoryRepository.deleteAllInBatch();
+//        productRepository.deleteAllInBatch();
+//        storeRepository.deleteAllInBatch();
+//    }
 
     @DisplayName("가게 전체 조회시 상품의 최저 금액이 같이 조회된다.")
     @Test
@@ -62,9 +64,9 @@ class StoreFindServiceTest {
         // given
         createTemplate();
 
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
-                .checkIn(LocalDate.now())
-                .checkOut(LocalDate.now().plusDays(1))
+        StoreListFindRequest request = StoreListFindRequest.builder()
+                .checkInDate(LocalDate.now())
+                .checkOutDate(LocalDate.now().plusDays(1))
                 .build();
 
         // when
@@ -88,9 +90,9 @@ class StoreFindServiceTest {
         int size = 2;
         createTemplate();
 
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
-                .checkIn(LocalDate.now())
-                .checkOut(LocalDate.now().plusDays(1))
+        StoreListFindRequest request = StoreListFindRequest.builder()
+                .checkInDate(LocalDate.now())
+                .checkOutDate(LocalDate.now().plusDays(1))
                 .build();
 
         // when
@@ -111,8 +113,8 @@ class StoreFindServiceTest {
         // given
         Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL);
         Store store2 = createStore("1", "testStore2", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION);
-        Product product1 = createProduct("product1", 1000);
-        Product product2 = createProduct("product2", 2000);
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
         store1.addProduct(product1);
         store2.addProduct(product2);
         product1.addDailyInventory(DailyInventory.builder()
@@ -129,9 +131,9 @@ class StoreFindServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = LocalDate.now().plusDays(1);
 
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
-                .checkIn(checkIn)
-                .checkOut(checkOut)
+        StoreListFindRequest request = StoreListFindRequest.builder()
+                .checkInDate(checkIn)
+                .checkOutDate(checkOut)
                 .build();
 
         // when
@@ -149,8 +151,8 @@ class StoreFindServiceTest {
         // given
         Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL);
         Store store2 = createStore("2", "testStore2", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION);
-        Product product1 = createProduct("product1", 1000);
-        Product product2 = createProduct("product2", 2000);
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
         store1.addProduct(product1);
         store2.addProduct(product2);
         product1.addDailyInventory(DailyInventory.builder()
@@ -186,9 +188,9 @@ class StoreFindServiceTest {
         LocalDate checkIn = LocalDate.now().plusDays(1);
         LocalDate checkOut = LocalDate.now().plusDays(3);
 
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
-                .checkIn(checkIn)
-                .checkOut(checkOut)
+        StoreListFindRequest request = StoreListFindRequest.builder()
+                .checkInDate(checkIn)
+                .checkOutDate(checkOut)
                 .build();
 
         // when
@@ -203,18 +205,63 @@ class StoreFindServiceTest {
                 .contains(tuple("testStore1", 1000));
     }
 
-    private void createTemplate() {
+    @Transactional
+    @DisplayName("가게 1개 조회, 재고가 없는 상품은 조회되지 않는다.")
+    @Test
+    void findStore() {
+        // given
+        LocalDate today =  LocalDate.now();
+
+        Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL);
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+        Product product3 = createProduct("product3", 3000, 2);
+
+        product1.addDailyInventory(DailyInventory.builder()
+                .date(today)
+                .stockAvailable(1) // 재고 1개
+                .build());
+        product2.addDailyInventory(DailyInventory.builder()
+                .date(today)
+                .stockAvailable(2) // 재고 2개
+                .build());
+        product3.addDailyInventory(DailyInventory.builder()
+                .date(today)
+                .stockAvailable(0) // 재고 0개 (품절)
+                .build());
+        store1.addProduct(product1);
+        store1.addProduct(product2);
+        store1.addProduct(product3);
+        Store savedStore = storeRepository.save(store1);
+
+        LocalDate checkInDate = LocalDate.now();
+        LocalDate checkOutDate = LocalDate.now().plusDays(1);
+
+        // when
+        StoreResponse store = storeFindService.findStore(savedStore.getId(), checkInDate, checkOutDate);
+
+        // then
+        assertThat(store).isNotNull()
+                .extracting("name")
+                .isEqualTo("testStore1");
+
+        assertThat(store.getProducts()).isNotNull()
+                .extracting("id")
+                .containsExactlyInAnyOrder(1L, 2L);
+    }
+
+    private List<Store> createTemplate() {
         Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL);
         Store store2 = createStore("1", "testStore2", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION);
         Store store3 = createStore("1", "testStore3", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING);
 
         // Product 생성
-        Product product1 = createProduct("product1", 1000);
-        Product product2 = createProduct("product2", 2000);
-        Product product3 = createProduct("product3", 3000);
-        Product product4 = createProduct("product4", 4000);
-        Product product5 = createProduct("product5", 5000);
-        Product product6 = createProduct("product6", 6000);
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+        Product product3 = createProduct("product3", 3000, 2);
+        Product product4 = createProduct("product4", 4000, 2);
+        Product product5 = createProduct("product5", 5000, 2);
+        Product product6 = createProduct("product6", 6000, 2);
 
         // 오늘 날짜 설정
         LocalDate today = LocalDate.now();
@@ -259,13 +306,14 @@ class StoreFindServiceTest {
         store3.addProduct(product6);
 
         // Repository 저장
-        storeRepository.saveAll(List.of(store1, store2, store3));
+        return storeRepository.saveAll(List.of(store1, store2, store3));
     }
 
-    private Product createProduct(String name, int price) {
+    private Product createProduct(String name, int price, int maxCapacity) {
         return Product.builder()
                 .name(name)
                 .basePrice(price)
+                .maxCapacity(maxCapacity)
                 .build();
     }
 

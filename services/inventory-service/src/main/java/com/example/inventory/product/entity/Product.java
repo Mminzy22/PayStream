@@ -36,8 +36,8 @@ public class Product extends BaseEntity {
     private String name;
     private String description;
     private String thumbnail;
-    private int basePersonCount;
-    private int maxPersonCount;
+    private int minCapacity; // 최소 수용인원
+    private int maxCapacity; // 최대 수용인원
 
     private int basePrice;
     private int personAddPrice; // 인원 추가 비용

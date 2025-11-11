@@ -79,14 +79,6 @@ public class Store extends BaseEntity {
         product.setStore(this);
     }
 
-    public void assignProducts(List<Product> products) {
-        this.products.clear();
-
-        if (products != null) {
-            this.products.addAll(products);
-        }
-    }
-
     public void update(StoreUpdateRequest request) {
         this.checkInTime = request.getCheckInTime();
         this.checkOutTime = request.getCheckOutTime();

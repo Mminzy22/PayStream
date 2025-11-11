@@ -4,7 +4,7 @@ import com.example.core.BaseResponse;
 import com.example.inventory.inventory.entity.DailyInventory;
 import com.example.inventory.product.entity.Product;
 import com.example.inventory.store.dto.request.StoreCreateRequest;
-import com.example.inventory.store.dto.request.StoreUserFindRequest;
+import com.example.inventory.store.dto.request.StoreListFindRequest;
 import com.example.inventory.store.dto.response.StoreResponse;
 import com.example.inventory.store.entity.Address;
 import com.example.inventory.store.entity.Amenities;
@@ -13,7 +13,6 @@ import com.example.inventory.store.entity.Store;
 import com.example.inventory.store.repository.StoreQueryDslRepository;
 import com.example.inventory.store.repository.StoreRepository;
 import com.example.inventory.store.service.StoreFindService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
@@ -67,10 +66,10 @@ public class StoreControllerIntegrationTest {
 
         Store foundStore = createStore(
                 "1", "한강 뷰 맛집", List.of(PARKING, BREAKFAST_INCLUDED), Category.HOTEL);
-        Product foundProduct = createProduct("한강 뷰 상품", 25000);
+        Product foundProduct = createProduct("한강 뷰 상품", 25000, 2);
         Store foundStore2 = createStore(
                 "2", "강남 뷰 상품", List.of(PARKING, BREAKFAST_INCLUDED), Category.HOTEL);
-        Product foundProduct2 = createProduct("강남 뷰 상품", 30000);
+        Product foundProduct2 = createProduct("강남 뷰 상품", 30000, 3);
 
         foundProduct.addDailyInventory(DailyInventory.builder().date(today).stockAvailable(1).build());
         foundProduct.addDailyInventory(DailyInventory.builder().date(today.plusDays(1)).stockAvailable(1).build());
@@ -84,14 +83,15 @@ public class StoreControllerIntegrationTest {
 
         Store notFoundStore = createStore(
                 "2", "남산 뷰 펜션", List.of(RESTAURANT), Category.PENSION);
-        notFoundStore.addProduct(createProduct("남산 상품", 10000));
+        notFoundStore.addProduct(createProduct("남산 상품", 10000, 2));
 
         List<Store> savedStores = storeRepository.saveAll(List.of(foundStore, foundStore2, notFoundStore));
 
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
+        StoreListFindRequest request = StoreListFindRequest.builder()
 //                .name("한강 뷰")
-                .checkIn(today)
-                .checkOut(today.plusDays(2))
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(2))
+                .personCount(2)
                 .build();
 
         List<StoreResponse> expectedResponse = List.of(
@@ -105,8 +105,9 @@ public class StoreControllerIntegrationTest {
         mockMvc.perform(
                         get("/stores")
                                 .param("name", request.getName())
-                                .param("checkIn", request.getCheckIn().toString())
-                                .param("checkOut", request.getCheckOut().toString())
+                                .param("checkInDate", request.getCheckInDate().toString())
+                                .param("checkOutDate", request.getCheckOutDate().toString())
+                                .param("personCount", String.valueOf(request.getPersonCount()))
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -147,8 +148,8 @@ public class StoreControllerIntegrationTest {
                 .andExpect(jsonPath("$.data").value("1"));
     }
 
-    private Product createProduct(String name, int price) {
-        return Product.builder().name(name).basePrice(price).build();
+    private Product createProduct(String name, int price, int maxCapacity) {
+        return Product.builder().name(name).basePrice(price).maxCapacity(maxCapacity).build();
     }
 
     private Store createStore(String hostId, String name, List<Amenities> amenities, Category category) {

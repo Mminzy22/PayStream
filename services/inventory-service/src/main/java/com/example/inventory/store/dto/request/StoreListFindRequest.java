@@ -2,18 +2,19 @@ package com.example.inventory.store.dto.request;
 
 import com.example.inventory.store.entity.Amenities;
 import com.example.inventory.store.entity.Category;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
-public class StoreUserFindRequest {
+public class StoreListFindRequest {
 
     private String name;
     private String province;
@@ -21,10 +22,12 @@ public class StoreUserFindRequest {
     private Category category;
     private List<Amenities> amenities;
 
-    @NotNull
-    private LocalDate checkIn;
+    @Min(2)
+    private int personCount;
 
     @NotNull
-    private LocalDate checkOut;
+    private LocalDate checkInDate;
 
+    @NotNull
+    private LocalDate checkOutDate;
 }

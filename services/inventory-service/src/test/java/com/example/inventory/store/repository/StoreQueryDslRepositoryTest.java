@@ -1,12 +1,15 @@
 package com.example.inventory.store.repository;
 
+import com.example.inventory.inventory.entity.DailyInventory;
+import com.example.inventory.inventory.repository.DailyInventoryRepository;
 import com.example.inventory.product.repository.ProductRepository;
-import com.example.inventory.store.dto.request.StoreUserFindRequest;
+import com.example.inventory.store.dto.request.StoreListFindRequest;
 import com.example.inventory.product.entity.Product;
 import com.example.inventory.store.entity.Address;
 import com.example.inventory.store.entity.Amenities;
 import com.example.inventory.store.entity.Category;
 import com.example.inventory.store.entity.Store;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
@@ -14,15 +17,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
+@Transactional
 @ActiveProfiles("test")
 @SpringBootTest
 class StoreQueryDslRepositoryTest {
@@ -36,29 +42,34 @@ class StoreQueryDslRepositoryTest {
     @Autowired
     private ProductRepository productRepository;
 
-    @AfterEach
-    void tearDown() {
-        productRepository.deleteAllInBatch();
-        storeRepository.deleteAllInBatch();
-    }
-
     @DisplayName("가게 전체 조회 (QueryDsl 적용)")
     @Test
     void findAllByFetchJoin2() {
         // given
         Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
         Store store2 = createStore("2", "testStore2", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "서울시", "강남구");
-        Product product1 = createProduct("product1", 1000);
-        Product product2 = createProduct("product2", 2000);
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+
+        product1.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product1.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+        product2.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product2.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+
         store1.addProduct(product1);
         store2.addProduct(product2);
 
         storeRepository.saveAll(List.of(store1, store2));
 
-        StoreUserFindRequest storeUserFindRequest = new StoreUserFindRequest();
+        LocalDate today = LocalDate.now();
+        StoreListFindRequest storeListFindRequest = StoreListFindRequest.builder()
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(1))
+                .personCount(2)
+                .build();
 
         // when
-        Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(storeUserFindRequest, PageRequest.of(0, 3));
+        Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(storeListFindRequest, PageRequest.of(0, 3));
 
         // then
         assertThat(stores).hasSize(2)
@@ -102,12 +113,12 @@ class StoreQueryDslRepositoryTest {
         Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
         Store store2 = createStore("1", "testStore2", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "서울시", "강남구");
         Store store3 = createStore("1", "testStore3", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
-        store1.addProduct(createProduct("product1", 1000));
-        store1.addProduct(createProduct("product2", 2000));
-        store2.addProduct(createProduct("product3", 3000));
-        store2.addProduct(createProduct("product4", 4000));
-        store3.addProduct(createProduct("product5", 5000));
-        store3.addProduct(createProduct("product6", 6000));
+        store1.addProduct(createProduct("product1", 1000, 2));
+        store1.addProduct(createProduct("product2", 2000, 2));
+        store2.addProduct(createProduct("product3", 3000, 2));
+        store2.addProduct(createProduct("product4", 4000, 2));
+        store3.addProduct(createProduct("product5", 5000, 2));
+        store3.addProduct(createProduct("product6", 6000, 2));
 
         storeRepository.saveAll(List.of(store1, store2, store3));
 
@@ -141,39 +152,34 @@ class StoreQueryDslRepositoryTest {
     @Test
     void findAllWithProductsNPlusOne() {
         // given
-        Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
-        Store store2 = createStore("1", "testStore2", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "서울시", "강남구");
-        Store store3 = createStore("1", "testStore3", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
-        store1.addProduct(createProduct("product1", 1000));
-        store1.addProduct(createProduct("product2", 2000));
-        store2.addProduct(createProduct("product3", 3000));
-        store2.addProduct(createProduct("product4", 4000));
-        store3.addProduct(createProduct("product5", 5000));
-        store3.addProduct(createProduct("product6", 6000));
+        createTemplate();
 
-        storeRepository.saveAll(List.of(store1, store2, store3));
-
-        StoreUserFindRequest storeUserFindRequest = new StoreUserFindRequest();
+        LocalDate today = LocalDate.now();
+        StoreListFindRequest storeListFindRequest = StoreListFindRequest.builder()
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(1))
+                .personCount(2)
+                .build();
         // when
-        Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(storeUserFindRequest, PageRequest.of(0, 3));
+        Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(storeListFindRequest, PageRequest.of(0, 3));
         // then
         assertThat(stores).hasSize(3)
                 .satisfiesExactlyInAnyOrder(
                         store -> assertThat(store)
                                 .extracting("hostId", "name")
-                                .containsExactly("1", "testStore1")
+                                .containsExactly("1", "경화수월")
                                 .satisfies(s -> assertThat(store.getProducts())
                                         .extracting("name") // List<Product> -> List<String> 변환
                                         .containsExactlyInAnyOrder("product1", "product2")),
                         store -> assertThat(store)
                                 .extracting("hostId", "name")
-                                .containsExactly("1", "testStore2")
+                                .containsExactly("1", "경화수화")
                                 .satisfies(s -> assertThat(store.getProducts())
                                         .extracting("name") // List<Product> -> List<String> 변환
                                         .containsExactlyInAnyOrder("product3", "product4")),
                         store -> assertThat(store)
                                 .extracting("hostId", "name")
-                                .containsExactly("1", "testStore3")
+                                .containsExactly("1", "경화수수")
                                 .satisfies(s -> assertThat(store.getProducts())
                                         .extracting("name") // List<Product> -> List<String> 변환
                                         .containsExactlyInAnyOrder("product5", "product6"))
@@ -184,28 +190,23 @@ class StoreQueryDslRepositoryTest {
     @Test
     void findAllWithProductsAndAmenities() {
         // given
-        Store store1 = createStore("1", "testStore1", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
-        Store store2 = createStore("1", "testStore2", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "서울시", "강남구");
-        Store store3 = createStore("1", "testStore3", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
-        store1.addProduct(createProduct("product1", 1000));
-        store1.addProduct(createProduct("product2", 2000));
-        store2.addProduct(createProduct("product3", 3000));
-        store2.addProduct(createProduct("product4", 4000));
-        store3.addProduct(createProduct("product5", 5000));
-        store3.addProduct(createProduct("product6", 6000));
+        createTemplate();
 
-        storeRepository.saveAll(List.of(store1, store2, store3));
-
-        StoreUserFindRequest storeUserFindRequest = new StoreUserFindRequest();
+        LocalDate today = LocalDate.now();
+        StoreListFindRequest storeListFindRequest = StoreListFindRequest.builder()
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(1))
+                .personCount(2)
+                .build();
         // when
-        Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(storeUserFindRequest, PageRequest.of(0, 3));
+        Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(storeListFindRequest, PageRequest.of(0, 3));
 
         // then
         assertThat(stores).hasSize(3)
                 .satisfiesExactlyInAnyOrder(
                         store -> assertThat(store)
                                 .extracting("hostId", "name")
-                                .containsExactly("1", "testStore1")
+                                .containsExactly("1", "경화수월")
                                 .satisfies(s -> assertThat(store.getAmenities())
                                         .containsExactlyInAnyOrder(Amenities.PARKING, Amenities.BAR_LOUNGE))
                                 .satisfies(s -> assertThat(store.getProducts())
@@ -213,7 +214,7 @@ class StoreQueryDslRepositoryTest {
                                         .containsExactlyInAnyOrder("product1", "product2")),
                         store -> assertThat(store)
                                 .extracting("hostId", "name")
-                                .containsExactly("1", "testStore2")
+                                .containsExactly("1", "경화수화")
                                 .satisfies(s -> assertThat(store.getAmenities())
                                         .containsExactlyInAnyOrder(Amenities.PARKING, Amenities.RESTAURANT))
                                 .satisfies(s -> assertThat(store.getProducts())
@@ -221,7 +222,7 @@ class StoreQueryDslRepositoryTest {
                                         .containsExactlyInAnyOrder("product3", "product4")),
                         store -> assertThat(store)
                                 .extracting("hostId", "name")
-                                .containsExactly("1", "testStore3")
+                                .containsExactly("1", "경화수수")
                                 .satisfies(s -> assertThat(store.getAmenities())
                                         .containsExactlyInAnyOrder(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED))
                                 .satisfies(s -> assertThat(store.getProducts())
@@ -234,49 +235,38 @@ class StoreQueryDslRepositoryTest {
     @Test
     void findStoreByName() {
         // given
-        Store store1 = createStore("1", "경화수월", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
-        Store store2 = createStore("1", "경화수화", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "서울시", "강남구");
-        Store store3 = createStore("1", "testStore", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
-        store1.addProduct(createProduct("product1", 1000));
-        store1.addProduct(createProduct("product2", 2000));
-        store2.addProduct(createProduct("product3", 3000));
-        store2.addProduct(createProduct("product4", 4000));
-        store3.addProduct(createProduct("product5", 5000));
-        store3.addProduct(createProduct("product6", 6000));
+        createTemplate();
 
-        storeRepository.saveAll(List.of(store1, store2, store3));
-
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
+        LocalDate today = LocalDate.now();
+        StoreListFindRequest request = StoreListFindRequest.builder()
                 .name("경화수")
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(1))
+                .personCount(2)
                 .build();
 
         // when
         Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(request, PageRequest.of(0, 3));
 
         // then
-        assertThat(stores).hasSize(2)
+        assertThat(stores).hasSize(3)
                 .extracting("name")
                 .containsExactlyInAnyOrder(
-                        "경화수월", "경화수화"
+                        "경화수월", "경화수화", "경화수수"
                 );
     }
 
     @DisplayName("선택한 카테고리에 해당되는 가게들이 조회된다.")
     @Test
     void findStoreByCategory() {
-        Store store1 = createStore("1", "경화수월", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
-        Store store2 = createStore("1", "경화수화", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "서울시", "강남구");
-        Store store3 = createStore("1", "testStore", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
-        store1.addProduct(createProduct("product1", 1000));
-        store1.addProduct(createProduct("product2", 2000));
-        store2.addProduct(createProduct("product3", 3000));
-        store2.addProduct(createProduct("product4", 4000));
-        store3.addProduct(createProduct("product5", 5000));
-        store3.addProduct(createProduct("product6", 6000));
+        createTemplate();
 
-        storeRepository.saveAll(List.of(store1, store2, store3));
-
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
+        LocalDate today = LocalDate.now();
+        StoreListFindRequest request = StoreListFindRequest.builder()
+                .name("경화수")
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(1))
+                .personCount(2)
                 .category(Category.HOTEL)
                 .build();
 
@@ -293,21 +283,15 @@ class StoreQueryDslRepositoryTest {
     @Test
     void findStoreByAddress() {
         // given
-        Store store1 = createStore("1", "경화수월", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
-        Store store2 = createStore("1", "경화수화", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "경기도", "시흥시");
-        Store store3 = createStore("1", "testStore", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
-        store1.addProduct(createProduct("product1", 1000));
-        store1.addProduct(createProduct("product2", 2000));
-        store2.addProduct(createProduct("product3", 3000));
-        store2.addProduct(createProduct("product4", 4000));
-        store3.addProduct(createProduct("product5", 5000));
-        store3.addProduct(createProduct("product6", 6000));
+        createTemplate();
 
-        storeRepository.saveAll(List.of(store1, store2, store3));
-
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
+        LocalDate today = LocalDate.now();
+        StoreListFindRequest request = StoreListFindRequest.builder()
                 .province("서울시")
                 .city("강남구")
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(1))
+                .personCount(2)
                 .build();
 
         // when
@@ -316,27 +300,21 @@ class StoreQueryDslRepositoryTest {
         // then
         assertThat(stores).hasSize(2)
                 .extracting("name")
-                .containsExactlyInAnyOrder("경화수월", "testStore");
+                .containsExactlyInAnyOrder("경화수월", "경화수수");
     }
 
     @DisplayName("부대시설 선택시 해당하는 가게들이 조회된다.")
     @Test
     void findStoreByAmenities() {
         // given
-        Store store1 = createStore("1", "경화수월", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
-        Store store2 = createStore("1", "경화수화", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "경기도", "시흥시");
-        Store store3 = createStore("1", "testStore", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
-        store1.addProduct(createProduct("product1", 1000));
-        store1.addProduct(createProduct("product2", 2000));
-        store2.addProduct(createProduct("product3", 3000));
-        store2.addProduct(createProduct("product4", 4000));
-        store3.addProduct(createProduct("product5", 5000));
-        store3.addProduct(createProduct("product6", 6000));
+        createTemplate();
 
-        storeRepository.saveAll(List.of(store1, store2, store3));
-
-        StoreUserFindRequest request = StoreUserFindRequest.builder()
+        LocalDate today = LocalDate.now();
+        StoreListFindRequest request = StoreListFindRequest.builder()
                 .amenities(List.of(Amenities.PARKING, Amenities.RESTAURANT))
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(1))
+                .personCount(2)
                 .build();
 
         // when
@@ -348,11 +326,119 @@ class StoreQueryDslRepositoryTest {
                 .containsExactlyInAnyOrder("경화수화");
     }
 
-    private Product createProduct(String name, int price) {
-        return Product.builder()
-                .name(name)
-                .basePrice(price)
+    @DisplayName("인원수 초과시 해당 가게는 조회되지 않는다.")
+    @Test
+    void findAllStoreWithOutPersonCountOver() {
+        // given
+        Store store1 = createStore("1", "경화수월", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
+        Store store2 = createStore("1", "경화수화", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "경기도", "시흥시");
+        Store store3 = createStore("1", "경화수수", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+        Product product3 = createProduct("product3", 3000, 2);
+        Product product4 = createProduct("product4", 4000, 2);
+        Product product5 = createProduct("product5", 5000, 2);
+        Product product6 = createProduct("product6", 6000, 2);
+
+        product1.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product1.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+        product2.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product2.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+
+        product3.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product3.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+        product4.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product4.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+
+        product5.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product5.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+        product6.addDailyInventory(createDailyInventory(LocalDate.now(), 0));                           // product6 조회 x
+        product6.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+
+        store1.addProduct(product1);
+        store1.addProduct(product2);
+        store2.addProduct(product3);
+        store2.addProduct(product4);
+        store3.addProduct(product5);
+        store3.addProduct(product6);
+
+        storeRepository.saveAll(List.of(store1, store2, store3));
+
+        LocalDate today = LocalDate.now();
+        StoreListFindRequest request = StoreListFindRequest.builder()
+                .checkInDate(today)
+                .checkOutDate(today.plusDays(1))
+                .personCount(2)
                 .build();
+
+        // when
+        List<Store> result = storeQueryDslRepository.findAllByFetchJoin(request, PageRequest.of(0, 3)).stream().toList();
+
+        // then
+        assertThat(result).hasSize(3);
+
+    }
+
+    @DisplayName("가게ID로 조회시 인원수 초과로 조회되지 않는다.")
+    @Test
+    void findOne() {
+        // given
+        Store store1 = createStore("1", "경화수월", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+
+        product1.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product1.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+        product2.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product2.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+
+        store1.addProduct(product1);
+        store1.addProduct(product2);
+
+        Store savedStore = storeRepository.save(store1);
+
+        // when
+        Store findStore = storeQueryDslRepository.findOne(savedStore.getId(), LocalDate.now(), LocalDate.now().plusDays(1), 3).orElse(null);
+
+        // then
+        assertThat(findStore).isNull();
+    }
+
+    private List<Store> createTemplate() {
+        Store store1 = createStore("1", "경화수월", List.of(Amenities.PARKING, Amenities.BAR_LOUNGE), Category.HOTEL, "서울시", "강남구");
+        Store store2 = createStore("1", "경화수화", List.of(Amenities.PARKING, Amenities.RESTAURANT), Category.PENSION, "경기도", "시흥시");
+        Store store3 = createStore("1", "경화수수", List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED), Category.GLAMPING, "서울시", "강남구");
+
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+        Product product3 = createProduct("product3", 3000, 2);
+        Product product4 = createProduct("product4", 4000, 2);
+        Product product5 = createProduct("product5", 5000, 2);
+        Product product6 = createProduct("product6", 6000, 2);
+
+        product1.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product1.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+        product2.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product2.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+
+        product3.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product3.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+        product4.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product4.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+
+        product5.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
+        product5.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+        product6.addDailyInventory(createDailyInventory(LocalDate.now(), 1));                           // product6 조회 x
+        product6.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
+
+        store1.addProduct(product1);
+        store1.addProduct(product2);
+        store2.addProduct(product3);
+        store2.addProduct(product4);
+        store3.addProduct(product5);
+        store3.addProduct(product6);
+
+        return storeRepository.saveAll(List.of(store1, store2, store3));
     }
 
     private Store createStore(String hostId, String name, List<Amenities> amenities, Category category, String province, String city) {
@@ -364,6 +450,21 @@ class StoreQueryDslRepositoryTest {
                 .amenities(amenities)
                 .checkInTime(LocalTime.now())
                 .checkOutTime(LocalTime.now())
+                .build();
+    }
+
+    private Product createProduct(String name, int price, int maxCapacity) {
+        return Product.builder()
+                .name(name)
+                .basePrice(price)
+                .maxCapacity(maxCapacity)
+                .build();
+    }
+
+    private DailyInventory createDailyInventory(LocalDate date, int stock) {
+        return DailyInventory.builder()
+                .date(date)
+                .stockAvailable(stock)
                 .build();
     }
 

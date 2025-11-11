@@ -1,5 +1,6 @@
 package com.example.inventory.store.dto.response;
 
+import com.example.inventory.product.entity.Product;
 import com.example.inventory.store.entity.Address;
 import com.example.inventory.store.entity.Amenities;
 import com.example.inventory.store.entity.Category;
@@ -29,25 +30,26 @@ public class StoreResponse {
     private String rules;
     private List<Amenities> amenities;
     private int minPrice;
+    private List<Product> products;
 
     public static StoreResponse of(Store store, int minPrice) {
-        return StoreResponse.builder()
-                .id(store.getId())
-                .hostId(store.getHostId())
-                .name(store.getName())
-                .description(store.getDescription())
-                .address(store.getAddress())
-                .category(store.getCategory())
-                .checkInTime(store.getCheckInTime())
-                .checkOutTime(store.getCheckOutTime())
-                .rating(store.getRating())
-                .reviewCount(store.getReviewCount())
-                .amenities(store.getAmenities())
+        return createBaseBuilder(store)
                 .minPrice(minPrice)
                 .build();
     }
 
     public static StoreResponse of(Store store) {
+        return createBaseBuilder(store)
+                .build();
+    }
+
+    public static StoreResponse ofWithProducts(Store store)  {
+        return createBaseBuilder(store)
+                .products(store.getProducts())
+                .build();
+    }
+
+    private static StoreResponseBuilder createBaseBuilder(Store store) {
         return StoreResponse.builder()
                 .id(store.getId())
                 .hostId(store.getHostId())
@@ -59,8 +61,6 @@ public class StoreResponse {
                 .checkOutTime(store.getCheckOutTime())
                 .rating(store.getRating())
                 .reviewCount(store.getReviewCount())
-                .amenities(store.getAmenities())
-                .build();
+                .amenities(store.getAmenities());
     }
-
 }
