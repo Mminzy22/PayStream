@@ -51,7 +51,7 @@ class StoreFindServiceTest {
 
     }
 
-//    @AfterEach
+//    @BeforeEach
 //    void tearDown() {
 //        dailyInventoryRepository.deleteAllInBatch();
 //        productRepository.deleteAllInBatch();
@@ -238,7 +238,7 @@ class StoreFindServiceTest {
         LocalDate checkOutDate = LocalDate.now().plusDays(1);
 
         // when
-        StoreResponse store = storeFindService.findStore(savedStore.getId(), checkInDate, checkOutDate);
+        StoreResponse store = storeFindService.findStore(savedStore.getId(), checkInDate, checkOutDate, 2);
 
         // then
         assertThat(store).isNotNull()
@@ -246,8 +246,8 @@ class StoreFindServiceTest {
                 .isEqualTo("testStore1");
 
         assertThat(store.getProducts()).isNotNull()
-                .extracting("id")
-                .containsExactlyInAnyOrder(1L, 2L);
+                .extracting("name")
+                .containsExactlyInAnyOrder("product1", "product2");
     }
 
     private List<Store> createTemplate() {

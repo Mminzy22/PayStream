@@ -27,8 +27,8 @@ public class StoreUpdateService {
                 .orElseThrow(EntityNotFoundException::new);
 
         // 소유주가 아닌 경우 예외를 발생
-        if(!store.getHostId().equalsIgnoreCase(request.getHostId())) {
-            throw new BadRequestException("HostIds are not match");
+        if(!store.getHostId().equals(request.getHostId())) {
+            throw new IllegalArgumentException("HostIds are not match");
         }
 
         // 확인을 통해 맞다면 수정사항들을 update

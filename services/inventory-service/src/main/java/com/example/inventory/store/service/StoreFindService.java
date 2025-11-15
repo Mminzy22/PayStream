@@ -70,11 +70,11 @@ public class StoreFindService {
      * @param checkOutDate
      * @return StoreResponse
      */
-    public StoreResponse findStore(Long id, LocalDate checkInDate, LocalDate checkOutDate) {
-        Store store = storeQueryDslRepository.findOne(id, checkInDate, checkOutDate, 2)
+    public StoreResponse findStore(Long id, LocalDate checkInDate, LocalDate checkOutDate, int personCount) {
+        Store store = storeQueryDslRepository.findOne(id, checkInDate, checkOutDate, personCount)
                 .orElseThrow(() -> new EntityNotFoundException("Store not found"));
 
-        // 체크인 날짜와 체크아웃 날짜에 재고가 있는 상품들만 노출
+
 
         return StoreResponse.ofWithProducts(store);
     }

@@ -4,9 +4,8 @@ import com.example.core.BaseResponse;
 import com.example.inventory.store.dto.request.StoreCreateRequest;
 import com.example.inventory.store.dto.request.StoreDeleteRequest;
 import com.example.inventory.store.dto.request.StoreUpdateRequest;
-import com.example.inventory.store.dto.request.StoreUserFindRequest;
+import com.example.inventory.store.dto.request.StoreListFindRequest;
 import com.example.inventory.store.dto.response.StoreResponse;
-import com.example.inventory.store.repository.StoreRepository;
 import com.example.inventory.store.service.StoreCreateService;
 import com.example.inventory.store.service.StoreDeleteService;
 import com.example.inventory.store.service.StoreFindService;
@@ -17,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -24,16 +24,24 @@ import java.util.List;
 @RequestMapping("stores")
 public class StoreController {
 
-    private final StoreFindService storeService;
+    private final StoreFindService storeFindService;
     private final StoreCreateService storeCreateService;
     private final StoreUpdateService storeUpdateService;
     private final StoreDeleteService storeDeleteService;
 
     @GetMapping
-    public BaseResponse<List<StoreResponse>> findAll(@Valid @ModelAttribute StoreUserFindRequest request,
+    public BaseResponse<List<StoreResponse>> findAll(@Valid @ModelAttribute StoreListFindRequest request,
                                                      @PageableDefault(page = 1, size = 10) Pageable pageable) {
-        List<StoreResponse> responses = storeService.userFindStoreList(request, pageable);
+        List<StoreResponse> responses = storeFindService.userFindStoreList(request, pageable);
         return BaseResponse.ok(responses);
+    }
+
+    @GetMapping("{id}")
+    public BaseResponse<StoreResponse> findById(@PathVariable Long id,
+                                                LocalDate checkInDate, LocalDate checkOutDate, int personCount) {
+        StoreResponse store = storeFindService.findStore(id, checkInDate, checkOutDate, personCount);
+
+        return BaseResponse.ok(store);
     }
 
     @PostMapping

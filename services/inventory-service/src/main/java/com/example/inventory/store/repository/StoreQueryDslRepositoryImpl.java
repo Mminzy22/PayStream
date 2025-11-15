@@ -130,17 +130,6 @@
         }
 
         private List<Long> getAndValidateInsufficientProductIds(LocalDate checkInDate, LocalDate checkOutDate) {
-            List<Long> productIdsWithRecords = jpaQueryFactory
-                    .select(dailyInventory.product.id)
-                    .from(dailyInventory)
-                    .where(dailyInventory.date.between(checkInDate, checkOutDate))
-                    .distinct()
-                    .fetch();
-
-            if (productIdsWithRecords.isEmpty()) {
-                throw new IllegalArgumentException("검색 기간 동안 Inventory 기록 자체가 존재하지 않습니다.");
-            }
-
             return jpaQueryFactory.select(dailyInventory.product.id)
                     .from(dailyInventory)
                     .where(

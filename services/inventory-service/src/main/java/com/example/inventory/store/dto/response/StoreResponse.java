@@ -1,5 +1,6 @@
 package com.example.inventory.store.dto.response;
 
+import com.example.inventory.product.dto.response.ProductResponse;
 import com.example.inventory.product.entity.Product;
 import com.example.inventory.store.entity.Address;
 import com.example.inventory.store.entity.Amenities;
@@ -30,7 +31,7 @@ public class StoreResponse {
     private String rules;
     private List<Amenities> amenities;
     private int minPrice;
-    private List<Product> products;
+    private List<ProductResponse> products;
 
     public static StoreResponse of(Store store, int minPrice) {
         return createBaseBuilder(store)
@@ -44,8 +45,12 @@ public class StoreResponse {
     }
 
     public static StoreResponse ofWithProducts(Store store)  {
+        List<ProductResponse> product = store.getProducts().stream()
+                .map(ProductResponse::of)
+                .toList();
+
         return createBaseBuilder(store)
-                .products(store.getProducts())
+                .products(product)
                 .build();
     }
 
