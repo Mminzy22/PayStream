@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public class BaseResponse<T> {
 
     private int code;
-    private HttpStatus  status;
+    private HttpStatus status;
     private String message;
     private T data;
 
@@ -31,5 +31,4 @@ public class BaseResponse<T> {
     public static <T> BaseResponse<T> ok(T data) {
         return of(HttpStatus.OK, data);
     }
-
 }

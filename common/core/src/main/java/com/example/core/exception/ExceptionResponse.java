@@ -17,5 +17,4 @@ public class ExceptionResponse {
         this.status = status;
         this.message = message;
     }
-
 }

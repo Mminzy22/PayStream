@@ -1,22 +1,19 @@
 package com.paystream.notification.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-/**
- * HealthController 단위 테스트
- */
+/** HealthController 단위 테스트 */
 @WebMvcTest(HealthController.class)
 class HealthControllerTests {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
     @Test
     @DisplayName("ping 엔드포인트 - 정상 응답 확인")
@@ -39,4 +36,3 @@ class HealthControllerTests {
                 .andExpect(jsonPath("$.description").exists());
     }
 }
-

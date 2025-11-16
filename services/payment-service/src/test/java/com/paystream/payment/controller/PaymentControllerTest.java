@@ -9,15 +9,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @WebMvcTest(PaymentController.class)
-@TestPropertySource(properties = {
-    "eureka.client.enabled=false",
-    "eureka.client.register-with-eureka=false",
-    "eureka.client.fetch-registry=false"
-})
+@TestPropertySource(
+        properties = {
+            "eureka.client.enabled=false",
+            "eureka.client.register-with-eureka=false",
+            "eureka.client.fetch-registry=false"
+        })
 class PaymentControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
     @Test
     void ping_shouldReturnOk() throws Exception {

@@ -1,4 +1,3 @@
 package com.example.core;
 
-public class CoreApplicationTest {
-}
+public class CoreApplicationTest {}
