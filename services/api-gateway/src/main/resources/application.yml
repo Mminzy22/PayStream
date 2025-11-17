@@ -15,7 +15,7 @@ management:
         exclude: health,info
     jmx:
       exposure:
-        include: *
+        include: "*"
 
 # swgger 설정
 springdoc:
