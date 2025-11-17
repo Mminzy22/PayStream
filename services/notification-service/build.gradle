@@ -32,6 +32,12 @@ dependencies {
     // Spring Web
     implementation 'org.springframework.boot:spring-boot-starter-web'
     
+    // JPA - 엔티티/리포지토리 사용을 위한 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    
+    // 개발용 내장 DB(H2) - 로컬 개발과 테스트에 사용
+    runtimeOnly 'com.h2database:h2'
+    
     // Eureka Client - 서비스 디스커버리 등록
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     
