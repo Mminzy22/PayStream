@@ -2,6 +2,7 @@ package com.paystream.notification;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
@@ -10,6 +11,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * - Kafka 이벤트 기반 알림 처리 (추후 구현)
  */
 @EnableDiscoveryClient
+@EnableJpaAuditing
 @SpringBootApplication
 public class NotificationServiceApplication {
 
