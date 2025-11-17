@@ -4,10 +4,9 @@ import com.example.inventory.store.entity.Amenities;
 import com.example.inventory.store.entity.Category;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.util.List;
+import lombok.*;
 
 @Builder
 @Getter
@@ -22,12 +21,12 @@ public class StoreListFindRequest {
     private Category category;
     private List<Amenities> amenities;
 
-    @Min(2)
+    @Min(value = 2, message = "인원수는 최소 2명 이상이어야 합니다.")
     private int personCount;
 
-    @NotNull
+    @NotNull(message = "체크인 날짜는 반드시 입력해야 합니다.")
     private LocalDate checkInDate;
 
-    @NotNull
+    @NotNull(message = "체크아웃 날짜는 반드시 입력해야 합니다.")
     private LocalDate checkOutDate;
 }

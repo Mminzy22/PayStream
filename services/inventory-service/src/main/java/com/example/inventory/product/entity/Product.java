@@ -4,14 +4,13 @@ import com.example.core.BaseEntity;
 import com.example.inventory.inventory.entity.DailyInventory;
 import com.example.inventory.store.entity.Store;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -21,7 +20,9 @@ import java.util.List;
 @DynamicUpdate // update시 변경된 필드만 쿼리에 포함
 @DynamicInsert // insert시 null은 제외
 @SQLRestriction("deleted = false") // 엔티티 검색 시 자동으로 where 절에 추가
-@SQLDelete(sql = "update product set deleted = true, updated_at = CURRENT_TIMESTAMP where id = ?") // 엔티티 삭제 시 사용할 쿼리 (soft delete)
+@SQLDelete(
+        sql =
+                "update product set deleted = true, updated_at = CURRENT_TIMESTAMP where id = ?") // 엔티티 삭제 시 사용할 쿼리 (soft delete)
 public class Product extends BaseEntity {
 
     @Id
@@ -45,11 +46,15 @@ public class Product extends BaseEntity {
 
     // '상품' 하나는 '여러' 날짜별 재고를 가진다.
     @Builder.Default
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private List<DailyInventory> dailyInventories = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Photo> photos = new ArrayList<>();
+    //    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    //    private List<Photo> photos = new ArrayList<>();
 
     public void addDailyInventory(DailyInventory dailyInventory) {
         dailyInventories.add(dailyInventory);

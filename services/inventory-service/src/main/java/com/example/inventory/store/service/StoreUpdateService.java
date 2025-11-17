@@ -1,14 +1,11 @@
 package com.example.inventory.store.service;
 
-import com.example.core.BaseResponse;
 import com.example.inventory.store.dto.request.StoreUpdateRequest;
 import com.example.inventory.store.dto.response.StoreResponse;
 import com.example.inventory.store.entity.Store;
 import com.example.inventory.store.repository.StoreRepository;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +20,10 @@ public class StoreUpdateService {
         // 실제 있는 hostId인지 검증
 
         // hostId를 통해 해당 가게의 소유주가 맞는지 확인
-        Store store = storeRepository.findById(id)
-                .orElseThrow(EntityNotFoundException::new);
+        Store store = storeRepository.findById(id).orElseThrow(EntityNotFoundException::new);
 
         // 소유주가 아닌 경우 예외를 발생
-        if(!store.getHostId().equals(request.getHostId())) {
+        if (!store.getHostId().equals(request.getHostId())) {
             throw new IllegalArgumentException("HostIds are not match");
         }
 
@@ -36,5 +32,4 @@ public class StoreUpdateService {
 
         return StoreResponse.of(store);
     }
-
 }

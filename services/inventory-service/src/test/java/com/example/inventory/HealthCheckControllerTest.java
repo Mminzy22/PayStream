@@ -14,21 +14,15 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @WebMvcTest(HealthCheckController.class)
 class HealthCheckControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
     @DisplayName("actuator health 체크")
     @Test
     void application_heath_check() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/inventory/ping")
-                )
+        mockMvc.perform(MockMvcRequestBuilders.get("/inventory/ping"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.service").value("inventory-service"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("UP"))
-        ;
-
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("UP"));
     }
-
 }

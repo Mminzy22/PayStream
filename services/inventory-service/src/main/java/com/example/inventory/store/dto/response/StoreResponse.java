@@ -1,15 +1,13 @@
 package com.example.inventory.store.dto.response;
 
 import com.example.inventory.product.dto.response.ProductResponse;
-import com.example.inventory.product.entity.Product;
 import com.example.inventory.store.entity.Address;
 import com.example.inventory.store.entity.Amenities;
 import com.example.inventory.store.entity.Category;
 import com.example.inventory.store.entity.Store;
-import lombok.*;
-
 import java.time.LocalTime;
 import java.util.List;
+import lombok.*;
 
 @ToString
 @Builder
@@ -34,24 +32,18 @@ public class StoreResponse {
     private List<ProductResponse> products;
 
     public static StoreResponse of(Store store, int minPrice) {
-        return createBaseBuilder(store)
-                .minPrice(minPrice)
-                .build();
+        return createBaseBuilder(store).minPrice(minPrice).build();
     }
 
     public static StoreResponse of(Store store) {
-        return createBaseBuilder(store)
-                .build();
+        return createBaseBuilder(store).build();
     }
 
-    public static StoreResponse ofWithProducts(Store store)  {
-        List<ProductResponse> product = store.getProducts().stream()
-                .map(ProductResponse::of)
-                .toList();
+    public static StoreResponse ofWithProducts(Store store) {
+        List<ProductResponse> product =
+                store.getProducts().stream().map(ProductResponse::of).toList();
 
-        return createBaseBuilder(store)
-                .products(product)
-                .build();
+        return createBaseBuilder(store).products(product).build();
     }
 
     private static StoreResponseBuilder createBaseBuilder(Store store) {

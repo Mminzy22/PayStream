@@ -1,7 +1,6 @@
 package com.example.inventory.store.entity;
 
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

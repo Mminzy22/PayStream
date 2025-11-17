@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Amenities {
-
     WIFI("와이파이"),
     PARKING("주차 가능"),
     SWIMMING_POOL("수영장"),
@@ -17,8 +16,7 @@ public enum Amenities {
     TWENTY_FOUR_HOUR_DESK("24시간 프론트 데스크"),
     BREAKFAST_INCLUDED("조식 포함"),
     PET_FRIENDLY("반려동물 동반 가능"),
-    EV_CHARGING_STATION("전기차 충전소")
-    ;
+    EV_CHARGING_STATION("전기차 충전소");
 
     private final String displayName;
 
@@ -26,5 +24,4 @@ public enum Amenities {
     public String getDisplayName() {
         return displayName;
     }
-
 }
