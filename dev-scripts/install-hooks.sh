@@ -19,8 +19,8 @@ if [ ! -d "$GITHOOKS_DIR" ]; then
 fi
 
 if [ ! -d "$GIT_HOOKS_DIR" ]; then
-    echo "😈 오류: .git/hooks 디렉토리를 찾을 수 없습니다. Git 저장소인지 확인해주세요."
-    exit 1
+    echo "⚠️  .git/hooks 디렉토리가 없어서 생성합니다..."
+    mkdir -p "$GIT_HOOKS_DIR"
 fi
 
 # githooks/의 모든 hooks를 .git/hooks/로 복사

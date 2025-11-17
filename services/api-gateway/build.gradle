@@ -40,6 +40,7 @@ dependencies {
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0'
 
+    // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
