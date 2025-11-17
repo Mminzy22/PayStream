@@ -12,12 +12,12 @@ public enum ExceptionEnum {
     INTERNAL_SERVER_ERROR("E0003", HttpStatus.INTERNAL_SERVER_ERROR),
 
     /*
-        inventory-service -> I0001
-        notification-service -> N0001
-        order-service -> O0001
-        payment-service -> P0001
-        user-service -> U0001
-     */
+       inventory-service -> I0001
+       notification-service -> N0001
+       order-service -> O0001
+       payment-service -> P0001
+       user-service -> U0001
+    */
 
     STORE_NOT_FOUND("I0001", HttpStatus.NOT_FOUND, "존재하지 않는 가게입니다."),
     ;

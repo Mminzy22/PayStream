@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# PayStream 프로젝트용 Pre-commit hook
+# 커밋 전에 코드 품질을 검사합니다
+#
+
+# 출력을 stderr로 리다이렉트
+exec 1>&2
+
+echo "Pre-commit 검사 실행 중..."
+
+# 스테이징된 Java 파일이 있는지 확인
+staged_java_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.java$' || true)
+
+if [ -z "$staged_java_files" ]; then
+    echo "스테이징된 Java 파일이 없습니다. 검사를 건너뜁니다."
+    echo "❤️ Pre-commit 검사 통과"
+    exit 0
+fi
+
+# Spotless: 자동 포맷팅 적용
+echo "Spotless로 코드 포맷팅 적용 중..."
+./gradlew spotlessApply --quiet --no-daemon
+
+if [ $? -ne 0 ]; then
+    echo "😈 Spotless 포맷팅 실패. 커밋 전에 문제를 해결해주세요."
+    exit 1
+fi
+
+# 포맷팅된 파일이 있으면 다시 스테이징
+formatted_files=$(git diff --name-only | grep -E '\.java$' || true)
+if [ -n "$formatted_files" ]; then
+    echo "포맷팅된 파일을 스테이징 영역에 추가합니다..."
+    echo "$formatted_files" | xargs git add
+fi
+
+# Checkstyle: 코드 스타일 검사
+echo "Checkstyle로 코드 스타일 검사 중..."
+./gradlew checkstyleMain checkstyleTest --quiet --no-daemon
+
+if [ $? -ne 0 ]; then
+    echo "😈 Checkstyle 검사 실패. 커밋 전에 문제를 해결해주세요."
+    echo "자세한 내용은 ./build/reports/checkstyle/ 를 확인하세요."
+    exit 1
+fi
+
+echo "❤️ Pre-commit 검사 통과"
+exit 0

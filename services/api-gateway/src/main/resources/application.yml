@@ -32,15 +32,12 @@ spring:
     name: ApiGateway
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-            - id: user-service
-              uri: lb://user-service
-              predicates:
-                - Path=/api/users/** # /api/users 으로 들어온 경우 user-service로 request 전달
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/** # /api/users 으로 들어온 경우 user-service로 request 전달
     #                - Method-GET, POST # GET, POST만 들어오게 함
-              filters:
-                - name: AuthenticationFilter # 인증 필터
-                - RewritePath=/api/users/(?<segment>.*), /users/$\{segment} # /api/users/1 -> /users/1
-                - AddRequestHeader=X-Service-Name, user-service # 헤더 정보에 user-service를 남겨 어떤 경로로 가는지 확인
+          filters:
+            - RewritePath=/api/users/(?<segment>.*), /users/$\{segment} # /api/users/1 -> /users/1
+            - AddRequestHeader=X-Service-Name, user-service # 헤더 정보에 user-service를 남겨 어떤 경로로 가는지 확인

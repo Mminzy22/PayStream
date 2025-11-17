@@ -11,5 +11,4 @@ public class PayStreamException extends RuntimeException {
         super(e.getMessage());
         this.error = e;
     }
-
 }

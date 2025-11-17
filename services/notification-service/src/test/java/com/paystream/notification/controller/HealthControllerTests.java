@@ -1,5 +1,8 @@
 package com.paystream.notification.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,17 +11,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-/**
- * HealthController 단위 테스트
- */
+/** HealthController 단위 테스트 */
 @WebMvcTest(HealthController.class)
 class HealthControllerTests {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
     // JPA Auditing에서 요구하는 매핑 컨텍스트를 목으로 등록해 WebMvcTest에서 DB 의존성을 제거
     @MockBean
@@ -45,4 +42,3 @@ class HealthControllerTests {
                 .andExpect(jsonPath("$.description").exists());
     }
 }
-
