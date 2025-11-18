@@ -1,9 +1,9 @@
 package com.paystream.inventory.store.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.paystream.core.BaseEntity;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.store.dto.request.StoreUpdateRequest;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 import java.util.ArrayList;

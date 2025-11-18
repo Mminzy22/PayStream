@@ -1,7 +1,7 @@
 package com.paystream.inventory.inventory.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.paystream.inventory.product.entity.Product;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.*;
