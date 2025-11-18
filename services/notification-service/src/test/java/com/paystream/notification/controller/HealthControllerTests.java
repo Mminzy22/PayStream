@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** HealthController 단위 테스트 */
@@ -14,6 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 class HealthControllerTests {
 
     @Autowired private MockMvc mockMvc;
+
+    // JPA Auditing에서 요구하는 매핑 컨텍스트를 목으로 등록해 WebMvcTest에서 DB 의존성을 제거
+    @MockBean private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @Test
     @DisplayName("ping 엔드포인트 - 정상 응답 확인")
