@@ -7,7 +7,6 @@ spring:
   config:
     activate:
       on-profile: test
-
   h2:
     console:
       enabled: true
@@ -26,3 +25,7 @@ spring:
         show_sql: true
         highlight_sql: true
         default_batch_fetch_size: 1000
+
+eureka:
+  client:
+    enabled: false

@@ -5,7 +5,7 @@ spring:
   application:
     name: inventory-service
   profiles:
-    active: local
+    default: local
 
 eureka:
   client:
