@@ -3,9 +3,9 @@ plugins {
     id 'maven-publish' // 라이브러리 게시를 위한 플러그인
 }
 
-group = 'com.example'
+group = 'com.PayStream'
 version = '0.0.1-SNAPSHOT'
-description = 'common-core'
+description = 'Common Core'
 
 java {
     toolchain {
