@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("stores")
+@RequestMapping("/stores")
 public class StoreController {
 
     private final StoreFindService storeFindService;
@@ -46,20 +46,20 @@ public class StoreController {
     }
 
     @PostMapping
-    public BaseResponse<Long> created(@RequestBody StoreCreateRequest request) {
+    public BaseResponse<Long> created(@Valid @RequestBody StoreCreateRequest request) {
         Long id = storeCreateService.create(request);
         return BaseResponse.created(id);
     }
 
     @PutMapping("{id}")
     public BaseResponse<StoreResponse> updated(
-            @PathVariable Long id, @RequestBody StoreUpdateRequest request) {
+            @PathVariable Long id, @Valid @RequestBody StoreUpdateRequest request) {
         StoreResponse response = storeUpdateService.update(id, request);
         return BaseResponse.ok(response);
     }
 
     @DeleteMapping
-    public BaseResponse<String> deleted(@RequestBody StoreDeleteRequest request) {
+    public BaseResponse<String> deleted(@Valid @RequestBody StoreDeleteRequest request) {
         storeDeleteService.deleted(request);
         return BaseResponse.ok("성공적으로 제거 되었습니다.");
     }

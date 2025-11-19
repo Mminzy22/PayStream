@@ -1,5 +1,8 @@
 package com.paystream.inventory.store.service;
 
+import static com.paystream.core.exception.ExceptionEnum.*;
+
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.store.dto.request.StoreDeleteRequest;
 import com.paystream.inventory.store.entity.Store;
 import com.paystream.inventory.store.repository.StoreRepository;
@@ -20,8 +23,7 @@ public class StoreDeleteService {
         List<Store> existedStore = storeRepository.findByIdIn(request.getStoreIds());
 
         if (existedStore.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Store with ids " + request.getStoreIds() + " does not exist");
+            throw new PayStreamException(STORE_NOT_FOUND);
         }
 
         // 조회된 가게들의 host가 요청한 host가 맞는지 확인
@@ -29,12 +31,12 @@ public class StoreDeleteService {
                 existedStore.stream()
                         .allMatch(store -> store.getHostId().equals(request.getHostId()));
         if (!isHostExclusive) {
-            throw new IllegalArgumentException("가게 주인이 맞는지 다시 확인해주세요.");
+            throw new PayStreamException(STORE_ACCESS_DENIED);
         }
 
         // 조회된 가게들 중 요청한 가게가 포함되어있지 않는지 확인
         if (request.getStoreIds().size() != existedStore.size()) {
-            throw new IllegalArgumentException("삭제가 불가능한 가게가 있습니다 다시 확인해주세요.");
+            throw new PayStreamException(STORE_DELETION_BLOCKED);
         }
 
         // 확인이 되었다면 삭제

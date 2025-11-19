@@ -2,6 +2,8 @@ package com.paystream.inventory.store.service;
 
 import static java.util.stream.Collectors.*;
 
+import com.paystream.core.exception.ExceptionEnum;
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.store.dto.request.StoreListFindRequest;
@@ -34,9 +36,17 @@ public class StoreFindService {
         Pageable pageable =
                 PageRequest.of(reqPageable.getPageNumber() - 1, reqPageable.getPageSize());
 
-        Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(request, pageable);
-        if (!stores.hasContent()) {
-            throw new EntityNotFoundException("Store not found");
+        Page<Store> stores = null;
+
+        try {
+            stores = storeQueryDslRepository.findAllByFetchJoin(request, pageable);
+            if (!stores.hasContent()) {
+                throw new EntityNotFoundException("Store not found");
+            }
+        } catch (EntityNotFoundException e) {
+            throw new PayStreamException(ExceptionEnum.STORE_NOT_FOUND);
+        } catch (Exception e) {
+            throw new PayStreamException(ExceptionEnum.INTERNAL_SERVER_ERROR);
         }
 
         Map<Long, Integer> storeMap =
@@ -70,10 +80,18 @@ public class StoreFindService {
      */
     public StoreResponse findStore(
             Long id, LocalDate checkInDate, LocalDate checkOutDate, int personCount) {
-        Store store =
-                storeQueryDslRepository
-                        .findOne(id, checkInDate, checkOutDate, personCount)
-                        .orElseThrow(() -> new EntityNotFoundException("Store not found"));
+        Store store = null;
+
+        try {
+            store =
+                    storeQueryDslRepository
+                            .findOne(id, checkInDate, checkOutDate, personCount)
+                            .orElseThrow(() -> new EntityNotFoundException("Store not found"));
+        } catch (EntityNotFoundException e) {
+            throw new PayStreamException(ExceptionEnum.STORE_NOT_FOUND);
+        } catch (Exception e) {
+            throw new PayStreamException(ExceptionEnum.INTERNAL_SERVER_ERROR);
+        }
 
         return StoreResponse.ofWithProducts(store);
     }

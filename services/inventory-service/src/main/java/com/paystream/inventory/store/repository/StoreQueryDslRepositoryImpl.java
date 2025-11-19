@@ -3,14 +3,12 @@ package com.paystream.inventory.store.repository;
 import static com.paystream.inventory.inventory.entity.QDailyInventory.dailyInventory;
 import static com.paystream.inventory.product.entity.QProduct.product;
 import static com.paystream.inventory.store.entity.QStore.store;
+import static com.paystream.inventory.store.repository.StorePredicate.*;
 
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.store.dto.request.StoreListFindRequest;
-import com.paystream.inventory.store.entity.Amenities;
-import com.paystream.inventory.store.entity.Category;
 import com.paystream.inventory.store.entity.QStore;
 import com.paystream.inventory.store.entity.Store;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -170,58 +168,5 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
 
         // products가 하나도 없으면 해당 store는 List에서 제거
         return stores.stream().filter(store -> !store.getProducts().isEmpty()).toList();
-    }
-
-    private BooleanExpression nameLike(String name) {
-        if (name == null || name.isEmpty()) {
-            return null;
-        }
-
-        String searchName = "%" + name + "%";
-        return store.name.like(searchName);
-    }
-
-    private BooleanExpression categoryEqual(Category category) {
-        if (category == null) {
-            return null;
-        }
-
-        return store.category.eq(category);
-    }
-
-    private BooleanExpression addressEqual(String province, String city) {
-        if (province == null || province.isEmpty()) {
-            return null;
-        }
-
-        if (city == null || city.isEmpty()) {
-            return null;
-        }
-
-        return store.address.province.eq(province).and(store.address.city.eq(city));
-    }
-
-    private BooleanExpression amenitiesAllMatch(List<Amenities> amenities) {
-        if (amenities == null || amenities.isEmpty()) {
-            return null;
-        }
-
-        BooleanExpression result = null;
-
-        for (Amenities amenity : amenities) {
-            try {
-                BooleanExpression currentCondition = store.amenities.contains(amenity);
-
-                if (result == null) {
-                    result = currentCondition;
-                } else {
-                    result = result.and(currentCondition);
-                }
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid amenity: " + amenity);
-            }
-        }
-
-        return result;
     }
 }

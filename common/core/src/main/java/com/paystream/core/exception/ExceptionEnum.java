@@ -20,6 +20,9 @@ public enum ExceptionEnum {
     */
 
     STORE_NOT_FOUND("I0001", HttpStatus.NOT_FOUND, "존재하지 않는 가게입니다."),
+    STORE_ALREADY_EXISTS("I0002", HttpStatus.CONFLICT, "이미 존재하는 가게 이름입니다."),
+    STORE_DELETION_BLOCKED("I0003", HttpStatus.CONFLICT, "삭제가 불가능한 가게가 있습니다 다시 확인해주세요."),
+    STORE_ACCESS_DENIED("I0004", HttpStatus.FORBIDDEN, "가게 주인이 맞는지 다시 확인해주세요."),
     ;
 
     private String code;

@@ -1,5 +1,8 @@
 package com.paystream.inventory.store.service;
 
+import static com.paystream.core.exception.ExceptionEnum.STORE_ACCESS_DENIED;
+
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.store.dto.request.StoreUpdateRequest;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.entity.Store;
@@ -24,7 +27,7 @@ public class StoreUpdateService {
 
         // 소유주가 아닌 경우 예외를 발생
         if (!store.getHostId().equals(request.getHostId())) {
-            throw new IllegalArgumentException("HostIds are not match");
+            throw new PayStreamException(STORE_ACCESS_DENIED);
         }
 
         // 확인을 통해 맞다면 수정사항들을 update

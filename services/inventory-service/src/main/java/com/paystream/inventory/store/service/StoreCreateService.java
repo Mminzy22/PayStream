@@ -1,5 +1,8 @@
 package com.paystream.inventory.store.service;
 
+import static com.paystream.core.exception.ExceptionEnum.STORE_ALREADY_EXISTS;
+
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.store.dto.request.StoreCreateRequest;
 import com.paystream.inventory.store.entity.Store;
 import com.paystream.inventory.store.repository.StoreRepository;
@@ -22,7 +25,7 @@ public class StoreCreateService {
         // 2. 동일한 이름의 가게가 이미 등록되어 있는지 확인
         Boolean existsName = storeRepository.existsByName(store.getName());
         if (existsName) {
-            throw new IllegalArgumentException("이미 존재하는 가게 이름입니다.");
+            throw new PayStreamException(STORE_ALREADY_EXISTS);
         }
 
         return storeRepository.save(store).getId();
