@@ -7,6 +7,7 @@ import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.product.repository.ProductRepository;
+import com.paystream.inventory.store.dto.request.StoreFindRequest;
 import com.paystream.inventory.store.dto.request.StoreListFindRequest;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.entity.Address;
@@ -255,9 +256,15 @@ class StoreFindServiceTest {
         LocalDate checkInDate = LocalDate.now();
         LocalDate checkOutDate = LocalDate.now().plusDays(1);
 
+        StoreFindRequest request =
+                StoreFindRequest.builder()
+                        .checkInDate(checkInDate)
+                        .checkOutDate(checkOutDate)
+                        .personCount(2)
+                        .build();
+
         // when
-        StoreResponse store =
-                storeFindService.findStore(savedStore.getId(), checkInDate, checkOutDate, 2);
+        StoreResponse store = storeFindService.findStore(savedStore.getId(), request);
 
         // then
         assertThat(store).isNotNull().extracting("name").isEqualTo("testStore1");

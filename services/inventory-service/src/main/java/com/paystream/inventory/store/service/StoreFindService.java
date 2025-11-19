@@ -6,12 +6,12 @@ import com.paystream.core.exception.ExceptionEnum;
 import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
+import com.paystream.inventory.store.dto.request.StoreFindRequest;
 import com.paystream.inventory.store.dto.request.StoreListFindRequest;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.entity.Store;
 import com.paystream.inventory.store.repository.StoreQueryDslRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,14 +78,17 @@ public class StoreFindService {
      * @param checkOutDate
      * @return StoreResponse
      */
-    public StoreResponse findStore(
-            Long id, LocalDate checkInDate, LocalDate checkOutDate, int personCount) {
+    public StoreResponse findStore(Long id, StoreFindRequest request) {
         Store store = null;
 
         try {
             store =
                     storeQueryDslRepository
-                            .findOne(id, checkInDate, checkOutDate, personCount)
+                            .findOne(
+                                    id,
+                                    request.getCheckInDate(),
+                                    request.getCheckOutDate(),
+                                    request.getPersonCount())
                             .orElseThrow(() -> new EntityNotFoundException("Store not found"));
         } catch (EntityNotFoundException e) {
             throw new PayStreamException(ExceptionEnum.STORE_NOT_FOUND);

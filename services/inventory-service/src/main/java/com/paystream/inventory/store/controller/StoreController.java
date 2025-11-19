@@ -1,17 +1,13 @@
 package com.paystream.inventory.store.controller;
 
 import com.paystream.core.BaseResponse;
-import com.paystream.inventory.store.dto.request.StoreCreateRequest;
-import com.paystream.inventory.store.dto.request.StoreDeleteRequest;
-import com.paystream.inventory.store.dto.request.StoreListFindRequest;
-import com.paystream.inventory.store.dto.request.StoreUpdateRequest;
+import com.paystream.inventory.store.dto.request.*;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.service.StoreCreateService;
 import com.paystream.inventory.store.service.StoreDeleteService;
 import com.paystream.inventory.store.service.StoreFindService;
 import com.paystream.inventory.store.service.StoreUpdateService;
 import jakarta.validation.Valid;
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -38,9 +34,8 @@ public class StoreController {
 
     @GetMapping("{id}")
     public BaseResponse<StoreResponse> findById(
-            @PathVariable Long id, LocalDate checkInDate, LocalDate checkOutDate, int personCount) {
-        StoreResponse store =
-                storeFindService.findStore(id, checkInDate, checkOutDate, personCount);
+            @PathVariable Long id, @Valid @ModelAttribute StoreFindRequest request) {
+        StoreResponse store = storeFindService.findStore(id, request);
 
         return BaseResponse.ok(store);
     }
