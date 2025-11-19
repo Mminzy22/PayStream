@@ -1,17 +1,14 @@
 package com.paystream.inventory;
 
+import com.paystream.core.exception.PayStreamExceptionAdvice;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
 @EnableDiscoveryClient
 @SpringBootApplication
-@ComponentScan(
-        basePackages = {
-            "com.paystream.inventory", // 기존 패키지
-            "com.paystream.core" // Core 모듈의 상위 패키지 추가
-        })
+@Import(PayStreamExceptionAdvice.class)
 public class InventoryApplication {
 
     public static void main(String[] args) {

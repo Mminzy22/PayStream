@@ -5,6 +5,7 @@ import static com.paystream.inventory.store.entity.Amenities.PARKING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.store.dto.request.StoreDeleteRequest;
@@ -47,7 +48,7 @@ class StoreDeleteServiceTest {
         // when
         // then
         assertThatThrownBy(() -> storeDeleteService.deleted(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(PayStreamException.class)
                 .hasMessage("삭제가 불가능한 가게가 있습니다 다시 확인해주세요.");
     }
 

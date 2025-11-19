@@ -25,10 +25,10 @@ public class StoreCreateRequest {
     @NotBlank(message = "가게 이름은 반드시 입력해야 합니다.")
     private String name;
 
-    @NotBlank(message = "도/시 정보는 반드시 입력되어야 합니다.")
+    @NotNull(message = "도/시 정보는 반드시 입력되어야 합니다.")
     private Address address;
 
-    @NotBlank(message = "카테고리는 필수 선택 항목입니다.")
+    @NotNull(message = "카테고리는 필수 선택 항목입니다.")
     private Category category;
 
     @NotNull(message = "체크인 시간은 필수 입력 항목입니다.")
