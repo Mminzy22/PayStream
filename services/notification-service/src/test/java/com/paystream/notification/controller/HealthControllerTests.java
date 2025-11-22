@@ -18,8 +18,7 @@ class HealthControllerTests {
     @Autowired private MockMvc mockMvc;
 
     // JPA Auditing에서 요구하는 매핑 컨텍스트를 목으로 등록해 WebMvcTest에서 DB 의존성을 제거
-    @MockBean
-    private JpaMetamodelMappingContext jpaMetamodelMappingContext;
+    @MockBean private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @Test
     @DisplayName("ping 엔드포인트 - 정상 응답 확인")

@@ -8,10 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * 공통 베이스 엔티티
- * - 소프트 삭제 플래그와 생성/수정 시간 자동 기록
- */
+/** 공통 베이스 엔티티 - 소프트 삭제 플래그와 생성/수정 시간 자동 기록 */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
@@ -30,13 +27,19 @@ public abstract class BaseEntity {
     @Column(name = "updated_at", nullable = false)
     protected LocalDateTime updatedAt;
 
-    public boolean isDeleted() { return deleted; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public boolean isDeleted() {
+        return deleted;
+    }
 
-    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 }
-
-
-
-

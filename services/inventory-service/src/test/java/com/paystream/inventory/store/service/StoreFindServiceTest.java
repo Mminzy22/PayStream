@@ -1,0 +1,374 @@
+package com.paystream.inventory.store.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+
+import com.paystream.inventory.inventory.entity.DailyInventory;
+import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
+import com.paystream.inventory.product.entity.Product;
+import com.paystream.inventory.product.repository.ProductRepository;
+import com.paystream.inventory.store.dto.request.StoreFindRequest;
+import com.paystream.inventory.store.dto.request.StoreListFindRequest;
+import com.paystream.inventory.store.dto.response.StoreResponse;
+import com.paystream.inventory.store.entity.Address;
+import com.paystream.inventory.store.entity.Amenities;
+import com.paystream.inventory.store.entity.Category;
+import com.paystream.inventory.store.entity.Store;
+import com.paystream.inventory.store.repository.StoreRepository;
+import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.test.context.ActiveProfiles;
+
+@Transactional
+@ActiveProfiles("test")
+@SpringBootTest
+class StoreFindServiceTest {
+
+    @Autowired private StoreFindService storeService;
+
+    @Autowired private StoreRepository storeRepository;
+    @Autowired private ProductRepository productRepository;
+    @Autowired private DailyInventoryRepository dailyInventoryRepository;
+    @Autowired private StoreFindService storeFindService;
+
+    @EnableJpaAuditing
+    @TestConfiguration
+    static class TestConfig {}
+
+    //    @BeforeEach
+    //    void tearDown() {
+    //        dailyInventoryRepository.deleteAllInBatch();
+    //        productRepository.deleteAllInBatch();
+    //        storeRepository.deleteAllInBatch();
+    //    }
+
+    @DisplayName("가게 전체 조회시 상품의 최저 금액이 같이 조회된다.")
+    @Test
+    void findAllWithMinPrice() {
+        // given
+        createTemplate();
+
+        StoreListFindRequest request =
+                StoreListFindRequest.builder()
+                        .checkInDate(LocalDate.now())
+                        .checkOutDate(LocalDate.now().plusDays(1))
+                        .build();
+
+        // when
+        List<StoreResponse> response =
+                storeService.userFindStoreList(request, PageRequest.of(1, 3));
+
+        // then
+        assertThat(response)
+                .hasSize(3)
+                .extracting("name", "minPrice")
+                .containsExactlyInAnyOrder(
+                        tuple("testStore1", 1000),
+                        tuple("testStore2", 3000),
+                        tuple("testStore3", 5000));
+    }
+
+    @DisplayName("가게 전체 조회 with 페이징")
+    @Test
+    void findAllWithPaging() {
+        // given
+        int page = 1;
+        int size = 2;
+        createTemplate();
+
+        StoreListFindRequest request =
+                StoreListFindRequest.builder()
+                        .checkInDate(LocalDate.now())
+                        .checkOutDate(LocalDate.now().plusDays(1))
+                        .build();
+
+        // when
+        List<StoreResponse> responses =
+                storeService.userFindStoreList(request, PageRequest.of(page, size));
+
+        // then
+        assertThat(responses)
+                .hasSize(size)
+                .extracting("name", "minPrice")
+                .containsExactlyInAnyOrder(tuple("testStore1", 1000), tuple("testStore2", 3000));
+    }
+
+    @DisplayName("재고가 있는 상품의 가게만 조회된다.")
+    @Test
+    void findAllWithAvailableStock() {
+        // given
+        Store store1 =
+                createStore(
+                        "1",
+                        "testStore1",
+                        List.of(Amenities.PARKING, Amenities.BAR_LOUNGE),
+                        Category.HOTEL);
+        Store store2 =
+                createStore(
+                        "1",
+                        "testStore2",
+                        List.of(Amenities.PARKING, Amenities.RESTAURANT),
+                        Category.PENSION);
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+        store1.addProduct(product1);
+        store2.addProduct(product2);
+        product1.addDailyInventory(
+                DailyInventory.builder().date(LocalDate.now()).stockAvailable(1).build());
+        product2.addDailyInventory(
+                DailyInventory.builder().date(LocalDate.now()).stockAvailable(0).build());
+
+        storeRepository.saveAll(List.of(store1, store2));
+
+        LocalDate checkIn = LocalDate.now();
+        LocalDate checkOut = LocalDate.now().plusDays(1);
+
+        StoreListFindRequest request =
+                StoreListFindRequest.builder().checkInDate(checkIn).checkOutDate(checkOut).build();
+
+        // when
+        List<StoreResponse> response =
+                storeService.userFindStoreList(request, PageRequest.of(1, 3));
+
+        // then
+        assertThat(response)
+                .hasSize(1)
+                .extracting("name", "minPrice")
+                .contains(tuple("testStore1", 1000));
+    }
+
+    @DisplayName("기간을 더 늘렷을때 정상적으로 조회되는지 확인")
+    @Test
+    void findAllWithAvailableStock2() {
+        // given
+        Store store1 =
+                createStore(
+                        "1",
+                        "testStore1",
+                        List.of(Amenities.PARKING, Amenities.BAR_LOUNGE),
+                        Category.HOTEL);
+        Store store2 =
+                createStore(
+                        "2",
+                        "testStore2",
+                        List.of(Amenities.PARKING, Amenities.RESTAURANT),
+                        Category.PENSION);
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+        store1.addProduct(product1);
+        store2.addProduct(product2);
+        product1.addDailyInventory(
+                DailyInventory.builder().date(LocalDate.now()).stockAvailable(1).build());
+        product1.addDailyInventory(
+                DailyInventory.builder()
+                        .date(LocalDate.now().plusDays(1))
+                        .stockAvailable(1)
+                        .build());
+        product1.addDailyInventory(
+                DailyInventory.builder()
+                        .date(LocalDate.now().plusDays(2))
+                        .stockAvailable(1)
+                        .build());
+        product2.addDailyInventory(
+                DailyInventory.builder().date(LocalDate.now()).stockAvailable(0).build());
+        product2.addDailyInventory(
+                DailyInventory.builder()
+                        .date(LocalDate.now().plusDays(1))
+                        .stockAvailable(0)
+                        .build());
+        product2.addDailyInventory(
+                DailyInventory.builder()
+                        .date(LocalDate.now().plusDays(2))
+                        .stockAvailable(1)
+                        .build());
+
+        List<Store> stores = storeRepository.saveAll(List.of(store1, store2));
+        for (Store store : stores) {
+            System.out.println("store = " + store);
+        }
+
+        LocalDate checkIn = LocalDate.now().plusDays(1);
+        LocalDate checkOut = LocalDate.now().plusDays(3);
+
+        StoreListFindRequest request =
+                StoreListFindRequest.builder().checkInDate(checkIn).checkOutDate(checkOut).build();
+
+        // when
+        List<StoreResponse> response =
+                storeService.userFindStoreList(request, PageRequest.of(1, 3));
+        for (StoreResponse storeResponse : response) {
+            System.out.println("storeResponse = " + storeResponse);
+        }
+
+        // then
+        assertThat(response)
+                .hasSize(1)
+                .extracting("name", "minPrice")
+                .contains(tuple("testStore1", 1000));
+    }
+
+    @Transactional
+    @DisplayName("가게 1개 조회, 재고가 없는 상품은 조회되지 않는다.")
+    @Test
+    void findStore() {
+        // given
+        LocalDate today = LocalDate.now();
+
+        Store store1 =
+                createStore(
+                        "1",
+                        "testStore1",
+                        List.of(Amenities.PARKING, Amenities.BAR_LOUNGE),
+                        Category.HOTEL);
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+        Product product3 = createProduct("product3", 3000, 2);
+
+        product1.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(1) // 재고 1개
+                        .build());
+        product2.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(2) // 재고 2개
+                        .build());
+        product3.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(0) // 재고 0개 (품절)
+                        .build());
+        store1.addProduct(product1);
+        store1.addProduct(product2);
+        store1.addProduct(product3);
+        Store savedStore = storeRepository.save(store1);
+
+        LocalDate checkInDate = LocalDate.now();
+        LocalDate checkOutDate = LocalDate.now().plusDays(1);
+
+        StoreFindRequest request =
+                StoreFindRequest.builder()
+                        .checkInDate(checkInDate)
+                        .checkOutDate(checkOutDate)
+                        .personCount(2)
+                        .build();
+
+        // when
+        StoreResponse store = storeFindService.findStore(savedStore.getId(), request);
+
+        // then
+        assertThat(store).isNotNull().extracting("name").isEqualTo("testStore1");
+
+        assertThat(store.getProducts())
+                .isNotNull()
+                .extracting("name")
+                .containsExactlyInAnyOrder("product1", "product2");
+    }
+
+    private List<Store> createTemplate() {
+        Store store1 =
+                createStore(
+                        "1",
+                        "testStore1",
+                        List.of(Amenities.PARKING, Amenities.BAR_LOUNGE),
+                        Category.HOTEL);
+        Store store2 =
+                createStore(
+                        "1",
+                        "testStore2",
+                        List.of(Amenities.PARKING, Amenities.RESTAURANT),
+                        Category.PENSION);
+        Store store3 =
+                createStore(
+                        "1",
+                        "testStore3",
+                        List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED),
+                        Category.GLAMPING);
+
+        // Product 생성
+        Product product1 = createProduct("product1", 1000, 2);
+        Product product2 = createProduct("product2", 2000, 2);
+        Product product3 = createProduct("product3", 3000, 2);
+        Product product4 = createProduct("product4", 4000, 2);
+        Product product5 = createProduct("product5", 5000, 2);
+        Product product6 = createProduct("product6", 6000, 2);
+
+        // 오늘 날짜 설정
+        LocalDate today = LocalDate.now();
+
+        // DailyInventory 추가
+        // store1 (HOTEL)
+        product1.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(1) // 재고 1개
+                        .build());
+        product2.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(2) // 재고 2개
+                        .build());
+
+        // store2 (PENSION)
+        product3.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(1) // 재고 0개 (품절)
+                        .build());
+        product4.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(5) // 재고 5개
+                        .build());
+
+        // store3 (GLAMPING)
+        product5.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(3) // 재고 3개
+                        .build());
+        product6.addDailyInventory(
+                DailyInventory.builder()
+                        .date(today)
+                        .stockAvailable(1) // 재고 1개
+                        .build());
+
+        // Store에 Product 추가
+        store1.addProduct(product1);
+        store1.addProduct(product2);
+        store2.addProduct(product3);
+        store2.addProduct(product4);
+        store3.addProduct(product5);
+        store3.addProduct(product6);
+
+        // Repository 저장
+        return storeRepository.saveAll(List.of(store1, store2, store3));
+    }
+
+    private Product createProduct(String name, int price, int maxCapacity) {
+        return Product.builder().name(name).basePrice(price).maxCapacity(maxCapacity).build();
+    }
+
+    private Store createStore(
+            String hostId, String name, List<Amenities> amenities, Category category) {
+        return Store.builder()
+                .hostId(hostId)
+                .name(name)
+                .address(new Address("서울시", "강남구"))
+                .category(category)
+                .amenities(amenities)
+                .checkInTime(LocalTime.now())
+                .checkOutTime(LocalTime.now())
+                .build();
+    }
+}

@@ -1,18 +1,15 @@
 package com.paystream.notification.domain;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
-/**
- * Notification 엔티티
- * - 하나의 알림 메시지 단위
- */
+/** Notification 엔티티 - 하나의 알림 메시지 단위 */
 @Entity
-@Table(name = "notification",
+@Table(
+        name = "notification",
         indexes = {
-                @Index(name = "idx_notification_user_status", columnList = "user_id,status"),
-                @Index(name = "idx_notification_scheduled_at", columnList = "scheduled_at")
+            @Index(name = "idx_notification_user_status", columnList = "user_id,status"),
+            @Index(name = "idx_notification_scheduled_at", columnList = "scheduled_at")
         })
 public class Notification extends BaseEntity {
 
@@ -56,26 +53,79 @@ public class Notification extends BaseEntity {
     @Column(name = "template_code", length = 100)
     private String templateCode;
 
-    public Long getId() { return id; }
-    public Long getUserId() { return userId; }
-    public NotificationChannel getChannel() { return channel; }
-    public String getTitle() { return title; }
-    public String getBody() { return body; }
-    public NotificationStatus getStatus() { return status; }
-    public LocalDateTime getScheduledAt() { return scheduledAt; }
-    public LocalDateTime getSentAt() { return sentAt; }
-    public int getRetryCount() { return retryCount; }
-    public String getTemplateCode() { return templateCode; }
+    public Long getId() {
+        return id;
+    }
 
-    public void setUserId(Long userId) { this.userId = userId; }
-    public void setChannel(NotificationChannel channel) { this.channel = channel; }
-    public void setTitle(String title) { this.title = title; }
-    public void setBody(String body) { this.body = body; }
-    public void setStatus(NotificationStatus status) { this.status = status; }
-    public void setScheduledAt(LocalDateTime scheduledAt) { this.scheduledAt = scheduledAt; }
-    public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
-    public void setRetryCount(int retryCount) { this.retryCount = retryCount; }
-    public void setTemplateCode(String templateCode) { this.templateCode = templateCode; }
+    public Long getUserId() {
+        return userId;
+    }
+
+    public NotificationChannel getChannel() {
+        return channel;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public NotificationStatus getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getScheduledAt() {
+        return scheduledAt;
+    }
+
+    public LocalDateTime getSentAt() {
+        return sentAt;
+    }
+
+    public int getRetryCount() {
+        return retryCount;
+    }
+
+    public String getTemplateCode() {
+        return templateCode;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public void setChannel(NotificationChannel channel) {
+        this.channel = channel;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public void setStatus(NotificationStatus status) {
+        this.status = status;
+    }
+
+    public void setScheduledAt(LocalDateTime scheduledAt) {
+        this.scheduledAt = scheduledAt;
+    }
+
+    public void setSentAt(LocalDateTime sentAt) {
+        this.sentAt = sentAt;
+    }
+
+    public void setRetryCount(int retryCount) {
+        this.retryCount = retryCount;
+    }
+
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
+    }
 }
-
-
