@@ -15,6 +15,55 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      common_core: ${{ steps.changes.outputs.common_core }}
+      api_gateway: ${{ steps.changes.outputs.api_gateway }}
+      eureka_server: ${{ steps.changes.outputs.eureka_server }}
+      inventory_service: ${{ steps.changes.outputs.inventory_service }}
+      notification_service: ${{ steps.changes.outputs.notification_service }}
+      order_service: ${{ steps.changes.outputs.order_service }}
+      payment_service: ${{ steps.changes.outputs.payment_service }}
+      user_service: ${{ steps.changes.outputs.user_service }}
+      any: ${{ steps.changes.outputs.any }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect module changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            common_core:
+              - 'common/core/**'
+            api_gateway:
+              - 'services/api-gateway/**'
+            eureka_server:
+              - 'services/eureka-server/**'
+            inventory_service:
+              - 'services/inventory-service/**'
+            notification_service:
+              - 'services/notification-service/**'
+            order_service:
+              - 'services/order-service/**'
+            payment_service:
+              - 'services/payment-service/**'
+            user_service:
+              - 'services/user-service/**'
+            any:
+              - 'build.gradle'
+              - 'settings.gradle'
+              - 'gradle/**'
+              - 'gradlew*'
+              - '.github/workflows/**'
+              - 'common/core/**'
+              - 'services/**'
+
   build-and-test:
     runs-on: ubuntu-latest
     permissions:
