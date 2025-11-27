@@ -76,8 +76,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Placeholder
-        run: echo "common-core build placeholder"
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test common-core
+        run: ./gradlew :common:core:spotlessCheck :common:core:checkstyleMain :common:core:checkstyleTest :common:core:test
 
   build-api-gateway:
     name: Build api-gateway
@@ -91,8 +105,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Placeholder
-        run: echo "api-gateway build placeholder"
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test api-gateway
+        run: ./gradlew :services:api-gateway:spotlessCheck :services:api-gateway:checkstyleMain :services:api-gateway:checkstyleTest :services:api-gateway:test
 
   build-eureka-server:
     name: Build eureka-server
@@ -106,8 +134,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Placeholder
-        run: echo "eureka-server build placeholder"
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test eureka-server
+        run: ./gradlew :services:eureka-server:spotlessCheck :services:eureka-server:checkstyleMain :services:eureka-server:checkstyleTest :services:eureka-server:test
 
   build-inventory-service:
     name: Build inventory-service
@@ -121,8 +163,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Placeholder
-        run: echo "inventory-service build placeholder"
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test inventory-service
+        run: ./gradlew :services:inventory-service:spotlessCheck :services:inventory-service:checkstyleMain :services:inventory-service:checkstyleTest :services:inventory-service:test
 
   build-notification-service:
     name: Build notification-service
@@ -136,8 +192,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Placeholder
-        run: echo "notification-service build placeholder"
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test notification-service
+        run: ./gradlew :services:notification-service:spotlessCheck :services:notification-service:checkstyleMain :services:notification-service:checkstyleTest :services:notification-service:test
 
   build-order-service:
     name: Build order-service
@@ -151,8 +221,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Placeholder
-        run: echo "order-service build placeholder"
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test order-service
+        run: ./gradlew :services:order-service:spotlessCheck :services:order-service:checkstyleMain :services:order-service:checkstyleTest :services:order-service:test
 
   build-payment-service:
     name: Build payment-service
@@ -166,8 +250,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Placeholder
-        run: echo "payment-service build placeholder"
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test payment-service
+        run: ./gradlew :services:payment-service:spotlessCheck :services:payment-service:checkstyleMain :services:payment-service:checkstyleTest :services:payment-service:test
 
   build-user-service:
     name: Build user-service
@@ -181,5 +279,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Placeholder
-        run: echo "user-service build placeholder"
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test user-service
+        run: ./gradlew :services:user-service:spotlessCheck :services:user-service:checkstyleMain :services:user-service:checkstyleTest :services:user-service:test
