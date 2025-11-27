@@ -31,7 +31,7 @@ springdoc:
 
 spring:
   application:
-    name: ApiGateway
+    name: api-gateway
   cloud:
     gateway:
       server:
