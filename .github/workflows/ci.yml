@@ -64,29 +64,122 @@ jobs:
               - 'common/core/**'
               - 'services/**'
 
-  build-and-test:
+  build-common-core:
+    name: Build common-core
+    needs: detect-changes
+    if: needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Placeholder
+        run: echo "common-core build placeholder"
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+  build-api-gateway:
+    name: Build api-gateway
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api_gateway == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          distribution: temurin
-          java-version: '17'
-          cache: gradle
+          fetch-depth: 0
+      - name: Placeholder
+        run: echo "api-gateway build placeholder"
 
-      - name: Grant execute permission for Gradle
-        run: chmod +x gradlew
+  build-eureka-server:
+    name: Build eureka-server
+    needs: detect-changes
+    if: needs.detect-changes.outputs.eureka_server == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Placeholder
+        run: echo "eureka-server build placeholder"
 
-      - name: Run tests
-        run: ./gradlew clean test
+  build-inventory-service:
+    name: Build inventory-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.inventory_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Placeholder
+        run: echo "inventory-service build placeholder"
+
+  build-notification-service:
+    name: Build notification-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.notification_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Placeholder
+        run: echo "notification-service build placeholder"
+
+  build-order-service:
+    name: Build order-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.order_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Placeholder
+        run: echo "order-service build placeholder"
+
+  build-payment-service:
+    name: Build payment-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.payment_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Placeholder
+        run: echo "payment-service build placeholder"
+
+  build-user-service:
+    name: Build user-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.user_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Placeholder
+        run: echo "user-service build placeholder"
