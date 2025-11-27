@@ -295,3 +295,44 @@ jobs:
 
       - name: Lint & Test user-service
         run: ./gradlew :services:user-service:spotlessCheck :services:user-service:checkstyleMain :services:user-service:checkstyleTest :services:user-service:test
+
+  ci-status:
+    name: CI Status
+    needs:
+      - detect-changes
+      - build-common-core
+      - build-api-gateway
+      - build-eureka-server
+      - build-inventory-service
+      - build-notification-service
+      - build-order-service
+      - build-payment-service
+      - build-user-service
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Summarize job results
+        run: |
+          echo "detect-changes: ${{ needs.detect-changes.result }}"
+          echo "common-core: ${{ needs.build-common-core.result }}"
+          echo "api-gateway: ${{ needs.build-api-gateway.result }}"
+          echo "eureka-server: ${{ needs.build-eureka-server.result }}"
+          echo "inventory-service: ${{ needs.build-inventory-service.result }}"
+          echo "notification-service: ${{ needs.build-notification-service.result }}"
+          echo "order-service: ${{ needs.build-order-service.result }}"
+          echo "payment-service: ${{ needs.build-payment-service.result }}"
+          echo "user-service: ${{ needs.build-user-service.result }}"
+
+          if [[ "${{ needs.build-common-core.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-api-gateway.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-eureka-server.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-inventory-service.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-notification-service.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-order-service.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-payment-service.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-user-service.result }}" == "failure" ]]; then
+            echo "CI failed"
+            exit 1
+          else
+            echo "CI passed"
+          fi
