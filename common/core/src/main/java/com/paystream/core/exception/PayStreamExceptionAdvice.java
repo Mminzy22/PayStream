@@ -37,7 +37,7 @@ public class PayStreamExceptionAdvice {
         return ExceptionResponse.builder()
                 .code(HttpStatus.BAD_REQUEST.toString())
                 .status(HttpStatus.BAD_REQUEST)
-                .message("유효성 검사 실패: " + e.getMessage())
+                .message("유효성 검사 실패: " + errorMessage)
                 .build();
     }
 }
