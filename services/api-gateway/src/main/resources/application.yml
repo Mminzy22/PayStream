@@ -21,13 +21,14 @@ management:
         include: "*"
 
 springdoc:
-  api-docs:
-    enabled: true
   swagger-ui:
-    enabled: true
-    tagsSorter: alpha
-    operations-sorter: alpha
-    display-request-duration: true
+    urls[0]:
+      name: 상품 및 재고 서비스
+      url: http://localhost:8000/api/inventory/v3/api-docs
+    urls[1]:
+      name: 알림 서비스
+      url: http://localhost:8000/api/notification/v3/api-docs
+
 
 spring:
   application:
@@ -44,6 +45,14 @@ spring:
               filters:
                 - RewritePath=/api/users/(?<segment>.*), /users/${segment}
                 - AddRequestHeader=X-Service-Name, user-service
+
+            - id: inventory-service-swagger
+              uri: lb://inventory-service
+              predicates:
+                - Path=/api/inventory/v3/api-docs/**
+                - Method=GET
+              filters:
+                - RewritePath=/api/inventory/(?<path>.*), /$\{path}
 
             - id: inventory-service-stores-root
               uri: lb://inventory-service
