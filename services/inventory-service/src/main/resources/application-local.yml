@@ -8,9 +8,9 @@ spring:
   # DB 설정
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres # local -> docker postgresql
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres} # local -> docker postgresql
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
   jpa:
     open-in-view: false
     hibernate:
