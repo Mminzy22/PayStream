@@ -2,6 +2,23 @@ spring:
   config:
     activate:
       on-profile: local
+  # DB 설정
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        highlight_sql: true
+        default_batch_fetch_size: 1000
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8084
@@ -19,3 +36,4 @@ logging:
     com.paystream.payment: DEBUG
     org.springframework.cloud: DEBUG
     org.springframework.web: DEBUG
+    org.hibernate.type.descriptor.sql: DEBUG
