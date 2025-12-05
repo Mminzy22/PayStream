@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: notification-service-test
+  cloud:
+    discovery:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    hostname: localhost
