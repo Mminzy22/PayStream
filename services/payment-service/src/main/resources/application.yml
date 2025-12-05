@@ -16,6 +16,16 @@ management:
     health:
       show-details: when-authorized
 
+# Swagger 설정
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    tagsSorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+
 eureka:
   client:
     service-url:
