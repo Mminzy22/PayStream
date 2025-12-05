@@ -46,10 +46,29 @@ dependencies {
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // JPA + H2 (로컬)
+    // DB & JPA
+    runtimeOnly 'org.postgresql:postgresql' // local, dev
+    runtimeOnly 'com.h2database:h2' // test
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    runtimeOnly 'com.h2database:h2'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // Password Encoding
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Redis - 토큰 블랙리스트 관리
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Swagger - API 문서화
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
+    // 공통 라이브러리 가져옴
+    implementation project(':common:core')
 
 }
 
