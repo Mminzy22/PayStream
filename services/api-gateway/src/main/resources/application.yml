@@ -69,3 +69,12 @@ spring:
               filters:
                 - RewritePath=/api/stores/(?<segment>.*), /stores/$\{segment}
                 - AddRequestHeader=X-Service-Name, inventory-service
+
+
+# 인증 로직을 거치지 않는 Endpoint
+whitelist:
+  paths:
+    - /swagger-ui/**
+    - /v3/api-docs/**
+    - /swagger-ui.html
+    - /stores

@@ -34,13 +34,24 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String description;
-    private String thumbnail;
+
+    //    private String thumbnail;
+
+    @Column(nullable = false)
     private int minCapacity; // 최소 수용인원
+
+    @Column(nullable = false)
     private int maxCapacity; // 최대 수용인원
 
+    @Column(nullable = false)
     private int basePrice;
+
+    @Column(nullable = false)
     private int personAddPrice; // 인원 추가 비용
 
     // '상품' 하나는 '여러' 날짜별 재고를 가진다.
