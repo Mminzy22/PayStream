@@ -42,7 +42,6 @@ public class Product extends BaseEntity {
 
     private int basePrice;
     private int personAddPrice; // 인원 추가 비용
-    private int baseStock; // 초기 재고
 
     // '상품' 하나는 '여러' 날짜별 재고를 가진다.
     @Builder.Default
