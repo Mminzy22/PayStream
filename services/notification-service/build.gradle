@@ -47,6 +47,9 @@ dependencies {
     // Actuator - 헬스 체크 및 모니터링
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     
+    // Swagger - API 문서화
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+    
     // Kafka - 이벤트 기반 알림 수신 (추후 활성화)
     // implementation 'org.springframework.kafka:spring-kafka'
     
