@@ -15,19 +15,70 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      common_core: ${{ steps.changes.outputs.common_core }}
+      api_gateway: ${{ steps.changes.outputs.api_gateway }}
+      eureka_server: ${{ steps.changes.outputs.eureka_server }}
+      inventory_service: ${{ steps.changes.outputs.inventory_service }}
+      notification_service: ${{ steps.changes.outputs.notification_service }}
+      order_service: ${{ steps.changes.outputs.order_service }}
+      payment_service: ${{ steps.changes.outputs.payment_service }}
+      user_service: ${{ steps.changes.outputs.user_service }}
+      any: ${{ steps.changes.outputs.any }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect module changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            common_core:
+              - 'common/core/**'
+            api_gateway:
+              - 'services/api-gateway/**'
+            eureka_server:
+              - 'services/eureka-server/**'
+            inventory_service:
+              - 'services/inventory-service/**'
+            notification_service:
+              - 'services/notification-service/**'
+            order_service:
+              - 'services/order-service/**'
+            payment_service:
+              - 'services/payment-service/**'
+            user_service:
+              - 'services/user-service/**'
+            any:
+              - 'build.gradle'
+              - 'settings.gradle'
+              - 'gradle/**'
+              - 'gradlew*'
+              - '.github/workflows/**'
+              - 'common/core/**'
+              - 'services/**'
+
+  build-common-core:
+    name: Build common-core
+    needs: detect-changes
+    if: needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -39,5 +90,249 @@ jobs:
       - name: Grant execute permission for Gradle
         run: chmod +x gradlew
 
-      - name: Run tests
-        run: ./gradlew clean test
+      - name: Lint & Test common-core
+        run: ./gradlew :common:core:spotlessCheck :common:core:checkstyleMain :common:core:checkstyleTest :common:core:test
+
+  build-api-gateway:
+    name: Build api-gateway
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api_gateway == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test api-gateway
+        run: ./gradlew :services:api-gateway:spotlessCheck :services:api-gateway:checkstyleMain :services:api-gateway:checkstyleTest :services:api-gateway:test
+
+  build-eureka-server:
+    name: Build eureka-server
+    needs: detect-changes
+    if: needs.detect-changes.outputs.eureka_server == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test eureka-server
+        run: ./gradlew :services:eureka-server:spotlessCheck :services:eureka-server:checkstyleMain :services:eureka-server:checkstyleTest :services:eureka-server:test
+
+  build-inventory-service:
+    name: Build inventory-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.inventory_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test inventory-service
+        run: ./gradlew :services:inventory-service:spotlessCheck :services:inventory-service:checkstyleMain :services:inventory-service:checkstyleTest :services:inventory-service:test
+
+  build-notification-service:
+    name: Build notification-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.notification_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test notification-service
+        run: ./gradlew :services:notification-service:spotlessCheck :services:notification-service:checkstyleMain :services:notification-service:checkstyleTest :services:notification-service:test
+
+  build-order-service:
+    name: Build order-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.order_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test order-service
+        run: ./gradlew :services:order-service:spotlessCheck :services:order-service:checkstyleMain :services:order-service:checkstyleTest :services:order-service:test
+
+  build-payment-service:
+    name: Build payment-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.payment_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test payment-service
+        run: ./gradlew :services:payment-service:spotlessCheck :services:payment-service:checkstyleMain :services:payment-service:checkstyleTest :services:payment-service:test
+
+  build-user-service:
+    name: Build user-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.user_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Lint & Test user-service
+        run: ./gradlew :services:user-service:spotlessCheck :services:user-service:checkstyleMain :services:user-service:checkstyleTest :services:user-service:test
+
+  ci-status:
+    name: CI Status
+    needs:
+      - detect-changes
+      - build-common-core
+      - build-api-gateway
+      - build-eureka-server
+      - build-inventory-service
+      - build-notification-service
+      - build-order-service
+      - build-payment-service
+      - build-user-service
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Summarize job results
+        run: |
+          echo "detect-changes: ${{ needs.detect-changes.result }}"
+          echo "common-core: ${{ needs.build-common-core.result }}"
+          echo "api-gateway: ${{ needs.build-api-gateway.result }}"
+          echo "eureka-server: ${{ needs.build-eureka-server.result }}"
+          echo "inventory-service: ${{ needs.build-inventory-service.result }}"
+          echo "notification-service: ${{ needs.build-notification-service.result }}"
+          echo "order-service: ${{ needs.build-order-service.result }}"
+          echo "payment-service: ${{ needs.build-payment-service.result }}"
+          echo "user-service: ${{ needs.build-user-service.result }}"
+
+          if [[ "${{ needs.build-common-core.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-api-gateway.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-eureka-server.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-inventory-service.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-notification-service.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-order-service.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-payment-service.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-user-service.result }}" == "failure" ]]; then
+            echo "CI failed"
+            exit 1
+          else
+            echo "CI passed"
+          fi
