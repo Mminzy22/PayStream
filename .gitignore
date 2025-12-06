@@ -254,6 +254,7 @@ gradle-app.setting
 *.hprof
 
 ### Environment Variables ###
+# .env 파일 (비밀 정보 포함 가능)
 .env
 .env.local
 .env.*.local
