@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: user-service-test
+  profiles:
+    active: test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+
+server:
+  port: 0  # 랜덤 포트 사용
+
+eureka:
+  client:
+    enabled: false  # 테스트 시 Eureka 비활성화
+    register-with-eureka: false
+    fetch-registry: false
+
+jwt:
+  secret: test-secret-key-for-jwt-token-generation-in-test-environment-only
+  access-token-expiration: 3600000
+  refresh-token-expiration: 604800000
+
+logging:
+  level:
+    com.paystream.user: DEBUG
+
