@@ -43,7 +43,7 @@ class AuthControllerTest {
     @MockBean private UserCreateService userCreateService;
 
     @Test
-    void signup_shouldReturnCreated() throws Exception {
+    void signupShouldReturnCreated() throws Exception {
         // given
         SignupRequest request =
                 SignupRequest.builder()
@@ -66,7 +66,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void signup_withInvalidRequest_shouldReturnBadRequest() throws Exception {
+    void signupWithInvalidRequestShouldReturnBadRequest() throws Exception {
         // given
         SignupRequest request =
                 SignupRequest.builder()
@@ -84,7 +84,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_shouldReturnOk() throws Exception {
+    void loginShouldReturnOk() throws Exception {
         // given
         LoginRequest request =
                 LoginRequest.builder().email("test@example.com").password("password123").build();
@@ -109,7 +109,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void refreshToken_shouldReturnOk() throws Exception {
+    void refreshTokenShouldReturnOk() throws Exception {
         // given
         RefreshTokenRequest request =
                 RefreshTokenRequest.builder().refreshToken("refresh-token").build();
@@ -133,7 +133,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void logout_withValidToken_shouldReturnOk() throws Exception {
+    void logoutWithValidTokenShouldReturnOk() throws Exception {
         // given
         String accessToken = "Bearer valid-access-token";
 
@@ -147,7 +147,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void logout_withoutToken_shouldReturnBadRequest() throws Exception {
+    void logoutWithoutTokenShouldReturnBadRequest() throws Exception {
         // when & then
         mockMvc.perform(post("/users/logout").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());

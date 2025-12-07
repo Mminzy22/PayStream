@@ -24,7 +24,7 @@ class PingControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @Test
-    void ping_shouldReturnOk() throws Exception {
+    void pingShouldReturnOk() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/users/ping"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.service").value("user-service"))

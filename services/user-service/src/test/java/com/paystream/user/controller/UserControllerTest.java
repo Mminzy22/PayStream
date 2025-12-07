@@ -47,7 +47,7 @@ class UserControllerTest {
     @MockBean private UserDeleteService userDeleteService;
 
     @Test
-    void findById_shouldReturnOk() throws Exception {
+    void findByIdShouldReturnOk() throws Exception {
         // given
         Long userId = 1L;
         UserResponse userResponse =
@@ -64,7 +64,7 @@ class UserControllerTest {
     }
 
     @Test
-    void update_shouldReturnOk() throws Exception {
+    void updateShouldReturnOk() throws Exception {
         // given
         Long userId = 1L;
         UserUpdateRequest request =
@@ -92,7 +92,7 @@ class UserControllerTest {
     }
 
     @Test
-    void delete_shouldReturnOk() throws Exception {
+    void deleteShouldReturnOk() throws Exception {
         // given
         Long userId = 1L;
 
