@@ -15,17 +15,18 @@ import com.paystream.user.service.AuthService;
 import com.paystream.user.service.UserCreateService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(
-        controllers = AuthController.class,
-        excludeAutoConfiguration = {
-            org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
-        })
+@ActiveProfiles("test")
+@AutoConfigureMockMvc(addFilters = false)
+@SpringBootTest
 @TestPropertySource(
         properties = {
             "eureka.client.enabled=false",
@@ -38,9 +39,11 @@ class AuthControllerTest {
 
     @Autowired private ObjectMapper objectMapper;
 
-    @MockBean private AuthService authService;
+    @MockitoBean private AuthService authService;
 
-    @MockBean private UserCreateService userCreateService;
+    @MockitoBean private UserCreateService userCreateService;
+
+    @MockitoBean private RedisConnectionFactory redisConnectionFactory;
 
     @Test
     void signupShouldReturnCreated() throws Exception {
@@ -61,7 +64,8 @@ class AuthControllerTest {
                         post("/users/signup")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CREATED"))
                 .andExpect(jsonPath("$.data").value(1L));
     }
 
@@ -80,7 +84,8 @@ class AuthControllerTest {
                         post("/users/signup")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"));
     }
 
     @Test
@@ -150,6 +155,8 @@ class AuthControllerTest {
     void logoutWithoutTokenShouldReturnBadRequest() throws Exception {
         // when & then
         mockMvc.perform(post("/users/logout").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Authorization 헤더에 Bearer 토큰이 필요합니다."));
     }
 }

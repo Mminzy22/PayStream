@@ -17,17 +17,18 @@ import com.paystream.user.service.UserFindService;
 import com.paystream.user.service.UserUpdateService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(
-        controllers = UserController.class,
-        excludeAutoConfiguration = {
-            org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
-        })
+@ActiveProfiles("test")
+@AutoConfigureMockMvc(addFilters = false)
+@SpringBootTest
 @TestPropertySource(
         properties = {
             "eureka.client.enabled=false",
@@ -40,11 +41,13 @@ class UserControllerTest {
 
     @Autowired private ObjectMapper objectMapper;
 
-    @MockBean private UserFindService userFindService;
+    @MockitoBean private UserFindService userFindService;
 
-    @MockBean private UserUpdateService userUpdateService;
+    @MockitoBean private UserUpdateService userUpdateService;
 
-    @MockBean private UserDeleteService userDeleteService;
+    @MockitoBean private UserDeleteService userDeleteService;
+
+    @MockitoBean private RedisConnectionFactory redisConnectionFactory;
 
     @Test
     void findByIdShouldReturnOk() throws Exception {
