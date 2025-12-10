@@ -1,8 +1,11 @@
 package com.paystream.apigateway.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paystream.apigateway.properties.WhitelistProperties;
 import com.paystream.apigateway.util.JwtUtil;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
@@ -27,10 +30,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private final WhitelistProperties whitelistProperties;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtUtil jwtUtil;
+    private final ObjectMapper objectMapper;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String traceId = exchange.getAttributes().get("traceId").toString();
         ServerHttpRequest request = exchange.getRequest();
 
         boolean isWhitelist = isWhitelist(request);
@@ -51,8 +54,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                     request.mutate().header("X-Auth-User-Id", String.valueOf(userId)).build();
 
             log.info(
-                    "[Trace-ID: {}] AuthenticationFilter SUCCESS | User-ID: {} | Forwarding with X-Auth-User-Id",
-                    traceId,
+                    "Request Id: {}, AuthenticationFilter SUCCESS | User-ID: {} | Forwarding with X-Auth-User-Id",
+                    request.getId(),
                     userId);
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());
@@ -79,20 +82,36 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {
-        String traceId = exchange.getAttributes().get("traceId").toString();
+        ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
 
         response.setStatusCode(httpStatus);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        String responseBody =
-                String.format(
-                        "{\"code\": \"%s\", \"message\": \"%s\"}",
-                        httpStatus.value(), "토큰이 유효하지 않습니다.");
+        Map<String, Object> exceptionResponse =
+                Map.of(
+                        "code",
+                        httpStatus.value(),
+                        "status",
+                        httpStatus,
+                        "message",
+                        "토큰이 유효하지 않습니다.");
+
+        String responseBody = null;
+        try {
+            responseBody = objectMapper.writeValueAsString(exceptionResponse);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         byte[] bytes = responseBody.getBytes(StandardCharsets.UTF_8);
         DataBuffer buffer = response.bufferFactory().wrap(bytes);
 
-        log.error("[Trace-ID: {}] Authentication FAILED: {} -> {}", traceId, httpStatus, err);
+        log.error(
+                "Request Id: {}, Authentication FAILED: {} -> {}",
+                request.getId(),
+                httpStatus,
+                err);
 
         return response.writeWith(Mono.just(buffer));
     }

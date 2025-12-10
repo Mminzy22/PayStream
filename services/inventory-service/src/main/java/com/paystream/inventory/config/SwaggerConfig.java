@@ -3,6 +3,8 @@ package com.paystream.inventory.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,7 +13,14 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        return new OpenAPI().components(new Components()).info(apiInfo());
+        return new OpenAPI()
+                .components(new Components())
+                .info(apiInfo())
+                .servers(
+                        List.of(
+                                new Server()
+                                        .url("http://localhost:8000/api")
+                                        .description("API Gateway")));
     }
 
     private Info apiInfo() {
