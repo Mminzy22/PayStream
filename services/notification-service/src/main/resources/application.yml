@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: notification-service
+  profiles:
+    active: local # 기본 실행 프로필 (application-local.yml 불러옴)
 
 # Eureka Client 설정
 eureka:

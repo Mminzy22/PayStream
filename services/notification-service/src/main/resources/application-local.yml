@@ -1,0 +1,29 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  # H2 데이터베이스 설정 (로컬 개발용)
+  datasource:
+    url: jdbc:h2:mem:notificationdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA/Hibernate 설정
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 개발 환경에서는 자동으로 테이블 생성/삭제
+    show-sql: true # SQL 로그 출력
+    properties:
+      hibernate:
+        format_sql: true # SQL 포맷팅
+
+logging:
+  level:
+    root: INFO
+    com.paystream.notification: DEBUG
+    org.springframework.cloud: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.type.descriptor.sql: DEBUG # JPA SQL 로그
+
