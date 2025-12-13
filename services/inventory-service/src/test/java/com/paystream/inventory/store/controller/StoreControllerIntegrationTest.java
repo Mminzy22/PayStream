@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paystream.core.BaseResponse;
+import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.store.dto.request.StoreCreateRequest;
@@ -30,6 +31,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -96,7 +100,11 @@ public class StoreControllerIntegrationTest {
 
         List<StoreResponse> expectedResponse =
                 List.of(StoreResponse.of(foundStore, 25000), StoreResponse.of(foundStore2, 30000));
-        BaseResponse<List<StoreResponse>> result = BaseResponse.ok(expectedResponse);
+        Page<StoreResponse> pageResponse =
+                new PageImpl<>(expectedResponse, PageRequest.of(0, 10), expectedResponse.size());
+
+        BaseResponse<PageResponse<StoreResponse>> result =
+                BaseResponse.ok(new PageResponse<>(pageResponse));
 
         // when
         // then
@@ -146,7 +154,12 @@ public class StoreControllerIntegrationTest {
     }
 
     private Product createProduct(String name, int price, int maxCapacity) {
-        return Product.builder().name(name).basePrice(price).maxCapacity(maxCapacity).build();
+        return Product.builder()
+                .name(name)
+                .description("test")
+                .basePrice(price)
+                .maxCapacity(maxCapacity)
+                .build();
     }
 
     private Store createStore(

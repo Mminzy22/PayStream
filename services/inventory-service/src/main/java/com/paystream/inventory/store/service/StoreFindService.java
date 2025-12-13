@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.*;
 
 import com.paystream.core.exception.ExceptionEnum;
 import com.paystream.core.exception.PayStreamException;
+import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.store.dto.request.StoreFindRequest;
@@ -16,6 +17,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class StoreFindService {
     private final DailyInventoryRepository dailyInventoryRepository;
 
     // 조회 성능 향상을 위한 Redis 캐싱 기능 추가하기
-    public List<StoreResponse> userFindStoreList(
+    public PageResponse<StoreResponse> userFindStoreList(
             StoreListFindRequest request, Pageable reqPageable) {
         Pageable pageable =
                 PageRequest.of(reqPageable.getPageNumber() - 1, reqPageable.getPageSize());
@@ -61,21 +63,25 @@ public class StoreFindService {
                                                         .orElse(0)));
 
         // 가게별 상품의 최저 금액 계산
-        return stores.stream()
-                .map(
-                        store -> {
-                            int minPrice = storeMap.get(store.getId());
-                            return StoreResponse.of(store, minPrice);
-                        })
-                .toList();
+        List<StoreResponse> responseList =
+                stores.stream()
+                        .map(
+                                store -> {
+                                    int minPrice = storeMap.get(store.getId());
+                                    return StoreResponse.of(store, minPrice);
+                                })
+                        .toList();
+
+        Page<StoreResponse> response =
+                new PageImpl<>(responseList, stores.getPageable(), stores.getTotalElements());
+        return new PageResponse<>(response);
     }
 
     /**
      * 가게 상세 조회
      *
      * @param id
-     * @param checkInDate
-     * @param checkOutDate
+     * @param request
      * @return StoreResponse
      */
     public StoreResponse findStore(Long id, StoreFindRequest request) {

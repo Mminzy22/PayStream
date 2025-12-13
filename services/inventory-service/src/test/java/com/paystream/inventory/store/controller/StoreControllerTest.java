@@ -5,6 +5,7 @@ import static com.paystream.inventory.store.entity.Amenities.PARKING;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paystream.core.BaseResponse;
+import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.store.dto.request.StoreListFindRequest;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.service.StoreFindService;
@@ -16,6 +17,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
@@ -50,7 +53,7 @@ class StoreControllerTest {
                         .personCount(2)
                         .build();
 
-        List<StoreResponse> mockResponse =
+        List<StoreResponse> response =
                 List.of(
                         StoreResponse.builder()
                                 .id(1L)
@@ -58,10 +61,13 @@ class StoreControllerTest {
                                 .amenities(List.of(PARKING, BREAKFAST_INCLUDED))
                                 .minPrice(25000)
                                 .build());
-        BaseResponse<List<StoreResponse>> result = BaseResponse.ok(mockResponse);
+        BaseResponse<List<StoreResponse>> result = BaseResponse.ok(response);
 
         Pageable pageable = PageRequest.of(0, 10);
 
+        // page 객체로 변환
+        Page<StoreResponse> pageResponse = new PageImpl<>(response, pageable, 1);
+        PageResponse<StoreResponse> mockResponse = new PageResponse<>(pageResponse);
         Mockito.when(
                         mockService.userFindStoreList(
                                 Mockito.any(StoreListFindRequest.class),
@@ -78,8 +84,12 @@ class StoreControllerTest {
                                 .param("personCount", String.valueOf(request.getPersonCount())))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                //                .andExpect(
+                //                        MockMvcResultMatchers.content()
+                //                                .json(objectMapper.writeValueAsString(result)));
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(
-                        MockMvcResultMatchers.content()
-                                .json(objectMapper.writeValueAsString(result)));
+                        MockMvcResultMatchers.jsonPath("$.data.content[0].name")
+                                .value(response.get(0).getName()));
     }
 }

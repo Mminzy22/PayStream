@@ -3,6 +3,7 @@ package com.paystream.inventory.store.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
+import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
@@ -64,12 +65,12 @@ class StoreFindServiceTest {
                         .build();
 
         // when
-        List<StoreResponse> response =
+        PageResponse<StoreResponse> response =
                 storeService.userFindStoreList(request, PageRequest.of(1, 3));
 
         // then
-        assertThat(response)
-                .hasSize(3)
+        assertThat(response.getContent()).hasSize(3);
+        assertThat(response.getContent())
                 .extracting("name", "minPrice")
                 .containsExactlyInAnyOrder(
                         tuple("testStore1", 1000),
@@ -92,12 +93,12 @@ class StoreFindServiceTest {
                         .build();
 
         // when
-        List<StoreResponse> responses =
+        PageResponse<StoreResponse> responses =
                 storeService.userFindStoreList(request, PageRequest.of(page, size));
 
         // then
-        assertThat(responses)
-                .hasSize(size)
+        assertThat(responses.getContent()).hasSize(size);
+        assertThat(responses.getContent())
                 .extracting("name", "minPrice")
                 .containsExactlyInAnyOrder(tuple("testStore1", 1000), tuple("testStore2", 3000));
     }
@@ -136,12 +137,12 @@ class StoreFindServiceTest {
                 StoreListFindRequest.builder().checkInDate(checkIn).checkOutDate(checkOut).build();
 
         // when
-        List<StoreResponse> response =
+        PageResponse<StoreResponse> response =
                 storeService.userFindStoreList(request, PageRequest.of(1, 3));
 
         // then
-        assertThat(response)
-                .hasSize(1)
+        assertThat(response.getContent()).hasSize(1);
+        assertThat(response.getContent())
                 .extracting("name", "minPrice")
                 .contains(tuple("testStore1", 1000));
     }
@@ -203,15 +204,15 @@ class StoreFindServiceTest {
                 StoreListFindRequest.builder().checkInDate(checkIn).checkOutDate(checkOut).build();
 
         // when
-        List<StoreResponse> response =
+        PageResponse<StoreResponse> response =
                 storeService.userFindStoreList(request, PageRequest.of(1, 3));
-        for (StoreResponse storeResponse : response) {
+        for (StoreResponse storeResponse : response.getContent()) {
             System.out.println("storeResponse = " + storeResponse);
         }
 
         // then
-        assertThat(response)
-                .hasSize(1)
+        assertThat(response.getContent()).hasSize(1);
+        assertThat(response.getContent())
                 .extracting("name", "minPrice")
                 .contains(tuple("testStore1", 1000));
     }
@@ -356,7 +357,12 @@ class StoreFindServiceTest {
     }
 
     private Product createProduct(String name, int price, int maxCapacity) {
-        return Product.builder().name(name).basePrice(price).maxCapacity(maxCapacity).build();
+        return Product.builder()
+                .name(name)
+                .description("test")
+                .basePrice(price)
+                .maxCapacity(maxCapacity)
+                .build();
     }
 
     private Store createStore(

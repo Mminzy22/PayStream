@@ -1,6 +1,7 @@
 package com.paystream.inventory.store.controller;
 
 import com.paystream.core.BaseResponse;
+import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.store.dto.request.*;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.service.StoreCreateService;
@@ -8,7 +9,6 @@ import com.paystream.inventory.store.service.StoreDeleteService;
 import com.paystream.inventory.store.service.StoreFindService;
 import com.paystream.inventory.store.service.StoreUpdateService;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,10 +25,11 @@ public class StoreController {
     private final StoreDeleteService storeDeleteService;
 
     @GetMapping
-    public BaseResponse<List<StoreResponse>> findAll(
+    public BaseResponse<PageResponse<StoreResponse>> findAll(
             @Valid @ModelAttribute StoreListFindRequest request,
             @PageableDefault(page = 1, size = 10) Pageable pageable) {
-        List<StoreResponse> responses = storeFindService.userFindStoreList(request, pageable);
+        PageResponse<StoreResponse> responses =
+                storeFindService.userFindStoreList(request, pageable);
         return BaseResponse.ok(responses);
     }
 
