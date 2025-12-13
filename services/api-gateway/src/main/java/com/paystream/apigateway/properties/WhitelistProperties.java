@@ -12,4 +12,8 @@ import org.springframework.stereotype.Component;
 public class WhitelistProperties {
 
     private List<String> paths = new ArrayList<>();
+
+    public String[] getPathsToArray() {
+        return paths.toArray(String[]::new);
+    }
 }

@@ -24,20 +24,6 @@ public class PostGlobalFilter implements GlobalFilter, Ordered {
         long startTime = (long) exchange.getAttributes().get("startTime");
         long duration = System.currentTimeMillis() - startTime;
 
-        //        return chain.filter(exchange)
-        //                .then(
-        //                        Mono.fromRunnable(
-        //                                () -> {
-        //                                    log.info(
-        //                                            "[Trace-ID: {}] <<< Global Filter (POST):
-        // Response Status Code -> {} | Duration: {}ms",
-        //                                            traceId,
-        //                                            exchange.getResponse().getStatusCode(),
-        //                                            duration);
-        //                                    log.info(
-        //
-        // "#################################################################");
-        //                                }));
         return modifyResponseBodyGatewayFilterFactory
                 .apply(modifyResponseGatewayFilterConfig())
                 .filter(exchange, chain)
@@ -52,6 +38,10 @@ public class PostGlobalFilter implements GlobalFilter, Ordered {
 
     private static void logResponse(
             ServerHttpRequest request, ServerHttpResponse response, String body) {
+        String bodyText = body;
+        if (bodyText != null) {
+            bodyText = bodyText.length() > 500 ? bodyText.substring(0, 500) + "..." : bodyText;
+        }
         log.info(
                 "Response Id: {}, URI: {}, StatusCode: {}, Headers: {}, body: {}",
                 request.getId(),
@@ -59,7 +49,7 @@ public class PostGlobalFilter implements GlobalFilter, Ordered {
                 response.getStatusCode(),
                 response.getHeaders(),
                 // 바디 내용은 너무 길 수 있으므로 별도로 출력하거나 길이 제한
-                body.length() > 500 ? body.substring(0, 500) + "..." : body);
+                bodyText);
     }
 
     private ModifyResponseBodyGatewayFilterFactory.Config modifyResponseGatewayFilterConfig() {
