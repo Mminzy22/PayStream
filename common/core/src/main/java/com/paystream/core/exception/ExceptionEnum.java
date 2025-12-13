@@ -19,13 +19,14 @@ public enum ExceptionEnum {
        user-service -> U0001
     */
 
-    STORE_NOT_FOUND("I0001", HttpStatus.NOT_FOUND, "존재하지 않는 가게입니다."),
-    STORE_ALREADY_EXISTS("I0002", HttpStatus.CONFLICT, "이미 존재하는 가게 이름입니다."),
-    STORE_DELETION_BLOCKED("I0003", HttpStatus.CONFLICT, "삭제가 불가능한 가게가 있습니다 다시 확인해주세요."),
-    STORE_ACCESS_DENIED("I0004", HttpStatus.FORBIDDEN, "가게 주인이 맞는지 다시 확인해주세요."),
-    PRODUCT_NOT_FOUND("I0005", HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
-    PRODUCT_ALREADY_EXISTS("I0006", HttpStatus.CONFLICT, "이미 존재하는 상품입니다."),
-    PRODUCT_DELETION_BLOCKED("I0007", HttpStatus.CONFLICT, "삭제가 불가능한 상품이 있습니다 다시 확인해주세요."),
+    NOT_STORE_HOST("I0001", HttpStatus.FORBIDDEN, "해당 가게의 HostId와 다랍니다."),
+    STORE_NOT_FOUND("I0002", HttpStatus.NOT_FOUND, "존재하지 않는 가게입니다."),
+    STORE_ALREADY_EXISTS("I0003", HttpStatus.CONFLICT, "이미 존재하는 가게 이름입니다."),
+    STORE_DELETION_BLOCKED("I0004", HttpStatus.CONFLICT, "삭제가 불가능한 가게가 있습니다 다시 확인해주세요."),
+    STORE_ACCESS_DENIED("I0005", HttpStatus.FORBIDDEN, "가게 주인이 맞는지 다시 확인해주세요."),
+    PRODUCT_NOT_FOUND("I0006", HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
+    PRODUCT_ALREADY_EXISTS("I0007", HttpStatus.CONFLICT, "이미 존재하는 상품입니다."),
+    PRODUCT_DELETION_BLOCKED("I0008", HttpStatus.CONFLICT, "삭제가 불가능한 상품이 있습니다 다시 확인해주세요."),
 
     // user-service -> U0001
     USER_NOT_FOUND("U0001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
