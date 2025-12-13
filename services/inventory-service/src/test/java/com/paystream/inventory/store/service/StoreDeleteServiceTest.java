@@ -85,7 +85,7 @@ class StoreDeleteServiceTest {
     }
 
     private Product createProduct(String name, int price) {
-        return Product.builder().name(name).basePrice(price).build();
+        return Product.builder().name(name).description("test").basePrice(price).build();
     }
 
     private List<Store> createTemplate() {

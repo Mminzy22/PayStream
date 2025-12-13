@@ -357,7 +357,12 @@ class StoreFindServiceTest {
     }
 
     private Product createProduct(String name, int price, int maxCapacity) {
-        return Product.builder().name(name).basePrice(price).maxCapacity(maxCapacity).build();
+        return Product.builder()
+                .name(name)
+                .description("test")
+                .basePrice(price)
+                .maxCapacity(maxCapacity)
+                .build();
     }
 
     private Store createStore(
