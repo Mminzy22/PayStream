@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HealthCheckController {
 
-    @GetMapping("/inventory/ping")
+    @GetMapping("/inventories/ping")
     public ResponseEntity<Map<String, Object>> ping() {
         return ResponseEntity.ok(
                 Map.of(
