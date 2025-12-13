@@ -29,7 +29,6 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
@@ -69,5 +68,18 @@ public class Product extends BaseEntity {
     public void addDailyInventory(DailyInventory dailyInventory) {
         dailyInventories.add(dailyInventory);
         dailyInventory.setProduct(this);
+    }
+
+    public void assignStore(Store store) {
+        // 기존 가게와의 관계를 끊는 로직
+        if (this.store != null) {
+            this.store.getProducts().remove(this);
+        }
+
+        this.store = store;
+
+        if (store != null) {
+            store.getProducts().add(this);
+        }
     }
 }
