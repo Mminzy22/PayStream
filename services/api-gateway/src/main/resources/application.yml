@@ -28,6 +28,9 @@ springdoc:
     urls[1]:
       name: 알림 서비스
       url: http://localhost:8000/api/notification/v3/api-docs
+    urls[2]:
+      name: 유저 서비스
+      url: http://localhost:8000/api/users/v3/api-docs
 
 
 spring:
@@ -38,6 +41,14 @@ spring:
       server:
         webflux:
           routes:
+            - id: user-service-swagger
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users/v3/api-docs/**
+              filters:
+                - RewritePath=/api/users/(?<segment>.*), /${segment}
+                - AddRequestHeader=X-Service-Name, user-service
+
             - id: user-service
               uri: lb://user-service
               predicates:
