@@ -20,3 +20,8 @@ management:
     jmx:
       exposure:
         include: "*"
+
+jwt:
+  secret: test-secret-key-for-jwt-token-generation-in-test-environment-only
+  access-token-expiration: 3600000
+  refresh-token-expiration: 604800000
