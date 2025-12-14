@@ -8,10 +8,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @SpringBootApplication
 public class ApiGatewayApplication {
 
-    private ApiGatewayApplication() {
-        // Utility class pattern for Checkstyle
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
