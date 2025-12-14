@@ -19,7 +19,7 @@ public enum ExceptionEnum {
        user-service -> U0001
     */
 
-    NOT_STORE_HOST("I0001", HttpStatus.FORBIDDEN, "해당 가게의 HostId와 다랍니다."),
+    NOT_STORE_HOST("I0001", HttpStatus.FORBIDDEN, "해당 가게의 HostId와 다릅니다."),
     STORE_NOT_FOUND("I0002", HttpStatus.NOT_FOUND, "존재하지 않는 가게입니다."),
     STORE_ALREADY_EXISTS("I0003", HttpStatus.CONFLICT, "이미 존재하는 가게 이름입니다."),
     STORE_DELETION_BLOCKED("I0004", HttpStatus.CONFLICT, "삭제가 불가능한 가게가 있습니다 다시 확인해주세요."),
