@@ -28,31 +28,21 @@ public class ProductCreateService {
     private final DailyInventoryRepository dailyInventoryRepository;
 
     public Long create(String hostId, ProductCreateRequest request) {
-        // 존재하는 가게인지 확인
-        Store findStore =
-                storeRepository
-                        .findById(request.getStoreId())
-                        .orElseThrow(() -> new PayStreamException(STORE_NOT_FOUND));
+        Store findStore = findStore(hostId, request);
 
-        if (!findStore.getHostId().equals(hostId)) {
-            throw new PayStreamException(NOT_STORE_HOST);
-        }
+        extractedProduct(request, findStore);
 
-        // 상품 존재 확인
-        boolean isProductName =
-                productRepository.existsByStoreIdAndName(findStore.getId(), request.getName());
-        if (isProductName) {
-            throw new PayStreamException(ExceptionEnum.PRODUCT_ALREADY_EXISTS);
-        }
+        Product savedProduct = getSavedProduct(request, findStore);
 
-        // 상품 저장
-        Product product = request.toEntity();
-        product.assignStore(findStore);
-        Product savedProduct = productRepository.save(product);
+        fillDailyStock(savedProduct, 30);
 
-        // 상품의 날짜별 재고수량 채우기 (한달)
+        return savedProduct.getId();
+    }
+
+    private void fillDailyStock(Product savedProduct, int daysToAdd) {
         LocalDate today = LocalDate.now();
-        LocalDate until = today.plusDays(30);
+        LocalDate until = today.plusDays(daysToAdd);
+
         List<DailyInventory> dailyInventories =
                 today.datesUntil(until)
                         .map(
@@ -62,8 +52,36 @@ public class ProductCreateService {
                                                 .date(date)
                                                 .build())
                         .toList();
-        dailyInventoryRepository.saveAll(dailyInventories);
 
-        return savedProduct.getId();
+        dailyInventoryRepository.saveAll(dailyInventories);
+    }
+
+    private Product getSavedProduct(ProductCreateRequest request, Store findStore) {
+        Product product = request.toEntity();
+        product.assignStore(findStore);
+
+        return productRepository.save(product);
+    }
+
+    private void extractedProduct(ProductCreateRequest request, Store findStore) {
+        boolean isProductName =
+                productRepository.existsByStoreIdAndName(findStore.getId(), request.getName());
+
+        if (isProductName) {
+            throw new PayStreamException(ExceptionEnum.PRODUCT_ALREADY_EXISTS);
+        }
+    }
+
+    private Store findStore(String hostId, ProductCreateRequest request) {
+        Store findStore =
+                storeRepository
+                        .findById(request.getStoreId())
+                        .orElseThrow(() -> new PayStreamException(STORE_NOT_FOUND));
+
+        if (!findStore.getHostId().equals(hostId)) {
+            throw new PayStreamException(NOT_STORE_HOST);
+        }
+
+        return findStore;
     }
 }
