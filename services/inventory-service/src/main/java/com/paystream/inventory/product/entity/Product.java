@@ -82,4 +82,13 @@ public class Product extends BaseEntity {
             store.getProducts().add(this);
         }
     }
+
+    public void updateInfo(Product product) {
+        this.name = product.getName();
+        this.description = product.getDescription();
+        this.minCapacity = product.getMinCapacity();
+        this.maxCapacity = product.getMaxCapacity();
+        this.basePrice = product.getBasePrice();
+        this.personAddPrice = product.getPersonAddPrice();
+    }
 }
