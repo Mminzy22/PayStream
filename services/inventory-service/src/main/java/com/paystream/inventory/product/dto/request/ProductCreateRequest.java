@@ -50,6 +50,7 @@ public class ProductCreateRequest {
                 .maxCapacity(this.maxCapacity)
                 .basePrice(this.basePrice)
                 .personAddPrice(this.personAddPrice)
+                .baseStock(this.stock)
                 .build();
     }
 }

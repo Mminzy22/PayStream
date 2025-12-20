@@ -53,6 +53,9 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private int personAddPrice; // 인원 추가 비용
 
+    @Column(nullable = false)
+    private int baseStock;
+
     // '상품' 하나는 '여러' 날짜별 재고를 가진다.
     @Builder.Default
     @OneToMany(

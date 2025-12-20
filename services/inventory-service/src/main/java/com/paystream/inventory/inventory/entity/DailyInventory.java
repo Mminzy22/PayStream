@@ -26,4 +26,12 @@ public class DailyInventory {
     private LocalDate date; // 날짜별 일자
 
     private int stockAvailable; // 가용 재고
+
+    public void increaseStockAvailable() {
+        this.stockAvailable++;
+    }
+
+    public void decreaseStockAvailable() {
+        this.stockAvailable--;
+    }
 }

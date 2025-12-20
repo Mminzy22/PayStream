@@ -50,6 +50,7 @@ public class ProductCreateService {
                                         DailyInventory.builder()
                                                 .product(savedProduct)
                                                 .date(date)
+                                                .stockAvailable(savedProduct.getBaseStock())
                                                 .build())
                         .toList();
 
