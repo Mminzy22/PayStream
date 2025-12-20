@@ -20,67 +20,27 @@ management:
       exposure:
         include: "*"
 
+spring:
+  application:
+    name: api-gateway
+
 springdoc:
   swagger-ui:
     urls[0]:
       name: 상품 및 재고 서비스
-      url: http://localhost:8000/api/inventory/v3/api-docs
+      url: http://localhost:8000/api/inventories/v3/api-docs
     urls[1]:
       name: 알림 서비스
       url: http://localhost:8000/api/notification/v3/api-docs
     urls[2]:
+      name: 주문 서비스
+      url: http://locaclhost:8000/api/orders/v3/api-docs
+    urls[3]:
+      name: 결제 서비스
+      url: http://locaclhost:8000/api/payments/v3/api-docs
+    urls[4]:
       name: 유저 서비스
       url: http://localhost:8000/api/users/v3/api-docs
-
-
-spring:
-  application:
-    name: api-gateway
-  cloud:
-    gateway:
-      server:
-        webflux:
-          routes:
-            - id: user-service-swagger
-              uri: lb://user-service
-              predicates:
-                - Path=/api/users/v3/api-docs/**
-              filters:
-                - RewritePath=/api/users/(?<segment>.*), /${segment}
-                - AddRequestHeader=X-Service-Name, user-service
-
-            - id: user-service
-              uri: lb://user-service
-              predicates:
-                - Path=/api/users/**
-              filters:
-                - RewritePath=/api/users/(?<segment>.*), /users/${segment}
-                - AddRequestHeader=X-Service-Name, user-service
-
-            - id: inventory-service-swagger
-              uri: lb://inventory-service
-              predicates:
-                - Path=/api/inventory/v3/api-docs/**
-                - Method=GET
-              filters:
-                - RewritePath=/api/inventory/(?<path>.*), /$\{path}
-
-            - id: inventory-service-stores-root
-              uri: lb://inventory-service
-              predicates:
-                - Path=/api/stores
-              filters:
-                - RewritePath=/api/stores, /stores
-                - AddRequestHeader=X-Service-Name, inventory-service
-
-            - id: inventory-service-stores-segment
-              uri: lb://inventory-service
-              predicates:
-                - Path=/api/stores/**
-              filters:
-                - RewritePath=/api/stores/(?<segment>.*), /stores/$\{segment}
-                - AddRequestHeader=X-Service-Name, inventory-service
-
 
 # 인증 로직을 거치지 않는 Endpoint
 whitelist:
@@ -88,4 +48,8 @@ whitelist:
     - /swagger-ui/**
     - /v3/api-docs/**
     - /swagger-ui.html
+    - /**/ping
     - /stores
+    - /users/signup
+    - /users/login
+    - /users/refresh
