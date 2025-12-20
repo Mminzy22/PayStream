@@ -2,8 +2,10 @@ package com.paystream.inventory.product.controller;
 
 import com.paystream.core.BaseResponse;
 import com.paystream.inventory.product.dto.request.ProductCreateRequest;
+import com.paystream.inventory.product.dto.request.ProductDeleteRequest;
 import com.paystream.inventory.product.dto.request.ProductUpdateRequest;
 import com.paystream.inventory.product.service.ProductCreateService;
+import com.paystream.inventory.product.service.ProductDeleteService;
 import com.paystream.inventory.product.service.ProductUpdateService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -17,6 +19,7 @@ public class ProductController {
 
     private final ProductCreateService productCreateService;
     private final ProductUpdateService productUpdateService;
+    private final ProductDeleteService productDeleteService;
 
     @PostMapping
     public BaseResponse<Long> create(
@@ -36,5 +39,16 @@ public class ProductController {
         Long updatedProductId = productUpdateService.update(hostId, productId, updateRequest);
 
         return BaseResponse.created(updatedProductId);
+    }
+
+    @DeleteMapping("/{productId}")
+    public BaseResponse<String> delete(
+            @PathVariable Long productId,
+            HttpServletRequest request,
+            @Valid @RequestBody ProductDeleteRequest deleteRequest) {
+        String hostId = request.getHeader("X-Auth-User-Id");
+        productDeleteService.delete(hostId, productId, deleteRequest);
+
+        return BaseResponse.ok("성공적으로 삭제되었습니다.");
     }
 }
