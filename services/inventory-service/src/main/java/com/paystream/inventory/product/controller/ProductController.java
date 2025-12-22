@@ -11,6 +11,7 @@ import com.paystream.inventory.product.service.ProductFindService;
 import com.paystream.inventory.product.service.ProductUpdateService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,19 @@ public class ProductController {
     @GetMapping("/{productId}")
     public BaseResponse<ProductDetailResponse> findById(@PathVariable Long productId) {
         ProductDetailResponse productDetail = productFindService.findProductDetail(productId);
+        return BaseResponse.ok(productDetail);
+    }
+
+    @GetMapping(
+            value = "/{productId}",
+            params = {"checkInDate", "checkOutDate"})
+    public BaseResponse<ProductDetailResponse> findByIdAndStock(
+            @PathVariable Long productId,
+            @RequestParam LocalDate checkInDate,
+            @RequestParam LocalDate checkOutDate) {
+        ProductDetailResponse productDetail =
+                productFindService.findProductWithDailyInventory(
+                        productId, checkInDate, checkOutDate);
         return BaseResponse.ok(productDetail);
     }
 

@@ -28,6 +28,7 @@ public enum ExceptionEnum {
     PRODUCT_ALREADY_EXISTS("I0007", HttpStatus.CONFLICT, "이미 존재하는 상품입니다."),
     PRODUCT_DELETION_BLOCKED("I0008", HttpStatus.CONFLICT, "삭제가 불가능한 상품이 있습니다 다시 확인해주세요."),
     PRODUCT_STORE_MISMATCH("I0009", HttpStatus.BAD_REQUEST, "가게에 포함된 상품이 아닙니다."),
+    INVENTORY_NOT_FOUND("I0010", HttpStatus.NOT_FOUND, "상품의 재고가 존재하지 않습니다."),
 
     // user-service -> U0001
     USER_NOT_FOUND("U0001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
