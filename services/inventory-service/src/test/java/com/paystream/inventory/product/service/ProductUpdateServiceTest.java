@@ -53,8 +53,8 @@ class ProductUpdateServiceTest {
                         .store(savedStore)
                         .name("Test Product")
                         .description("Test Product description")
-                        .minCapacity(2)
-                        .maxCapacity(3)
+                        .minPersonCount(2)
+                        .maxPersonCount(3)
                         .basePrice(10000)
                         .personAddPrice(10000)
                         .build();
@@ -74,8 +74,8 @@ class ProductUpdateServiceTest {
                         .description("Modified Test Product description")
                         .basePrice(20000)
                         .personAddPrice(2000)
-                        .minCapacity(2)
-                        .maxCapacity(4)
+                        .minPersonCount(2)
+                        .maxPersonCount(4)
                         .build();
         // when
         Long updatedProductId = productUpdateService.update(hostId, savedProduct.getId(), request);
@@ -89,15 +89,15 @@ class ProductUpdateServiceTest {
                         "description",
                         "basePrice",
                         "personAddPrice",
-                        "minCapacity",
-                        "maxCapacity")
+                        "minPersonCount",
+                        "maxPersonCount")
                 .containsExactly(
                         request.getName(),
                         request.getDescription(),
                         request.getBasePrice(),
                         request.getPersonAddPrice(),
-                        request.getMinCapacity(),
-                        request.getMaxCapacity());
+                        request.getMinPersonCount(),
+                        request.getMaxPersonCount());
     }
 
     @DisplayName("[실패] 업데이트할 상품이 가게에 없으면 예외 발생")
@@ -123,8 +123,8 @@ class ProductUpdateServiceTest {
                         .store(otherStore)
                         .name("Test Product")
                         .description("Test Product description")
-                        .minCapacity(2)
-                        .maxCapacity(3)
+                        .minPersonCount(2)
+                        .maxPersonCount(3)
                         .basePrice(10000)
                         .personAddPrice(10000)
                         .build();
@@ -140,8 +140,8 @@ class ProductUpdateServiceTest {
                         .description("Modified Test Product description")
                         .basePrice(20000)
                         .personAddPrice(2000)
-                        .minCapacity(2)
-                        .maxCapacity(4)
+                        .minPersonCount(2)
+                        .maxPersonCount(4)
                         .build();
 
         Long storeWithoutProductId = otherProduct.getId();

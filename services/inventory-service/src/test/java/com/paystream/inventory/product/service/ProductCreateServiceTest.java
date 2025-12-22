@@ -65,8 +65,8 @@ class ProductCreateServiceTest {
                         .description("Test Product description")
                         .basePrice(10000)
                         .personAddPrice(10000)
-                        .minCapacity(2)
-                        .maxCapacity(3)
+                        .minPersonCount(2)
+                        .maxPersonCount(3)
                         .stock(5)
                         .build();
 
@@ -88,8 +88,8 @@ class ProductCreateServiceTest {
                         .description("Test Product description")
                         .basePrice(10000)
                         .personAddPrice(10000)
-                        .minCapacity(2)
-                        .maxCapacity(3)
+                        .minPersonCount(2)
+                        .maxPersonCount(3)
                         .stock(5)
                         .build();
 
@@ -113,8 +113,8 @@ class ProductCreateServiceTest {
                         .description("Test Product description")
                         .basePrice(10000)
                         .personAddPrice(10000)
-                        .minCapacity(2)
-                        .maxCapacity(3)
+                        .minPersonCount(2)
+                        .maxPersonCount(3)
                         .stock(5)
                         .build();
 
@@ -154,8 +154,8 @@ class ProductCreateServiceTest {
                         .description("Test Product description")
                         .basePrice(10000)
                         .personAddPrice(10000)
-                        .minCapacity(2)
-                        .maxCapacity(3)
+                        .minPersonCount(2)
+                        .maxPersonCount(3)
                         .stock(5)
                         .build();
 
@@ -181,8 +181,8 @@ class ProductCreateServiceTest {
                         .description("Test Product description")
                         .basePrice(10000)
                         .personAddPrice(10000)
-                        .minCapacity(2)
-                        .maxCapacity(3)
+                        .minPersonCount(2)
+                        .maxPersonCount(3)
                         .stock(5)
                         .build();
 

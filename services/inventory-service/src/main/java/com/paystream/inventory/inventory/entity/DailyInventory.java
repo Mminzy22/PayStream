@@ -34,4 +34,8 @@ public class DailyInventory {
     public void decreaseStockAvailable() {
         this.stockAvailable--;
     }
+
+    public boolean isStockAvailable() {
+        return stockAvailable != 0;
+    }
 }

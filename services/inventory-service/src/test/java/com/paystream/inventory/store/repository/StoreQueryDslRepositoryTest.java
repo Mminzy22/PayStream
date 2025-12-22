@@ -568,12 +568,12 @@ class StoreQueryDslRepositoryTest {
                 .build();
     }
 
-    private Product createProduct(String name, int price, int maxCapacity) {
+    private Product createProduct(String name, int price, int maxPersonCount) {
         return Product.builder()
                 .name(name)
                 .description("test")
                 .basePrice(price)
-                .maxCapacity(maxCapacity)
+                .maxPersonCount(maxPersonCount)
                 .build();
     }
 

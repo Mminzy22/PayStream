@@ -61,8 +61,8 @@ class ProductDeleteServiceTest {
                         .store(savedStore)
                         .name("Test Product")
                         .description("Test Product description")
-                        .minCapacity(2)
-                        .maxCapacity(3)
+                        .minPersonCount(2)
+                        .maxPersonCount(3)
                         .basePrice(10000)
                         .personAddPrice(10000)
                         .build();

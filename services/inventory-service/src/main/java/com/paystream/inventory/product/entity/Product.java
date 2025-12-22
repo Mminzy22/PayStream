@@ -42,10 +42,10 @@ public class Product extends BaseEntity {
     //    private String thumbnail;
 
     @Column(nullable = false)
-    private int minCapacity; // 최소 수용인원
+    private int minPersonCount; // 최소 수용인원
 
     @Column(nullable = false)
-    private int maxCapacity; // 최대 수용인원
+    private int maxPersonCount; // 최대 수용인원
 
     @Column(nullable = false)
     private int basePrice;
@@ -89,8 +89,8 @@ public class Product extends BaseEntity {
     public void updateInfo(Product product) {
         this.name = product.getName();
         this.description = product.getDescription();
-        this.minCapacity = product.getMinCapacity();
-        this.maxCapacity = product.getMaxCapacity();
+        this.minPersonCount = product.getMinPersonCount();
+        this.maxPersonCount = product.getMaxPersonCount();
         this.basePrice = product.getBasePrice();
         this.personAddPrice = product.getPersonAddPrice();
     }

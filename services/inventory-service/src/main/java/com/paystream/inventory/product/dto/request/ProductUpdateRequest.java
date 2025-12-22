@@ -31,17 +31,17 @@ public class ProductUpdateRequest {
     private int personAddPrice;
 
     @Min(value = 2, message = "최소인원은 2명 이상이어야 합니다.")
-    private int minCapacity;
+    private int minPersonCount;
 
     @Min(value = 3, message = "최대인원은 3명 이상이어야 합니다.")
-    private int maxCapacity;
+    private int maxPersonCount;
 
     public Product toEntity() {
         return Product.builder()
                 .name(this.name)
                 .description(this.description)
-                .minCapacity(this.minCapacity)
-                .maxCapacity(this.maxCapacity)
+                .minPersonCount(this.minPersonCount)
+                .maxPersonCount(this.maxPersonCount)
                 .basePrice(this.basePrice)
                 .personAddPrice(this.personAddPrice)
                 .build();

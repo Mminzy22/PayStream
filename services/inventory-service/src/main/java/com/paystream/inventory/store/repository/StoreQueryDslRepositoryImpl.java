@@ -114,7 +114,7 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                 .from(product)
                 .where(
                         product.store.id.in(storeIds),
-                        product.maxCapacity.goe(personCount),
+                        product.maxPersonCount.goe(personCount),
                         product.id.notIn(insufficientIds))
                 .fetch()
                 .stream()
