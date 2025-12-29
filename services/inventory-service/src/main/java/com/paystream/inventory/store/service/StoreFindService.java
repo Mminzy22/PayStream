@@ -16,6 +16,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,7 @@ public class StoreFindService {
     private final DailyInventoryRepository dailyInventoryRepository;
 
     // 조회 성능 향상을 위한 Redis 캐싱 기능 추가하기
+    @Cacheable(value = "stores", key = "#request.getCacheKey(#reqPageable.pageNumber)")
     public PageResponse<StoreResponse> userFindStoreList(
             StoreListFindRequest request, Pageable reqPageable) {
         Pageable pageable =

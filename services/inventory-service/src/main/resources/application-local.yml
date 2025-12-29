@@ -22,6 +22,13 @@ spring:
         highlight_sql: true
         default_batch_fetch_size: 1000
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  # Redis 설정
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
 
 eureka:
   client:

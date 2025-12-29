@@ -20,6 +20,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @Transactional
@@ -40,17 +42,17 @@ class StoreFindServiceTest {
     @Autowired private ProductRepository productRepository;
     @Autowired private DailyInventoryRepository dailyInventoryRepository;
     @Autowired private StoreFindService storeFindService;
+    @Autowired private StringRedisTemplate redisTemplate;
 
     @EnableJpaAuditing
     @TestConfiguration
     static class TestConfig {}
 
-    //    @BeforeEach
-    //    void tearDown() {
-    //        dailyInventoryRepository.deleteAllInBatch();
-    //        productRepository.deleteAllInBatch();
-    //        storeRepository.deleteAllInBatch();
-    //    }
+    @BeforeEach
+    void tearDown() {
+        // redis 추가로 각 테스트 수행 전 redis 키 비움
+        redisTemplate.getConnectionFactory().getConnection().flushDb();
+    }
 
     @DisplayName("가게 전체 조회시 상품의 최저 금액이 같이 조회된다.")
     @Test

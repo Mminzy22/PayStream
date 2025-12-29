@@ -1,8 +1,5 @@
 package com.paystream.inventory.store.controller;
 
-import static com.paystream.inventory.store.entity.Amenities.BREAKFAST_INCLUDED;
-import static com.paystream.inventory.store.entity.Amenities.PARKING;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paystream.core.BaseResponse;
 import com.paystream.inventory.config.PageResponse;
@@ -58,7 +55,7 @@ class StoreControllerTest {
                         StoreResponse.builder()
                                 .id(1L)
                                 .name("한강 뷰 맛집")
-                                .amenities(List.of(PARKING, BREAKFAST_INCLUDED))
+                                .amenities(List.of("와이파이", "반려동물 동반 가능"))
                                 .minPrice(25000)
                                 .build());
         BaseResponse<List<StoreResponse>> result = BaseResponse.ok(response);

@@ -29,4 +29,10 @@ public class StoreListFindRequest {
 
     @NotNull(message = "체크아웃 날짜는 반드시 입력해야 합니다.")
     private LocalDate checkOutDate;
+
+    public String getCacheKey(int page) {
+        return String.format(
+                "%s-%s-%s-%s-%d-%s-%s-%d",
+                name, province, city, category, personCount, checkInDate, checkOutDate, page);
+    }
 }
