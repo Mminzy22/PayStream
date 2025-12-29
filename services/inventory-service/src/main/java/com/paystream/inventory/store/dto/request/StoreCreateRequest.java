@@ -19,9 +19,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StoreCreateRequest {
 
-    @NotBlank(message = "hostId는 반드시 입력되어야 합니다.")
-    private String hostId;
-
     @NotBlank(message = "가게 이름은 반드시 입력해야 합니다.")
     private String name;
 
@@ -41,7 +38,7 @@ public class StoreCreateRequest {
     private int basePersonCount;
     private String rule;
 
-    public Store toEntity() {
+    public Store toEntity(String hostId) {
         return Store.builder()
                 .hostId(hostId)
                 .name(name)

@@ -39,15 +39,13 @@ class StoreDeleteServiceTest {
 
         Store savedStore = storeRepository.save(foundStore);
 
+        String hostId = "1";
         StoreDeleteRequest request =
-                StoreDeleteRequest.builder()
-                        .hostId("1")
-                        .storeIds(List.of(savedStore.getId(), 2L))
-                        .build();
+                StoreDeleteRequest.builder().storeIds(List.of(savedStore.getId(), 2L)).build();
 
         // when
         // then
-        assertThatThrownBy(() -> storeDeleteService.deleted(request))
+        assertThatThrownBy(() -> storeDeleteService.deleted(hostId, request))
                 .isInstanceOf(PayStreamException.class)
                 .hasMessage("삭제가 불가능한 가게가 있습니다 다시 확인해주세요.");
     }
@@ -60,11 +58,11 @@ class StoreDeleteServiceTest {
         List<Store> storeList = createTemplate();
         List<Long> deleteStoreIds =
                 storeList.stream().map(Store::getId).limit(storeList.size() - 1).toList();
-        StoreDeleteRequest request =
-                StoreDeleteRequest.builder().hostId("1").storeIds(deleteStoreIds).build();
+        String hostId = "1";
+        StoreDeleteRequest request = StoreDeleteRequest.builder().storeIds(deleteStoreIds).build();
 
         // when
-        storeDeleteService.deleted(request);
+        storeDeleteService.deleted(hostId, request);
 
         // then
         assertThat(storeRepository.findAll())

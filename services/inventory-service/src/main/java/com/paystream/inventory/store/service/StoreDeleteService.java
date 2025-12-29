@@ -16,9 +16,7 @@ public class StoreDeleteService {
 
     private final StoreRepository storeRepository;
 
-    public void deleted(StoreDeleteRequest request) {
-        // 존재하는 hostId인지 확인
-
+    public void deleted(String hostId, StoreDeleteRequest request) {
         // 삭제하고자 하는 가게가 존재하는지 확인
         List<Store> existedStore = storeRepository.findByIdIn(request.getStoreIds());
 
@@ -28,8 +26,7 @@ public class StoreDeleteService {
 
         // 조회된 가게들의 host가 요청한 host가 맞는지 확인
         boolean isHostExclusive =
-                existedStore.stream()
-                        .allMatch(store -> store.getHostId().equals(request.getHostId()));
+                existedStore.stream().allMatch(store -> store.getHostId().equals(hostId));
         if (!isHostExclusive) {
             throw new PayStreamException(STORE_ACCESS_DENIED);
         }

@@ -126,9 +126,9 @@ public class StoreControllerIntegrationTest {
     @Test
     void createStoreTest() throws Exception {
         // given
+        String hostId = "1";
         StoreCreateRequest request =
                 StoreCreateRequest.builder()
-                        .hostId("1")
                         .name("한강 뷰 호텔")
                         .address(new Address("서울시", "여의도"))
                         .category(Category.HOTEL)
@@ -144,6 +144,7 @@ public class StoreControllerIntegrationTest {
         mockMvc.perform(
                         post("/stores")
                                 .contentType(APPLICATION_JSON)
+                                .header("X-Auth-User-Id", hostId)
                                 .content(objectMapper.writeValueAsBytes(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
