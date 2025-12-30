@@ -8,18 +8,19 @@ import com.paystream.inventory.annotation.CacheKeyParam;
 import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
+import com.paystream.inventory.product.repository.ProductRepository;
 import com.paystream.inventory.store.dto.request.StoreFindRequest;
 import com.paystream.inventory.store.dto.request.StoreListFindRequest;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.entity.Store;
 import com.paystream.inventory.store.repository.StoreQueryDslRepository;
+import com.paystream.inventory.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StoreFindService {
 
+    private final StoreRepository storeRepository;
+    private final ProductRepository productRepository;
     private final StoreQueryDslRepository storeQueryDslRepository;
     private final DailyInventoryRepository dailyInventoryRepository;
 
@@ -41,43 +44,42 @@ public class StoreFindService {
         Pageable pageable =
                 PageRequest.of(reqPageable.getPageNumber() - 1, reqPageable.getPageSize());
 
-        Page<Store> stores = null;
+        // 가게 전체 조회
+        Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(request, pageable);
 
-        try {
-            stores = storeQueryDslRepository.findAllByFetchJoin(request, pageable);
-            if (!stores.hasContent()) {
-                throw new EntityNotFoundException("Store not found");
-            }
-        } catch (EntityNotFoundException e) {
-            throw new PayStreamException(ExceptionEnum.STORE_NOT_FOUND);
-        } catch (Exception e) {
-            throw new PayStreamException(ExceptionEnum.INTERNAL_SERVER_ERROR);
+        if (stores.isEmpty()) {
+            // 빈값이면 비어 있는 상태로 반환
+            Page<StoreResponse> emptyResponse = stores.map(StoreResponse::of);
+            return new PageResponse<>(emptyResponse);
         }
 
-        Map<Long, Integer> storeMap =
-                stores.stream()
-                        .collect(
-                                toMap(
-                                        Store::getId,
-                                        store ->
-                                                store.getProducts().stream()
-                                                        .map(Product::getBasePrice)
-                                                        .min(Comparator.naturalOrder())
-                                                        .orElse(0)));
+        // 기간에 해당하는 가게의 상품들을 조회
+        List<Long> storeIds = stores.getContent().stream().map(Store::getId).toList();
+        Map<Long, List<Product>> productsByStoreId =
+                productRepository
+                        .findAvailableProducts(
+                                storeIds, request.getCheckInDate(), request.getCheckOutDate())
+                        .stream()
+                        .collect(groupingBy(p -> p.getStore().getId()));
 
         // 가게별 상품의 최저 금액 계산
-        List<StoreResponse> responseList =
-                stores.stream()
-                        .map(
-                                store -> {
-                                    int minPrice = storeMap.get(store.getId());
-                                    return StoreResponse.of(store, minPrice);
-                                })
-                        .toList();
+        Page<StoreResponse> responsePage =
+                stores.map(
+                        store -> {
+                            List<Product> storeProducts =
+                                    productsByStoreId.getOrDefault(
+                                            store.getId(), Collections.emptyList());
 
-        Page<StoreResponse> response =
-                new PageImpl<>(responseList, stores.getPageable(), stores.getTotalElements());
-        return new PageResponse<>(response);
+                            int minPrice =
+                                    storeProducts.stream()
+                                            .mapToInt(Product::getBasePrice)
+                                            .min()
+                                            .orElse(0);
+
+                            return StoreResponse.of(store, minPrice);
+                        });
+
+        return new PageResponse<>(responsePage);
     }
 
     /**
@@ -98,7 +100,7 @@ public class StoreFindService {
                                     request.getCheckInDate(),
                                     request.getCheckOutDate(),
                                     request.getPersonCount())
-                            .orElseThrow(() -> new EntityNotFoundException("Store not found"));
+                            .orElseThrow(EntityNotFoundException::new);
         } catch (EntityNotFoundException e) {
             throw new PayStreamException(ExceptionEnum.STORE_NOT_FOUND);
         } catch (Exception e) {

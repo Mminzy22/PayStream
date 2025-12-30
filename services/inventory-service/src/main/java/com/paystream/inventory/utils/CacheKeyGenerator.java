@@ -74,7 +74,7 @@ public class CacheKeyGenerator implements KeyGenerator {
             for (Field field : dto.getClass().getDeclaredFields()) {
                 field.setAccessible(true); // private 필드 접근 허용, Reflection
                 Object value = field.get(dto);
-                if (value == null) continue; // 값이 null이면 키에 포함하지 않음.
+                if (value == null || value == "") continue; // 값이 null이면 키에 포함하지 않음.
 
                 // dto를 순환하면서 Map에 담아줌.
                 if (value instanceof Collection<?> collection) {
