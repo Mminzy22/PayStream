@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.*;
 
 import com.paystream.core.exception.ExceptionEnum;
 import com.paystream.core.exception.PayStreamException;
+import com.paystream.inventory.annotation.CacheKeyParam;
 import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
@@ -34,9 +35,9 @@ public class StoreFindService {
     private final DailyInventoryRepository dailyInventoryRepository;
 
     // 조회 성능 향상을 위한 Redis 캐싱 기능 추가하기
-    @Cacheable(value = "stores", key = "#request.getCacheKey(#reqPageable.pageNumber)")
+    @Cacheable(value = "stores", keyGenerator = "customKeyGenerator")
     public PageResponse<StoreResponse> userFindStoreList(
-            StoreListFindRequest request, Pageable reqPageable) {
+            @CacheKeyParam StoreListFindRequest request, Pageable reqPageable) {
         Pageable pageable =
                 PageRequest.of(reqPageable.getPageNumber() - 1, reqPageable.getPageSize());
 
