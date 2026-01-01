@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: notification-service-test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+
+server:
+  port: 0  # 랜덤 포트 사용
+
+eureka:
+  client:
+    enabled: false  # 테스트 시 Eureka 비활성화
+    register-with-eureka: false
+    fetch-registry: false
+
+logging:
+  level:
+    com.paystream.notification: DEBUG
+
