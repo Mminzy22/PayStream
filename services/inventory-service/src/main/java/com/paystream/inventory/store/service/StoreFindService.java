@@ -1,12 +1,15 @@
 package com.paystream.inventory.store.service;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 import com.paystream.core.exception.ExceptionEnum;
 import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.annotation.CacheKeyParam;
 import com.paystream.inventory.config.PageResponse;
+import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
+import com.paystream.inventory.product.dto.response.ProductResponse;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.product.repository.ProductRepository;
 import com.paystream.inventory.store.dto.request.StoreFindRequest;
@@ -14,9 +17,10 @@ import com.paystream.inventory.store.dto.request.StoreListFindRequest;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.entity.Store;
 import com.paystream.inventory.store.repository.StoreQueryDslRepository;
-import com.paystream.inventory.store.repository.StoreRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -32,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StoreFindService {
 
-    private final StoreRepository storeRepository;
     private final ProductRepository productRepository;
     private final StoreQueryDslRepository storeQueryDslRepository;
     private final DailyInventoryRepository dailyInventoryRepository;
@@ -95,11 +98,7 @@ public class StoreFindService {
         try {
             store =
                     storeQueryDslRepository
-                            .findOne(
-                                    id,
-                                    request.getCheckInDate(),
-                                    request.getCheckOutDate(),
-                                    request.getPersonCount())
+                            .findOne(id, request.getCheckInDate(), request.getCheckOutDate())
                             .orElseThrow(EntityNotFoundException::new);
         } catch (EntityNotFoundException e) {
             throw new PayStreamException(ExceptionEnum.STORE_NOT_FOUND);
@@ -107,6 +106,35 @@ public class StoreFindService {
             throw new PayStreamException(ExceptionEnum.INTERNAL_SERVER_ERROR);
         }
 
-        return StoreResponse.ofWithProducts(store);
+        List<Product> products = store.getProducts();
+        List<Long> productIds = products.stream().map(Product::getId).toList();
+
+        Map<Long, List<DailyInventory>> inventoriesMap =
+                dailyInventoryRepository.findByProductIdIn(productIds).stream()
+                        .collect(groupingBy(d -> d.getProduct().getId(), toList()));
+
+        List<ProductResponse> productResponses =
+                products.stream()
+                        .map(
+                                p -> {
+                                    List<DailyInventory> findInventory =
+                                            inventoriesMap.getOrDefault(
+                                                    p.getId(), Collections.emptyList());
+
+                                    boolean isStock =
+                                            findInventory.stream()
+                                                    .allMatch(inv -> inv.getStockAvailable() > 0);
+
+                                    // 최대 수용인원과 재고가 없을 경우 체크 (예약 가능 상품이면 true)
+                                    boolean isAvailable =
+                                            isStock
+                                                    && request.getPersonCount()
+                                                            <= p.getMaxPersonCount();
+
+                                    return ProductResponse.of(p, isAvailable);
+                                })
+                        .toList();
+
+        return StoreResponse.ofWithProducts(store, productResponses);
     }
 }

@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,63 +186,51 @@ class StoreFindServiceTest {
         assertThat(response.getContent()).isNotNull();
     }
 
-    @Disabled
-    @DisplayName("가게 1개 조회, 재고가 없으면 맨 아래에 상품이 위치한다.")
+    @DisplayName("상세 조회 시 상품별로 예약 가능 여부를 정확히 판단한다.")
     @Test
-    void findStoreSortProduct() {
-        // given
+    void should_DetermineProductAvailability_When_FindingStoreDetail() {
+        // Given 테스트 데이터 준비
         LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
 
-        Store store1 =
-                createStore(
-                        "1",
-                        "testStore1",
-                        List.of(Amenities.PARKING, Amenities.BAR_LOUNGE),
-                        Category.HOTEL);
-        Product product1 = createProduct("product1", 1000, 2);
-        Product product2 = createProduct("product2", 2000, 2);
-        Product product3 = createProduct("product3", 3000, 2);
+        // 1. 가게 및 다양한 상태의 상품 구성
+        Store store = createStore("1", "경화수월", List.of(Amenities.PARKING), Category.HOTEL);
 
-        product1.addDailyInventory(
-                DailyInventory.builder()
-                        .date(today)
-                        .stockAvailable(1) // 재고 1개
-                        .build());
-        product2.addDailyInventory(
-                DailyInventory.builder()
-                        .date(today)
-                        .stockAvailable(2) // 재고 2개
-                        .build());
-        product3.addDailyInventory(
-                DailyInventory.builder()
-                        .date(today)
-                        .stockAvailable(0) // 재고 0개 (품절)
-                        .build());
-        store1.addProduct(product1);
-        store1.addProduct(product2);
-        store1.addProduct(product3);
-        Store savedStore = storeRepository.save(store1);
+        // Case A: 재고 있고 인원수 맞는 상품 -> true
+        Product p1 = createProduct("예약가능상품", 1000, 2);
+        p1.addDailyInventory(createInventory(today, 1));
 
-        LocalDate checkInDate = LocalDate.now();
-        LocalDate checkOutDate = LocalDate.now().plusDays(1);
+        // Case B: 재고는 있으나 최대 인원이 부족한 상품 -> false
+        Product p2 = createProduct("인원부족상품", 2000, 1); // 요청은 2명인데 최대 1명
+        p2.addDailyInventory(createInventory(today, 5));
 
+        // Case C: 인원은 맞으나 특정 날짜에 재고가 없는 상품 (품절) -> false
+        Product p3 = createProduct("품절상품", 3000, 2);
+        p3.addDailyInventory(createInventory(today, 0)); // 오늘 재고 없음
+
+        store.addProduct(p1);
+        store.addProduct(p2);
+        store.addProduct(p3);
+        Store savedStore = storeRepository.save(store);
+
+        // 2. 요청 객체 생성 (2명, 오늘~내일)
         StoreFindRequest request =
                 StoreFindRequest.builder()
-                        .checkInDate(checkInDate)
-                        .checkOutDate(checkOutDate)
+                        .checkInDate(today)
+                        .checkOutDate(tomorrow)
                         .personCount(2)
                         .build();
 
-        // when
-        StoreResponse store = storeFindService.findStore(savedStore.getId(), request);
+        // When
+        StoreResponse response = storeFindService.findStore(savedStore.getId(), request);
 
-        // then
-        assertThat(store).isNotNull().extracting("name").isEqualTo("testStore1");
+        // Then
+        assertThat(response.getName()).isEqualTo("경화수월");
 
-        assertThat(store.getProducts())
-                .isNotNull()
-                .extracting("name")
-                .containsExactlyInAnyOrder("product1", "product2");
+        assertThat(response.getProducts())
+                .extracting("name", "isAvailable")
+                .containsExactlyInAnyOrder(
+                        tuple("예약가능상품", true), tuple("인원부족상품", false), tuple("품절상품", false));
     }
 
     private List<Store> createTemplate() {
@@ -346,5 +333,9 @@ class StoreFindServiceTest {
                 .checkInTime(LocalTime.now())
                 .checkOutTime(LocalTime.now())
                 .build();
+    }
+
+    private DailyInventory createInventory(LocalDate date, int stock) {
+        return DailyInventory.builder().date(date).stockAvailable(stock).build();
     }
 }

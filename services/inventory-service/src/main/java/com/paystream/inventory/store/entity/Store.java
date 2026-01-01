@@ -64,7 +64,6 @@ public class Store extends BaseEntity {
     @Builder.Default private int reviewCount = 0;
     private String rule;
 
-    @BatchSize(size = 100)
     @Builder.Default
     @ElementCollection
     @CollectionTable(name = "store_amenities", joinColumns = @JoinColumn(name = "store_id"))

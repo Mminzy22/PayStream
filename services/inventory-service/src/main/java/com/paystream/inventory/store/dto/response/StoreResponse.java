@@ -40,11 +40,8 @@ public class StoreResponse {
         return createBaseBuilder(store).build();
     }
 
-    public static StoreResponse ofWithProducts(Store store) {
-        List<ProductResponse> product =
-                store.getProducts().stream().map(ProductResponse::of).toList();
-
-        return createBaseBuilder(store).products(product).build();
+    public static StoreResponse ofWithProducts(Store store, List<ProductResponse> products) {
+        return createBaseBuilder(store).products(products).build();
     }
 
     private static StoreResponseBuilder createBaseBuilder(Store store) {

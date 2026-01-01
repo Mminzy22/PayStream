@@ -11,6 +11,5 @@ public interface StoreQueryDslRepository {
 
     Page<Store> findAllByFetchJoin(StoreListFindRequest request, Pageable pageable);
 
-    Optional<Store> findOne(
-            Long id, LocalDate checkInDate, LocalDate checkOutDate, int personCount);
+    Optional<Store> findOne(Long id, LocalDate checkInDate, LocalDate checkOutDate);
 }
