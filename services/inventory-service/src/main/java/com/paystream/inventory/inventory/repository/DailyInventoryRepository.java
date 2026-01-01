@@ -16,6 +16,9 @@ public interface DailyInventoryRepository extends JpaRepository<DailyInventory, 
 
     List<DailyInventory> findByProductIdIn(List<Long> productIds);
 
+    List<DailyInventory> findByProductIdInAndDateGreaterThanEqual(
+            List<Long> productIds, LocalDate date);
+
     @Query(
             "SELECT d FROM DailyInventory d "
                     + "WHERE d.product.id in :productIds "
