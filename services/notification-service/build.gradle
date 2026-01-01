@@ -50,6 +50,9 @@ dependencies {
     // Swagger - API 문서화
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
     
+    // 공통 라이브러리 가져옴
+    implementation project(':common:core')
+    
     // Kafka - 이벤트 기반 알림 수신 (추후 활성화)
     // implementation 'org.springframework.kafka:spring-kafka'
     

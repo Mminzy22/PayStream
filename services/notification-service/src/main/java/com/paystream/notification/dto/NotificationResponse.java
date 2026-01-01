@@ -1,5 +1,6 @@
 package com.paystream.notification.dto;
 
+import com.paystream.notification.domain.Notification;
 import com.paystream.notification.domain.NotificationChannel;
 import com.paystream.notification.domain.NotificationStatus;
 import java.time.LocalDateTime;
@@ -50,4 +51,27 @@ public class NotificationResponse {
 
     // 수정 시각
     private LocalDateTime updatedAt;
+
+    /**
+     * Notification 엔티티를 NotificationResponse로 변환
+     *
+     * @param notification 알림 엔티티
+     * @return NotificationResponse
+     */
+    public static NotificationResponse of(Notification notification) {
+        return NotificationResponse.builder()
+                .id(notification.getId())
+                .userId(notification.getUserId())
+                .channel(notification.getChannel())
+                .title(notification.getTitle())
+                .body(notification.getBody())
+                .status(notification.getStatus())
+                .scheduledAt(notification.getScheduledAt())
+                .sentAt(notification.getSentAt())
+                .retryCount(notification.getRetryCount())
+                .templateCode(notification.getTemplateCode())
+                .createdAt(notification.getCreatedAt())
+                .updatedAt(notification.getUpdatedAt())
+                .build();
+    }
 }

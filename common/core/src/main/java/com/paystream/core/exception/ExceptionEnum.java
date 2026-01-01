@@ -34,6 +34,9 @@ public enum ExceptionEnum {
     INVALID_REFRESH_TOKEN("U0004", HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
     EXPIRED_REFRESH_TOKEN("U0005", HttpStatus.UNAUTHORIZED, "만료된 리프레시 토큰입니다."),
     EMAIL_NOT_VERIFIED("U0006", HttpStatus.FORBIDDEN, "이메일 인증이 완료되지 않았습니다."),
+
+    // notification-service -> N0001
+    NOTIFICATION_NOT_FOUND("N0001", HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
     ;
 
     private String code;
