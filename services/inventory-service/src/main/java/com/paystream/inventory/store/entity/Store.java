@@ -79,7 +79,7 @@ public class Store extends BaseEntity {
 
     public void addProduct(Product product) {
         this.products.add(product);
-        product.setStore(this);
+        product.assignStore(this);
     }
 
     public void update(StoreUpdateRequest request) {

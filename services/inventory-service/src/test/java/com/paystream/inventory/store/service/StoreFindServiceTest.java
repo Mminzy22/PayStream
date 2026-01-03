@@ -356,12 +356,12 @@ class StoreFindServiceTest {
         return storeRepository.saveAll(List.of(store1, store2, store3));
     }
 
-    private Product createProduct(String name, int price, int maxCapacity) {
+    private Product createProduct(String name, int price, int maxPersonCount) {
         return Product.builder()
                 .name(name)
                 .description("test")
                 .basePrice(price)
-                .maxCapacity(maxCapacity)
+                .maxPersonCount(maxPersonCount)
                 .build();
     }
 

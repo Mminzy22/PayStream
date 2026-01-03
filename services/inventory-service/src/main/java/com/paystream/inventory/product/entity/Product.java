@@ -29,7 +29,6 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
@@ -43,16 +42,19 @@ public class Product extends BaseEntity {
     //    private String thumbnail;
 
     @Column(nullable = false)
-    private int minCapacity; // 최소 수용인원
+    private int minPersonCount; // 최소 수용인원
 
     @Column(nullable = false)
-    private int maxCapacity; // 최대 수용인원
+    private int maxPersonCount; // 최대 수용인원
 
     @Column(nullable = false)
     private int basePrice;
 
     @Column(nullable = false)
     private int personAddPrice; // 인원 추가 비용
+
+    @Column(nullable = false)
+    private int baseStock;
 
     // '상품' 하나는 '여러' 날짜별 재고를 가진다.
     @Builder.Default
@@ -69,5 +71,27 @@ public class Product extends BaseEntity {
     public void addDailyInventory(DailyInventory dailyInventory) {
         dailyInventories.add(dailyInventory);
         dailyInventory.setProduct(this);
+    }
+
+    public void assignStore(Store store) {
+        // 기존 가게와의 관계를 끊는 로직
+        if (this.store != null) {
+            this.store.getProducts().remove(this);
+        }
+
+        this.store = store;
+
+        if (store != null) {
+            store.getProducts().add(this);
+        }
+    }
+
+    public void updateInfo(Product product) {
+        this.name = product.getName();
+        this.description = product.getDescription();
+        this.minPersonCount = product.getMinPersonCount();
+        this.maxPersonCount = product.getMaxPersonCount();
+        this.basePrice = product.getBasePrice();
+        this.personAddPrice = product.getPersonAddPrice();
     }
 }

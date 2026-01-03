@@ -22,8 +22,8 @@ public class ProductResponse {
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
-                .minPersonCount(product.getMinCapacity())
-                .maxPersonCount(product.getMaxCapacity())
+                .minPersonCount(product.getMinPersonCount())
+                .maxPersonCount(product.getMaxPersonCount())
                 .price(product.getBasePrice())
                 .build();
     }
