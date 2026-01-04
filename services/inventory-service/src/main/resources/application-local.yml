@@ -5,6 +5,10 @@ spring:
   config:
     activate:
       on-profile: local
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
   # DB 설정
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -37,3 +41,10 @@ eureka:
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}
+
+file:
+  upload-dir:
+    os:
+      window: C:/paystream/uploads/
+      mac: ${user.home}/paystream/uploads/
+      linux: ${user.home}/paystream/uploads/

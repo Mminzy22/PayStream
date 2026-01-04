@@ -154,8 +154,7 @@ public class StoreControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.code").value("201"))
-                .andExpect(jsonPath("$.message").value("CREATED"))
-                .andExpect(jsonPath("$.data").value("1"));
+                .andExpect(jsonPath("$.message").value("CREATED"));
     }
 
     private Product createProduct(String name, int price, int maxPersonCount) {

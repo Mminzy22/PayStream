@@ -39,9 +39,6 @@ public class ProductCreateRequest {
     @Min(value = 1, message = "재고는 최소 1개 이상이어야 합니다.")
     private int stock; // 초기 재고 생산용
 
-    //    private List<String> photos; // URL 목록
-    //    private String thumbnail;    // 대표 사진 URL
-
     public Product toEntity() {
         return Product.builder()
                 .name(this.name)

@@ -36,3 +36,10 @@ spring:
 eureka:
   client:
     enabled: false
+
+file:
+  upload-dir:
+    os:
+      window: ${java.io.tmpdir}/paystream-test/
+      mac: ${java.io.tmpdir}/paystream-test/
+      linux: ${java.io.tmpdir}/paystream-test/

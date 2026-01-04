@@ -65,8 +65,9 @@ public class Product extends BaseEntity {
             fetch = FetchType.LAZY)
     private List<DailyInventory> dailyInventories = new ArrayList<>();
 
-    //    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    //    private List<Photo> photos = new ArrayList<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Photo> photos = new ArrayList<>();
 
     public void addDailyInventory(DailyInventory dailyInventory) {
         dailyInventories.add(dailyInventory);

@@ -3,6 +3,7 @@ package com.paystream.inventory.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
@@ -14,13 +15,16 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-                .components(new Components())
+                .components(components())
                 .info(apiInfo())
                 .servers(
                         List.of(
                                 new Server()
                                         .url("http://localhost:8000/api")
-                                        .description("API Gateway")));
+                                        .description("API Gateway"),
+                                new Server()
+                                        .url("http://localhost:8081")
+                                        .description("Inventory Service")));
     }
 
     private Info apiInfo() {
@@ -28,5 +32,29 @@ public class SwaggerConfig {
                 .title("Inventory API")
                 .description("Inventory API")
                 .version("0.0.1-SNAPSHOT");
+    }
+
+    private Components components() {
+        return new Components()
+                .addSecuritySchemes(
+                        "accessToken",
+                        new SecurityScheme()
+                                .name("accessToken")
+                                .type(SecurityScheme.Type.APIKEY)
+                                .in(SecurityScheme.In.HEADER)
+                                .bearerFormat("JWT"))
+                .addSecuritySchemes(
+                        "refreshToken",
+                        new SecurityScheme()
+                                .name("refreshToken")
+                                .type(SecurityScheme.Type.APIKEY)
+                                .in(SecurityScheme.In.HEADER)
+                                .bearerFormat("JWT"))
+                .addSecuritySchemes(
+                        "X-Auth-User-Id",
+                        new SecurityScheme()
+                                .name("X-Auth-User-Id")
+                                .type(SecurityScheme.Type.APIKEY)
+                                .in(SecurityScheme.In.HEADER));
     }
 }
