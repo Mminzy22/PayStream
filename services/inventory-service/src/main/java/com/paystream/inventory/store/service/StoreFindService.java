@@ -19,6 +19,7 @@ import com.paystream.inventory.store.entity.Store;
 import com.paystream.inventory.store.repository.StoreQueryDslRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -73,13 +74,24 @@ public class StoreFindService {
                                     productsByStoreId.getOrDefault(
                                             store.getId(), Collections.emptyList());
 
-                            int minPrice =
+                            ProductResponse productResponse =
                                     storeProducts.stream()
-                                            .mapToInt(Product::getBasePrice)
-                                            .min()
-                                            .orElse(0);
+                                            .min(Comparator.comparingInt(Product::getBasePrice))
+                                            .map(
+                                                    p -> {
+                                                        List<DailyInventory> dailyInventories =
+                                                                p.getDailyInventories();
+                                                        boolean isAvailable =
+                                                                getIsAvailable(
+                                                                        request.getPersonCount(),
+                                                                        p,
+                                                                        dailyInventories);
 
-                            return StoreResponse.of(store, minPrice);
+                                                        return ProductResponse.of(p, isAvailable);
+                                                    })
+                                            .orElse(null);
+
+                            return StoreResponse.of(store, productResponse);
                         });
 
         return new PageResponse<>(responsePage);
@@ -121,20 +133,21 @@ public class StoreFindService {
                                             inventoriesMap.getOrDefault(
                                                     p.getId(), Collections.emptyList());
 
-                                    boolean isStock =
-                                            findInventory.stream()
-                                                    .allMatch(inv -> inv.getStockAvailable() > 0);
-
-                                    // 최대 수용인원과 재고가 없을 경우 체크 (예약 가능 상품이면 true)
                                     boolean isAvailable =
-                                            isStock
-                                                    && request.getPersonCount()
-                                                            <= p.getMaxPersonCount();
+                                            getIsAvailable(
+                                                    request.getPersonCount(), p, findInventory);
 
                                     return ProductResponse.of(p, isAvailable);
                                 })
                         .toList();
 
         return StoreResponse.ofWithProducts(store, productResponses);
+    }
+
+    private boolean getIsAvailable(int personCount, Product p, List<DailyInventory> inventory) {
+        boolean isStock = inventory.stream().allMatch(inv -> inv.getStockAvailable() > 0);
+
+        // 최대 수용인원과 재고가 없을 경우 체크 (예약 가능 상품이면 true)
+        return isStock && personCount <= p.getMaxPersonCount();
     }
 }

@@ -1,6 +1,7 @@
 package com.paystream.inventory.product.dto.response;
 
 import com.paystream.inventory.inventory.dto.response.DailyInventoryResponse;
+import com.paystream.inventory.product.entity.Photo;
 import com.paystream.inventory.product.entity.Product;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class ProductDetailResponse {
     private int basePrice;
     private int personAddPrice;
     private List<DailyInventoryResponse> dailyInventories;
+    private List<String> images;
 
     private static ProductDetailResponse.ProductDetailResponseBuilder createBuilder(
             Product product) {
@@ -32,7 +34,8 @@ public class ProductDetailResponse {
                 .minPersonCount(product.getMinPersonCount())
                 .maxPersonCount(product.getMaxPersonCount())
                 .basePrice(product.getBasePrice())
-                .personAddPrice(product.getPersonAddPrice());
+                .personAddPrice(product.getPersonAddPrice())
+                .images(product.getPhotos().stream().map(Photo::getImagePath).toList());
     }
 
     public static ProductDetailResponse of(Product product) {
