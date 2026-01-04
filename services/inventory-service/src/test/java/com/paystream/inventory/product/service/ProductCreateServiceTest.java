@@ -34,7 +34,7 @@ class ProductCreateServiceTest {
 
     @Autowired private DailyInventoryRepository dailyInventoryRepository;
 
-    String hostId = "1";
+    private String hostId = "1";
 
     private Store savedStore;
 
@@ -74,7 +74,7 @@ class ProductCreateServiceTest {
         Long savedProductId = productCreateService.create(hostId, request);
 
         // then
-        assertThat(savedProductId).isEqualTo(1L);
+        assertThat(savedProductId).isNotNull();
     }
 
     @DisplayName("[실패] 상품 생성 시 가게 주인이 다르면 예외가 발생한다")

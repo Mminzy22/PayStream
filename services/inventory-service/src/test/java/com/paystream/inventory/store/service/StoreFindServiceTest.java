@@ -20,20 +20,20 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @Transactional
 @ActiveProfiles("test")
 @SpringBootTest
+@AutoConfigureMockMvc
 class StoreFindServiceTest {
 
     @Autowired private StoreFindService storeService;
@@ -42,17 +42,27 @@ class StoreFindServiceTest {
     @Autowired private ProductRepository productRepository;
     @Autowired private DailyInventoryRepository dailyInventoryRepository;
     @Autowired private StoreFindService storeFindService;
-    @Autowired private StringRedisTemplate redisTemplate;
+    //    @Autowired private StringRedisTemplate redisTemplate;
+    //
+    //    @BeforeEach
+    //    void tearDown() {
+    //        if (redisTemplate != null) {
+    //            try {
+    //                // Redis 연결을 시도하고 실패하면 예외가 발생함
+    //                redisTemplate.getConnectionFactory().getConnection().flushDb();
+    //            } catch (Exception e) {
+    //                // Redis가 꺼져 있어도 테스트가 중단되지 않도록 로그만 남기고 넘어감
+    //                System.err.println("Redis를 사용할 수 없습니다. flushDb를 건너뜁니다: " + e.getMessage());
+    //            }
+    //        }
+    //    }
 
-    @EnableJpaAuditing
-    @TestConfiguration
-    static class TestConfig {}
+    @MockitoBean private RedisConnectionFactory redisConnectionFactory;
 
-    @BeforeEach
-    void tearDown() {
-        // redis 추가로 각 테스트 수행 전 redis 키 비움
-        redisTemplate.getConnectionFactory().getConnection().flushDb();
-    }
+    //    @MockitoBean
+    //    private StringRedisTemplate stringRedisTemplate;
+    //    @MockitoBean // 실제 빈 대신 가짜 빈을 주입함
+    //    private StringRedisTemplate redisTemplate;
 
     @DisplayName("가게 전체 조회시 상품의 최저 금액이 같이 조회된다.")
     @Test
