@@ -37,6 +37,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+@Transactional
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -54,7 +55,6 @@ public class StoreControllerIntegrationTest {
 
     @Autowired private StoreQueryDslRepository storeQueryDslRepository;
 
-    @Transactional
     @DisplayName("가게 전체 조회 Controller 통합 테스트")
     @Test
     void storeControllerWithFindAllIntegrationTest() throws Exception {
@@ -99,7 +99,11 @@ public class StoreControllerIntegrationTest {
                         .build();
 
         List<StoreResponse> expectedResponse =
-                List.of(StoreResponse.of(foundStore, 25000), StoreResponse.of(foundStore2, 30000));
+                List.of(
+                        StoreResponse.of(foundStore, 25000),
+                        StoreResponse.of(foundStore2, 30000),
+                        StoreResponse.of(notFoundStore, 0) // 상품이 없기 때문에 0
+                        );
         Page<StoreResponse> pageResponse =
                 new PageImpl<>(expectedResponse, PageRequest.of(0, 10), expectedResponse.size());
 
@@ -126,9 +130,9 @@ public class StoreControllerIntegrationTest {
     @Test
     void createStoreTest() throws Exception {
         // given
+        String hostId = "1";
         StoreCreateRequest request =
                 StoreCreateRequest.builder()
-                        .hostId("1")
                         .name("한강 뷰 호텔")
                         .address(new Address("서울시", "여의도"))
                         .category(Category.HOTEL)
@@ -144,6 +148,7 @@ public class StoreControllerIntegrationTest {
         mockMvc.perform(
                         post("/stores")
                                 .contentType(APPLICATION_JSON)
+                                .header("X-Auth-User-Id", hostId)
                                 .content(objectMapper.writeValueAsBytes(request)))
                 .andDo(print())
                 .andExpect(status().isOk())

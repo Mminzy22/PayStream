@@ -33,7 +33,7 @@ public class ProductCreateRequest {
     @Min(value = 2, message = "최소인원은 2명 이상이어야 합니다.")
     private int minPersonCount;
 
-    @Min(value = 3, message = "최대인원은 3명 이상이어야 합니다.")
+    @Min(value = 2, message = "최대인원은 2명 이상이어야 합니다.")
     private int maxPersonCount;
 
     @Min(value = 1, message = "재고는 최소 1개 이상이어야 합니다.")

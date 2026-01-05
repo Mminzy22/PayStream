@@ -7,6 +7,7 @@ import com.paystream.inventory.store.entity.Category;
 import com.paystream.inventory.store.entity.Store;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.*;
 
 @ToString
@@ -27,7 +28,7 @@ public class StoreResponse {
     private double rating;
     private int reviewCount;
     private String rules;
-    private List<Amenities> amenities;
+    private List<String> amenities;
     private int minPrice;
     private List<ProductResponse> products;
 
@@ -39,14 +40,16 @@ public class StoreResponse {
         return createBaseBuilder(store).build();
     }
 
-    public static StoreResponse ofWithProducts(Store store) {
-        List<ProductResponse> product =
-                store.getProducts().stream().map(ProductResponse::of).toList();
-
-        return createBaseBuilder(store).products(product).build();
+    public static StoreResponse ofWithProducts(Store store, List<ProductResponse> products) {
+        return createBaseBuilder(store).products(products).build();
     }
 
     private static StoreResponseBuilder createBaseBuilder(Store store) {
+        List<String> responseAmenities =
+                Optional.ofNullable(store.getAmenities()).orElseGet(List::of).stream()
+                        .map(Amenities::getDisplayName)
+                        .toList();
+
         return StoreResponse.builder()
                 .id(store.getId())
                 .hostId(store.getHostId())
@@ -58,6 +61,6 @@ public class StoreResponse {
                 .checkOutTime(store.getCheckOutTime())
                 .rating(store.getRating())
                 .reviewCount(store.getReviewCount())
-                .amenities(store.getAmenities());
+                .amenities(responseAmenities);
     }
 }

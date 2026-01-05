@@ -17,12 +17,10 @@ public class StoreCreateService {
     private final StoreRepository storeRepository;
 
     @Transactional
-    public Long create(StoreCreateRequest request) {
-        Store store = request.toEntity();
+    public Long create(String hostId, StoreCreateRequest request) {
+        Store store = request.toEntity(hostId);
 
-        // 1. 호스트ID가 실제 존재하는 회원인지 확인
-
-        // 2. 동일한 이름의 가게가 이미 등록되어 있는지 확인
+        // 동일한 이름의 가게가 이미 등록되어 있는지 확인
         Boolean existsName = storeRepository.existsByName(store.getName());
         if (existsName) {
             throw new PayStreamException(STORE_ALREADY_EXISTS);

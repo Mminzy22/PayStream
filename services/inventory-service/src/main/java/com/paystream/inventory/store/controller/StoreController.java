@@ -8,6 +8,7 @@ import com.paystream.inventory.store.service.StoreCreateService;
 import com.paystream.inventory.store.service.StoreDeleteService;
 import com.paystream.inventory.store.service.StoreFindService;
 import com.paystream.inventory.store.service.StoreUpdateService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -42,21 +43,28 @@ public class StoreController {
     }
 
     @PostMapping
-    public BaseResponse<Long> created(@Valid @RequestBody StoreCreateRequest request) {
-        Long id = storeCreateService.create(request);
+    public BaseResponse<Long> created(
+            HttpServletRequest request, @Valid @RequestBody StoreCreateRequest createRequest) {
+        String hostId = request.getHeader("X-Auth-User-Id");
+        Long id = storeCreateService.create(hostId, createRequest);
         return BaseResponse.created(id);
     }
 
     @PutMapping("{id}")
     public BaseResponse<StoreResponse> updated(
-            @PathVariable Long id, @Valid @RequestBody StoreUpdateRequest request) {
-        StoreResponse response = storeUpdateService.update(id, request);
+            @PathVariable Long id,
+            HttpServletRequest request,
+            @Valid @RequestBody StoreUpdateRequest updateRequest) {
+        String hostId = request.getHeader("X-Auth-User-Id");
+        StoreResponse response = storeUpdateService.update(id, hostId, updateRequest);
         return BaseResponse.ok(response);
     }
 
     @DeleteMapping
-    public BaseResponse<String> deleted(@Valid @RequestBody StoreDeleteRequest request) {
-        storeDeleteService.deleted(request);
+    public BaseResponse<String> deleted(
+            HttpServletRequest request, @Valid @RequestBody StoreDeleteRequest deleteRequest) {
+        String hostId = request.getHeader("X-Auth-User-Id");
+        storeDeleteService.deleted(hostId, deleteRequest);
         return BaseResponse.ok("성공적으로 제거 되었습니다.");
     }
 }

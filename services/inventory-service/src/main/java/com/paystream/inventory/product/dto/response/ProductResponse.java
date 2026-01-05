@@ -17,14 +17,16 @@ public class ProductResponse {
     private int minPersonCount;
     private int maxPersonCount;
     private int price;
+    private boolean isAvailable;
 
-    public static ProductResponse of(Product product) {
+    public static ProductResponse of(Product product, boolean isAvailable) {
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .minPersonCount(product.getMinPersonCount())
                 .maxPersonCount(product.getMaxPersonCount())
                 .price(product.getBasePrice())
+                .isAvailable(isAvailable)
                 .build();
     }
 }
