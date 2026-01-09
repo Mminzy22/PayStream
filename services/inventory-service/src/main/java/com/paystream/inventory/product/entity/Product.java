@@ -2,6 +2,7 @@ package com.paystream.inventory.product.entity;
 
 import com.paystream.core.BaseEntity;
 import com.paystream.inventory.inventory.entity.DailyInventory;
+import com.paystream.inventory.photo.entity.Photo;
 import com.paystream.inventory.store.entity.Store;
 import jakarta.persistence.*;
 import java.util.ArrayList;

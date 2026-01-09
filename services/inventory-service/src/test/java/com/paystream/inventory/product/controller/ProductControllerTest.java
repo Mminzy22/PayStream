@@ -3,7 +3,6 @@ package com.paystream.inventory.product.controller;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.paystream.inventory.config.FileStorageConfig;
 import com.paystream.inventory.product.dto.request.ProductCreateRequest;
 import com.paystream.inventory.store.entity.Address;
 import com.paystream.inventory.store.entity.Category;
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -42,11 +42,12 @@ class ProductControllerTest {
 
     @Autowired private StoreRepository storeRepository;
 
-    @Autowired private FileStorageConfig config;
+    @Value("${file.upload-dir}")
+    private String basePath;
 
     @AfterEach
     void cleanup() throws IOException {
-        Path path = Paths.get(config.getBasePath());
+        Path path = Paths.get(basePath);
         if (Files.exists(path)) {
             // 폴더 내부의 모든 파일 삭제 후 폴더 삭제
             Files.walk(path)

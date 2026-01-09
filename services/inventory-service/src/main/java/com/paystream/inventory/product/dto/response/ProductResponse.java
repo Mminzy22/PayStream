@@ -1,7 +1,6 @@
 package com.paystream.inventory.product.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.paystream.inventory.product.entity.Photo;
 import com.paystream.inventory.product.entity.Product;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -26,7 +25,7 @@ public class ProductResponse {
 
     private List<String> images;
 
-    public static ProductResponse of(Product product, boolean isAvailable) {
+    public static ProductResponse of(Product product, boolean isAvailable, List<String> images) {
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -34,7 +33,7 @@ public class ProductResponse {
                 .maxPersonCount(product.getMaxPersonCount())
                 .price(product.getBasePrice())
                 .isAvailable(isAvailable)
-                .images(product.getPhotos().stream().map(Photo::getImagePath).toList())
+                .images(images)
                 .build();
     }
 }

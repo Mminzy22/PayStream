@@ -19,7 +19,9 @@ import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -75,7 +77,11 @@ class ProductCreateServiceTest {
     @Test
     void testCreateProduct() throws IOException {
         // given
-        given(imageUtils.saveImage(any())).willReturn("/test/path/test_image.png");
+        Map<String, String> imageFile = new HashMap<>();
+        imageFile.put("name", "test_image.png");
+        imageFile.put("path", "/test/path/test_image.png");
+
+        given(imageUtils.saveImage(any())).willReturn(imageFile);
 
         ProductCreateRequest request =
                 ProductCreateRequest.builder()
@@ -101,7 +107,11 @@ class ProductCreateServiceTest {
     @Test
     void testCreateProductThrowNotStoreHost() throws IOException {
         // given
-        given(imageUtils.saveImage(any())).willReturn("/test/path/test_image.png");
+        Map<String, String> imageFile = new HashMap<>();
+        imageFile.put("name", "test_image.png");
+        imageFile.put("path", "/test/path/test_image.png");
+
+        given(imageUtils.saveImage(any())).willReturn(imageFile);
 
         ProductCreateRequest request =
                 ProductCreateRequest.builder()
@@ -131,7 +141,11 @@ class ProductCreateServiceTest {
     @Test
     void testCreateProductThrowDuplicateProductName() throws IOException {
         // given
-        given(imageUtils.saveImage(any())).willReturn("/test/path/test_image.png");
+        Map<String, String> imageFile = new HashMap<>();
+        imageFile.put("name", "test_image.png");
+        imageFile.put("path", "/test/path/test_image.png");
+
+        given(imageUtils.saveImage(any())).willReturn(imageFile);
 
         ProductCreateRequest request =
                 ProductCreateRequest.builder()
@@ -161,7 +175,11 @@ class ProductCreateServiceTest {
     @Test
     void testCreateProductAnotherStoreWithProductName() throws IOException {
         // given
-        given(imageUtils.saveImage(any())).willReturn("/test/path/test_image.png");
+        Map<String, String> imageFile = new HashMap<>();
+        imageFile.put("name", "test_image.png");
+        imageFile.put("path", "/test/path/test_image.png");
+
+        given(imageUtils.saveImage(any())).willReturn(imageFile);
 
         Store store =
                 Store.builder()
@@ -207,7 +225,11 @@ class ProductCreateServiceTest {
     @Test
     void testCreateProductWithCreateDailyInventory() throws IOException {
         // given
-        given(imageUtils.saveImage(any())).willReturn("/test/path/test_image.png");
+        Map<String, String> imageFile = new HashMap<>();
+        imageFile.put("name", "test_image.png");
+        imageFile.put("path", "/test/path/test_image.png");
+
+        given(imageUtils.saveImage(any())).willReturn(imageFile);
 
         ProductCreateRequest request =
                 ProductCreateRequest.builder()

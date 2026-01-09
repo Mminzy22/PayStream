@@ -7,8 +7,8 @@ import com.paystream.core.exception.ExceptionEnum;
 import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
+import com.paystream.inventory.photo.entity.Photo;
 import com.paystream.inventory.product.dto.request.ProductCreateRequest;
-import com.paystream.inventory.product.entity.Photo;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.product.repository.ProductRepository;
 import com.paystream.inventory.store.entity.Store;
@@ -17,6 +17,7 @@ import com.paystream.inventory.utils.ImageUtils;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +40,10 @@ public class ProductCreateService {
 
         validateProductName(request, findStore);
 
-        List<String> uploadsPath = savedImageAndGetPath(files);
+        List<Map<String, String>> uploadsFile = savedImageAndGetPath(files);
 
         Product savedProduct = getSavedProduct(request, findStore);
-        productEnterPhotos(uploadsPath, savedProduct);
+        productEnterPhotos(uploadsFile, savedProduct);
 
         fillDailyStock(savedProduct, 30);
 
@@ -50,13 +51,14 @@ public class ProductCreateService {
     }
 
     // 상품에 이미지들을 저장
-    private void productEnterPhotos(List<String> uploadsPath, Product savedProduct) {
+    private void productEnterPhotos(List<Map<String, String>> uploadsFile, Product savedProduct) {
         List<Photo> photos =
-                uploadsPath.stream()
+                uploadsFile.stream()
                         .map(
-                                path -> {
+                                file -> {
                                     return Photo.builder()
-                                            .imagePath(path)
+                                            .fileName(file.get("name"))
+                                            .imagePath(file.get("path"))
                                             .product(savedProduct)
                                             .build();
                                 })
@@ -65,7 +67,7 @@ public class ProductCreateService {
     }
 
     // 이미지 저장 후 저장경로 반환
-    private List<String> savedImageAndGetPath(List<MultipartFile> files) {
+    private List<Map<String, String>> savedImageAndGetPath(List<MultipartFile> files) {
         return files.parallelStream()
                 .map(
                         file -> {

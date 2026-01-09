@@ -101,8 +101,10 @@ public class StoreControllerIntegrationTest {
 
         List<StoreResponse> expectedResponse =
                 List.of(
-                        StoreResponse.of(foundStore, ProductResponse.of(foundProduct, true)),
-                        StoreResponse.of(foundStore2, ProductResponse.of(foundProduct2, true)),
+                        StoreResponse.of(
+                                foundStore, ProductResponse.of(foundProduct, true, List.of())),
+                        StoreResponse.of(
+                                foundStore2, ProductResponse.of(foundProduct2, true, List.of())),
                         StoreResponse.of(notFoundStore, null) // 상품이 없기 때문에 0
                         );
         Page<StoreResponse> pageResponse =

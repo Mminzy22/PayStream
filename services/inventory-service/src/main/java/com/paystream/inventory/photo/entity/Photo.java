@@ -1,6 +1,7 @@
-package com.paystream.inventory.product.entity;
+package com.paystream.inventory.photo.entity;
 
 import com.paystream.core.BaseEntity;
+import com.paystream.inventory.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -28,6 +29,9 @@ public class Photo extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
     @JoinColumn
     private Product product;
+
+    @Column(nullable = false)
+    private String fileName;
 
     @Column(nullable = false)
     private String imagePath;

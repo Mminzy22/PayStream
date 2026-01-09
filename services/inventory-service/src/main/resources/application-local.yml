@@ -43,8 +43,4 @@ eureka:
     instance-id: ${spring.application.name}:${random.value}
 
 file:
-  upload-dir:
-    os:
-      window: C:/paystream/uploads/
-      mac: ${user.home}/paystream/uploads/
-      linux: ${user.home}/paystream/uploads/
+  upload-dir: ${user.home}/paystream/uploads/

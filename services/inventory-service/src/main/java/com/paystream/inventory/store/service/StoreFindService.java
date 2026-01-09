@@ -9,6 +9,7 @@ import com.paystream.inventory.annotation.CacheKeyParam;
 import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
+import com.paystream.inventory.photo.service.StorageService;
 import com.paystream.inventory.product.dto.response.ProductResponse;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.product.repository.ProductRepository;
@@ -37,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StoreFindService {
 
+    private final StorageService storageService;
     private final ProductRepository productRepository;
     private final StoreQueryDslRepository storeQueryDslRepository;
     private final DailyInventoryRepository dailyInventoryRepository;
@@ -81,13 +83,19 @@ public class StoreFindService {
                                                     p -> {
                                                         List<DailyInventory> dailyInventories =
                                                                 p.getDailyInventories();
+
+                                                        // 예약 가능 여부 확인
                                                         boolean isAvailable =
                                                                 getIsAvailable(
                                                                         request.getPersonCount(),
                                                                         p,
                                                                         dailyInventories);
 
-                                                        return ProductResponse.of(p, isAvailable);
+                                                        // 이미지 URL 변환
+                                                        List<String> imageUrls = getImageUrls(p);
+
+                                                        return ProductResponse.of(
+                                                                p, isAvailable, imageUrls);
                                                     })
                                             .orElse(null);
 
@@ -133,21 +141,33 @@ public class StoreFindService {
                                             inventoriesMap.getOrDefault(
                                                     p.getId(), Collections.emptyList());
 
+                                    // 예약 가능 여부 확인
                                     boolean isAvailable =
                                             getIsAvailable(
                                                     request.getPersonCount(), p, findInventory);
 
-                                    return ProductResponse.of(p, isAvailable);
+                                    // 이미지 URL 변환
+                                    List<String> imageUrls = getImageUrls(p);
+
+                                    return ProductResponse.of(p, isAvailable, imageUrls);
                                 })
                         .toList();
 
         return StoreResponse.ofWithProducts(store, productResponses);
     }
 
+    // 예약 가능 여부 확인
     private boolean getIsAvailable(int personCount, Product p, List<DailyInventory> inventory) {
         boolean isStock = inventory.stream().allMatch(inv -> inv.getStockAvailable() > 0);
 
         // 최대 수용인원과 재고가 없을 경우 체크 (예약 가능 상품이면 true)
         return isStock && personCount <= p.getMaxPersonCount();
+    }
+
+    // 이미지 URL 변환
+    private List<String> getImageUrls(Product product) {
+        return product.getPhotos().stream()
+                .map(photo -> storageService.getImageUrl(photo.getFileName()))
+                .toList();
     }
 }

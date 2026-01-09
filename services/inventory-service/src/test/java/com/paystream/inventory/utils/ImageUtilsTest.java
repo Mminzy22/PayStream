@@ -2,17 +2,18 @@ package com.paystream.inventory.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.paystream.inventory.config.FileStorageConfig;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,13 +22,14 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 class ImageUtilsTest {
 
-    @Autowired private FileStorageConfig config;
+    @Value("${file.upload-dir}")
+    private String basePath;
 
     @Autowired private ImageUtils imageUtils;
 
     @AfterEach
     void cleanup() throws IOException {
-        Path path = Paths.get(config.getBasePath());
+        Path path = Paths.get(basePath);
         if (Files.exists(path)) {
             // 폴더 내부의 모든 파일 삭제 후 폴더 삭제
             Files.walk(path)
@@ -50,13 +52,12 @@ class ImageUtilsTest {
                         "test content".getBytes() // 파일 내용 (byte[])
                         );
 
-        String basePath = config.getBasePath();
-
         // when
-        String savedPath = imageUtils.saveImage(file);
+        Map<String, String> imageFile = imageUtils.saveImage(file);
 
         // then
-        assertThat(savedPath).startsWith(basePath);
-        assertThat(savedPath).endsWith("-" + originalName);
+        String path = imageFile.get("path");
+        assertThat(path).startsWith(basePath);
+        assertThat(path).endsWith("-" + originalName);
     }
 }
