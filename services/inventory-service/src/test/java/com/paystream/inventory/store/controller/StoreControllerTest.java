@@ -56,7 +56,6 @@ class StoreControllerTest {
                                 .id(1L)
                                 .name("한강 뷰 맛집")
                                 .amenities(List.of("와이파이", "반려동물 동반 가능"))
-                                .minPrice(25000)
                                 .build());
         BaseResponse<List<StoreResponse>> result = BaseResponse.ok(response);
 

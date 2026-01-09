@@ -81,9 +81,9 @@ class StoreFindServiceTest {
                 storeService.userFindStoreList(request, PageRequest.of(1, 3));
 
         // then
-        assertThat(response.getContent()).hasSize(3);
         assertThat(response.getContent())
-                .extracting("name", "minPrice")
+                .hasSize(3)
+                .extracting(StoreResponse::getName, s -> s.getProducts().get(0).getPrice())
                 .containsExactlyInAnyOrder(
                         tuple("testStore1", 1000),
                         tuple("testStore2", 3000),
@@ -109,9 +109,9 @@ class StoreFindServiceTest {
                 storeService.userFindStoreList(request, PageRequest.of(page, size));
 
         // then
-        assertThat(responses.getContent()).hasSize(size);
         assertThat(responses.getContent())
-                .extracting("name", "minPrice")
+                .hasSize(size)
+                .extracting(StoreResponse::getName, s -> s.getProducts().get(0).getPrice())
                 .containsExactlyInAnyOrder(tuple("testStore1", 1000), tuple("testStore2", 3000));
     }
 
@@ -153,10 +153,13 @@ class StoreFindServiceTest {
                 storeService.userFindStoreList(request, PageRequest.of(1, 3));
 
         // then
-        assertThat(response.getContent()).hasSize(2);
         assertThat(response.getContent())
-                .extracting("name", "minPrice")
-                .contains(tuple("testStore1", 1000), tuple("testStore2", 2000));
+                .hasSize(2)
+                .extracting(
+                        StoreResponse::getName,
+                        store -> store.getProducts().get(0).getPrice() // 직접 객체에서 꺼냄
+                        )
+                .containsExactlyInAnyOrder(tuple("testStore1", 1000), tuple("testStore2", 2000));
     }
 
     @DisplayName("기간을 줄였을때 조회되지 않는다.")

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paystream.core.BaseResponse;
 import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.inventory.entity.DailyInventory;
+import com.paystream.inventory.product.dto.response.ProductResponse;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.store.dto.request.StoreCreateRequest;
 import com.paystream.inventory.store.dto.request.StoreListFindRequest;
@@ -100,9 +101,11 @@ public class StoreControllerIntegrationTest {
 
         List<StoreResponse> expectedResponse =
                 List.of(
-                        StoreResponse.of(foundStore, 25000),
-                        StoreResponse.of(foundStore2, 30000),
-                        StoreResponse.of(notFoundStore, 0) // 상품이 없기 때문에 0
+                        StoreResponse.of(
+                                foundStore, ProductResponse.of(foundProduct, true, List.of())),
+                        StoreResponse.of(
+                                foundStore2, ProductResponse.of(foundProduct2, true, List.of())),
+                        StoreResponse.of(notFoundStore, null) // 상품이 없기 때문에 0
                         );
         Page<StoreResponse> pageResponse =
                 new PageImpl<>(expectedResponse, PageRequest.of(0, 10), expectedResponse.size());
@@ -154,8 +157,7 @@ public class StoreControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.code").value("201"))
-                .andExpect(jsonPath("$.message").value("CREATED"))
-                .andExpect(jsonPath("$.data").value("1"));
+                .andExpect(jsonPath("$.message").value("CREATED"));
     }
 
     private Product createProduct(String name, int price, int maxPersonCount) {

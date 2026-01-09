@@ -22,6 +22,7 @@ public class ProductDetailResponse {
     private int basePrice;
     private int personAddPrice;
     private List<DailyInventoryResponse> dailyInventories;
+    private List<String> images;
 
     private static ProductDetailResponse.ProductDetailResponseBuilder createBuilder(
             Product product) {
@@ -35,12 +36,12 @@ public class ProductDetailResponse {
                 .personAddPrice(product.getPersonAddPrice());
     }
 
-    public static ProductDetailResponse of(Product product) {
-        return createBuilder(product).build();
+    public static ProductDetailResponse of(Product product, List<String> images) {
+        return createBuilder(product).images(images).build();
     }
 
     public static ProductDetailResponse of(
-            Product product, List<DailyInventoryResponse> dailyInventories) {
-        return createBuilder(product).dailyInventories(dailyInventories).build();
+            Product product, List<DailyInventoryResponse> dailyInventories, List<String> images) {
+        return createBuilder(product).dailyInventories(dailyInventories).images(images).build();
     }
 }

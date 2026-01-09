@@ -36,3 +36,6 @@ spring:
 eureka:
   client:
     enabled: false
+
+file:
+  upload-dir: ${java.io.tmpdir}/paystream-test/

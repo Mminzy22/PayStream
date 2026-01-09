@@ -2,6 +2,7 @@ package com.paystream.inventory.product.entity;
 
 import com.paystream.core.BaseEntity;
 import com.paystream.inventory.inventory.entity.DailyInventory;
+import com.paystream.inventory.photo.entity.Photo;
 import com.paystream.inventory.store.entity.Store;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -65,8 +66,9 @@ public class Product extends BaseEntity {
             fetch = FetchType.LAZY)
     private List<DailyInventory> dailyInventories = new ArrayList<>();
 
-    //    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    //    private List<Photo> photos = new ArrayList<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Photo> photos = new ArrayList<>();
 
     public void addDailyInventory(DailyInventory dailyInventory) {
         dailyInventories.add(dailyInventory);

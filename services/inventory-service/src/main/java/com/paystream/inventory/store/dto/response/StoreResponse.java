@@ -6,6 +6,7 @@ import com.paystream.inventory.store.entity.Amenities;
 import com.paystream.inventory.store.entity.Category;
 import com.paystream.inventory.store.entity.Store;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.*;
@@ -29,11 +30,10 @@ public class StoreResponse {
     private int reviewCount;
     private String rules;
     private List<String> amenities;
-    private int minPrice;
     private List<ProductResponse> products;
 
-    public static StoreResponse of(Store store, int minPrice) {
-        return createBaseBuilder(store).minPrice(minPrice).build();
+    public static StoreResponse of(Store store, ProductResponse product) {
+        return createBaseBuilder(store).products(Collections.singletonList(product)).build();
     }
 
     public static StoreResponse of(Store store) {
