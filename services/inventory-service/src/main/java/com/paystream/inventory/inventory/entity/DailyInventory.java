@@ -14,8 +14,8 @@ import lombok.*;
 public class DailyInventory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -28,10 +28,18 @@ public class DailyInventory {
     private int stockAvailable; // 가용 재고
 
     public void increaseStockAvailable() {
+        if (this.stockAvailable >= product.getBaseStock()) {
+            throw new IllegalStateException("상품의 기본 재고보다 많습니다.");
+        }
+
         this.stockAvailable++;
     }
 
     public void decreaseStockAvailable() {
+        if (this.stockAvailable <= 0) {
+            throw new IllegalStateException("재고가 부족합니다.");
+        }
+
         this.stockAvailable--;
     }
 

@@ -2,7 +2,6 @@ package com.paystream.inventory.product.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.inventory.entity.DailyInventory;
@@ -65,6 +64,7 @@ class ProductDeleteServiceTest {
                         .maxPersonCount(3)
                         .basePrice(10000)
                         .personAddPrice(10000)
+                        .baseStock(5)
                         .build();
 
         savedStore.addProduct(product);
@@ -79,6 +79,7 @@ class ProductDeleteServiceTest {
                                         DailyInventory.builder()
                                                 .product(savedProduct)
                                                 .date(date)
+                                                .stockAvailable(5)
                                                 .build())
                         .toList();
 
@@ -118,7 +119,7 @@ class ProductDeleteServiceTest {
         assertThat(deletedInventories).isEmpty();
     }
 
-    @DisplayName("[실패] 상품이 예약되어 재고가 차감되어 있을때는 상품을 제거할 수 없다.")
+    @DisplayName("[실패] 상품이 예약되어있고 재고가 차감되어 있을때는 상품을 제거할 수 없다.")
     @Test
     void failDeleteProductWhenReservationsExist() {
         // given
@@ -128,7 +129,9 @@ class ProductDeleteServiceTest {
         // 재고 차감
         List<DailyInventory> dailyInventories =
                 dailyInventoryRepository.findByProductId(savedProduct.getId());
-        dailyInventories.forEach(DailyInventory::decreaseStockAvailable);
+        for (DailyInventory dailyInventory : dailyInventories) {
+            dailyInventory.decreaseStockAvailable();
+        }
 
         // when
         // then

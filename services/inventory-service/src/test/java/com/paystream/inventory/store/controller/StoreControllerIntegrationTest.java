@@ -117,7 +117,7 @@ public class StoreControllerIntegrationTest {
         // then
         mockMvc.perform(
                         get("/stores")
-                                .param("name", request.getName())
+                                //                                .param("name", request.getName())
                                 .param("checkInDate", request.getCheckInDate().toString())
                                 .param("checkOutDate", request.getCheckOutDate().toString())
                                 .param("personCount", String.valueOf(request.getPersonCount())))

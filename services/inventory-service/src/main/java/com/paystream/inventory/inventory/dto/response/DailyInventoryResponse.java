@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DailyInventoryResponse {
 
-    private Long inventoryId;
+    private String inventoryId;
     private LocalDate date;
     private int stockAvailable;
 
