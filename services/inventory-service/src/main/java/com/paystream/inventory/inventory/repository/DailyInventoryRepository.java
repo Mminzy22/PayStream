@@ -21,8 +21,9 @@ public interface DailyInventoryRepository extends JpaRepository<DailyInventory, 
 
     @Query(
             "SELECT d FROM DailyInventory d "
-                    + "WHERE d.product.id in :productIds "
-                    + "AND d.date BETWEEN :checkInDate AND :checkOutDate")
+                    + "WHERE d.product.id = :productId "
+                    + "AND d.date >= :checkInDate "
+                    + "AND d.date < :checkOutDate")
     List<DailyInventory> findInventoriesByDateRange(
             Long productId, LocalDate checkInDate, LocalDate checkOutDate);
 }
