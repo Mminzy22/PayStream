@@ -217,7 +217,7 @@ class StockManagerServiceTest {
                         () ->
                                 stockManagerService.decreaseStock(
                                         productId, CHECK_IN_DATE, CHECK_OUT_DATE))
-                .hasMessageContaining("현재 예약이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해주세요.");
+                .hasMessageContaining("시스템이 혼잡하여 취소 처리가 지연되고 있습니다.");
     }
 
     @DisplayName("예약 취소시 상품의 재고를 다시 채웁니다.")

@@ -1,14 +1,13 @@
 package com.paystream.inventory.inventory.service;
 
+import com.paystream.inventory.annotation.DistributedLock;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -37,98 +36,51 @@ public class StockManagerService {
      * @param checkInDate 체크인 날짜
      * @param checkOutDate 체크아웃 날짜
      */
+    @DistributedLock(key = "'lock:inventory:' + #productId")
     public void decreaseStock(Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
-        // 동시성 제어
-        String lockKey = getLockKey(productId);
-
-        RLock rLock = redissonClient.getLock(lockKey);
-
-        try {
-            // 모든 상품에 대해 한 번에 락을 획득 (원자적)
-            if (!rLock.tryLock(10, 5, TimeUnit.SECONDS)) {
-                log.error("락 획득 실패 - lockKey: {}", lockKey);
-                throw new IllegalStateException("현재 예약이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해주세요.");
-            }
-
-            transactionTemplate.executeWithoutResult(
-                    status -> {
-                        // 날짜 역전 확인
-                        if (checkInDate.isAfter(checkOutDate)) {
-                            throw new IllegalStateException("체크인 날짜와 체크아웃 날짜가 바뀌었습니다. 다시 확인해주세요.");
-                        }
-
-                        List<DailyInventory> inventoryList =
-                                dailyInventoryRepository.findInventoriesByDateRange(
-                                        productId, checkInDate, checkOutDate);
-
-                        // 조회된 일수와 기대 일수 확인
-                        long expectedDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-                        if (expectedDays != inventoryList.size()) {
-                            log.error(
-                                    "재고 데이터 불일치: 상품ID={}, 기대일수={}, 조회된일수={}",
-                                    productId,
-                                    expectedDays,
-                                    inventoryList.size());
-                            throw new IllegalStateException("현재 예약 가능 기간이 아닙니다.");
-                        }
-
-                        // 모든 날짜에 재고가 있는지 확인
-                        boolean isStockAvailable =
-                                inventoryList.stream().allMatch(DailyInventory::isStockAvailable);
-
-                        // 재고 감소
-                        if (inventoryList.isEmpty() || !isStockAvailable) {
-                            throw new IllegalStateException("재고가 부족한 날짜가 있습니다. 다시 확인해주세요.");
-                        }
-
-                        inventoryList.forEach(DailyInventory::decreaseStockAvailable);
-                    });
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("작업 중 오류가 발생했습니다.");
-        } finally {
-            // 현재 쓰레드가 잡은 락이 맞는지 확인 후 해제
-            if (rLock != null && rLock.isHeldByCurrentThread()) {
-                rLock.unlock();
-            }
+        // 날짜 역전 확인
+        if (checkInDate.isAfter(checkOutDate)) {
+            throw new IllegalStateException("체크인 날짜와 체크아웃 날짜가 바뀌었습니다. 다시 확인해주세요.");
         }
+
+        List<DailyInventory> inventoryList =
+                dailyInventoryRepository.findInventoriesByDateRange(
+                        productId, checkInDate, checkOutDate);
+
+        // 조회된 일수와 기대 일수 확인
+        long expectedDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        if (expectedDays != inventoryList.size()) {
+            log.error(
+                    "재고 데이터 불일치: 상품ID={}, 기대일수={}, 조회된일수={}",
+                    productId,
+                    expectedDays,
+                    inventoryList.size());
+            throw new IllegalStateException("현재 예약 가능 기간이 아닙니다.");
+        }
+
+        // 모든 날짜에 재고가 있는지 확인
+        boolean isStockAvailable =
+                inventoryList.stream().allMatch(DailyInventory::isStockAvailable);
+
+        // 재고 감소
+        if (inventoryList.isEmpty() || !isStockAvailable) {
+            throw new IllegalStateException("재고가 부족한 날짜가 있습니다. 다시 확인해주세요.");
+        }
+
+        inventoryList.forEach(DailyInventory::decreaseStockAvailable);
     }
 
+    @DistributedLock(key = "'lock:inventory:' + #productId")
     public void increaseStock(Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
-        String lockKey = getLockKey(productId);
-        RLock rLock = redissonClient.getLock(lockKey);
+        List<DailyInventory> inventoryList =
+                dailyInventoryRepository.findInventoriesByDateRange(
+                        productId, checkInDate, checkOutDate);
 
-        try {
-            if (!rLock.tryLock(10, 5, TimeUnit.SECONDS)) {
-                log.error("락 획득 실패 - lockKey: {}", lockKey);
-                throw new IllegalStateException("시스템이 혼잡하여 취소 처리가 지연되고 있습니다.");
-            }
-
-            transactionTemplate.executeWithoutResult(
-                    status -> {
-                        List<DailyInventory> inventoryList =
-                                dailyInventoryRepository.findInventoriesByDateRange(
-                                        productId, checkInDate, checkOutDate);
-
-                        long expectedDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-                        if (expectedDays != inventoryList.size()) {
-                            throw new IllegalStateException("재고 정보가 올바르지 않아 취소할 수 없습니다.");
-                        }
-
-                        inventoryList.forEach(DailyInventory::increaseStockAvailable);
-                    });
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("취소 작업 중 오류가 발생했습니다.");
-        } finally {
-            // 5. 트랜잭션 커밋 후 락 해제
-            if (rLock.isHeldByCurrentThread()) {
-                rLock.unlock();
-            }
+        long expectedDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        if (expectedDays != inventoryList.size()) {
+            throw new IllegalStateException("재고 정보가 올바르지 않아 취소할 수 없습니다.");
         }
-    }
 
-    private String getLockKey(Long productId) {
-        return "lock:inventory:" + productId;
+        inventoryList.forEach(DailyInventory::increaseStockAvailable);
     }
 }
