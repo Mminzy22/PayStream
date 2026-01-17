@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
+import com.paystream.inventory.product.repository.ProductRepository;
+import com.paystream.inventory.product.service.ProductFindService;
 import com.paystream.inventory.store.entity.Address;
 import com.paystream.inventory.store.entity.Category;
 import com.paystream.inventory.store.entity.Store;
@@ -39,9 +41,12 @@ class StockManagerServiceTest {
 
     @Autowired private RedissonClient redissonClient;
 
+    @Autowired private ProductRepository productRepository;
+
     private Long productId;
     private static final LocalDate CHECK_IN_DATE = LocalDate.now();
     private static final LocalDate CHECK_OUT_DATE = LocalDate.now().plusDays(2);
+    @Autowired private ProductFindService productFindService;
 
     @BeforeEach
     void setUp() {
@@ -172,7 +177,7 @@ class StockManagerServiceTest {
                         }
                     });
         }
-        countDownLatch.await();
+        countDownLatch.await(); // 모든 쓰레드가 일을 마칠 때까지 메인 쓰레드를 멈춰 세우는 정지 신호
 
         // then
         assertThat(successCount.get()).isEqualTo(5); // 5명은 성공
@@ -215,18 +220,51 @@ class StockManagerServiceTest {
                 .hasMessageContaining("현재 예약이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해주세요.");
     }
 
-    // 인벤토리 생성 helper 메소드
-    List<DailyInventory> createInventory(LocalDate checkInDate, LocalDate checkOutDate) {
-        return checkInDate
-                .datesUntil(checkOutDate)
-                .map(
-                        date ->
-                                DailyInventory.builder()
-                                        //
-                                        // .product(savedProduct)
-                                        .date(date)
-                                        .stockAvailable(5)
-                                        .build())
-                .toList();
+    @DisplayName("예약 취소시 상품의 재고를 다시 채웁니다.")
+    @Test
+    void restoreStockWhenReservationIsCancelled() throws InterruptedException {
+        // given
+        List<DailyInventory> findInventories =
+                dailyInventoryRepository.findInventoriesByDateRange(
+                        productId, CHECK_IN_DATE, CHECK_OUT_DATE);
+        findInventories.forEach(DailyInventory::decreaseStockAvailable);
+
+        int threadCount = 5; // 동시에 들어오는 인원수
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(
+                    () -> {
+                        try {
+                            stockManagerService.increaseStock(
+                                    productId, CHECK_IN_DATE, CHECK_OUT_DATE);
+                        } finally {
+                            latch.countDown();
+                        }
+                    });
+        }
+        latch.await();
+
+        // then
+        // 초기 재고 감소 확인용
+        assertThat(findInventories)
+                .hasSize(2)
+                .extracting("date", "stockAvailable")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple(LocalDate.now(), 4),
+                        Tuple.tuple(LocalDate.now().plusDays(1), 4));
+
+        // 동시성 처리를 통해 증가된 상태의 인벤토리
+        List<DailyInventory> inventories =
+                dailyInventoryRepository.findInventoriesByDateRange(
+                        productId, CHECK_IN_DATE, CHECK_OUT_DATE);
+        assertThat(inventories)
+                .hasSize(2)
+                .extracting("date", "stockAvailable")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple(LocalDate.now(), 5),
+                        Tuple.tuple(LocalDate.now().plusDays(1), 5));
     }
 }

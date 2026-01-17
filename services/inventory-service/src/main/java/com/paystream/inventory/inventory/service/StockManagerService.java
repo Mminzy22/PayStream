@@ -39,15 +39,13 @@ public class StockManagerService {
      */
     public void decreaseStock(Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
         // 동시성 제어
-        String lockKey = "lock:inventory:" + productId;
+        String lockKey = getLockKey(productId);
 
         RLock rLock = redissonClient.getLock(lockKey);
-        boolean isLockAcquired = false;
 
         try {
             // 모든 상품에 대해 한 번에 락을 획득 (원자적)
-            isLockAcquired = rLock.tryLock(10, 5, TimeUnit.SECONDS);
-            if (!isLockAcquired) {
+            if (!rLock.tryLock(10, 5, TimeUnit.SECONDS)) {
                 log.error("락 획득 실패 - lockKey: {}", lockKey);
                 throw new IllegalStateException("현재 예약이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해주세요.");
             }
@@ -94,5 +92,43 @@ public class StockManagerService {
                 rLock.unlock();
             }
         }
+    }
+
+    public void increaseStock(Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
+        String lockKey = getLockKey(productId);
+        RLock rLock = redissonClient.getLock(lockKey);
+
+        try {
+            if (!rLock.tryLock(10, 5, TimeUnit.SECONDS)) {
+                log.error("락 획득 실패 - lockKey: {}", lockKey);
+                throw new IllegalStateException("시스템이 혼잡하여 취소 처리가 지연되고 있습니다.");
+            }
+
+            transactionTemplate.executeWithoutResult(
+                    status -> {
+                        List<DailyInventory> inventoryList =
+                                dailyInventoryRepository.findInventoriesByDateRange(
+                                        productId, checkInDate, checkOutDate);
+
+                        long expectedDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+                        if (expectedDays != inventoryList.size()) {
+                            throw new IllegalStateException("재고 정보가 올바르지 않아 취소할 수 없습니다.");
+                        }
+
+                        inventoryList.forEach(DailyInventory::increaseStockAvailable);
+                    });
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("취소 작업 중 오류가 발생했습니다.");
+        } finally {
+            // 5. 트랜잭션 커밋 후 락 해제
+            if (rLock.isHeldByCurrentThread()) {
+                rLock.unlock();
+            }
+        }
+    }
+
+    private String getLockKey(Long productId) {
+        return "lock:inventory:" + productId;
     }
 }
