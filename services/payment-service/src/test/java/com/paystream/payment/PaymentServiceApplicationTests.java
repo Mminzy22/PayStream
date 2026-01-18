@@ -13,7 +13,11 @@ import org.springframework.test.context.TestPropertySource;
             "spring.datasource.url=jdbc:h2:mem:testdb",
             "spring.datasource.driver-class-name=org.h2.Driver",
             "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
-            "spring.jpa.hibernate.ddl-auto=create-drop"
+            "spring.jpa.hibernate.ddl-auto=create-drop",
+            "portone.store-id=test-store-id",
+            "portone.channel-key=test-channel-key",
+            "portone.secret-key=test-secret-key",
+            "portone.webhook-secret=test-webhook-secret"
         })
 class PaymentServiceApplicationTests {
 

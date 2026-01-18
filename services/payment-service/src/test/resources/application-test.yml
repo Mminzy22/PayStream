@@ -20,6 +20,12 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
 
+portone:
+  store-id: test-store-id
+  channel-key: test-channel-key
+  secret-key: test-secret-key
+  webhook-secret: test-webhook-secret
+
 logging:
   level:
     com.paystream.payment: DEBUG

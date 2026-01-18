@@ -160,7 +160,7 @@ class PortOneWebhookControllerTest {
     private static class MockServletInputStream extends jakarta.servlet.ServletInputStream {
         private final ByteArrayInputStream inputStream;
 
-        public MockServletInputStream(ByteArrayInputStream inputStream) {
+        MockServletInputStream(ByteArrayInputStream inputStream) {
             this.inputStream = inputStream;
         }
 

@@ -102,7 +102,7 @@ class CachedBodyHttpServletRequestTest {
     private static class MockServletInputStream extends ServletInputStream {
         private final ByteArrayInputStream inputStream;
 
-        public MockServletInputStream(ByteArrayInputStream inputStream) {
+        MockServletInputStream(ByteArrayInputStream inputStream) {
             this.inputStream = inputStream;
         }
 
