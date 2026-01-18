@@ -2,7 +2,6 @@ package com.paystream.user.config;
 
 import org.springframework.context.annotation.Configuration;
 
+/** JWT 설정 */
 @Configuration
-public class JwtConfig {
-    // JWT 설정은 application.yml에서 관리
-}
+public class JwtConfig {}

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+/** 사용자 관리 컨트롤러 */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -19,12 +20,14 @@ public class UserController {
     private final UserUpdateService userUpdateService;
     private final UserDeleteService userDeleteService;
 
+    /** 사용자 조회 */
     @GetMapping("/{id}")
     public BaseResponse<UserResponse> findById(@PathVariable Long id) {
         UserResponse user = userFindService.findById(id);
         return BaseResponse.ok(user);
     }
 
+    /** 사용자 정보 수정 */
     @PutMapping("/{id}")
     public BaseResponse<UserResponse> update(
             @PathVariable Long id, @Valid @RequestBody UserUpdateRequest request) {
@@ -32,6 +35,7 @@ public class UserController {
         return BaseResponse.ok(response);
     }
 
+    /** 사용자 삭제 */
     @DeleteMapping("/{id}")
     public BaseResponse<String> delete(@PathVariable Long id) {
         userDeleteService.delete(id);

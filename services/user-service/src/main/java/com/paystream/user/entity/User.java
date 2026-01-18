@@ -31,26 +31,24 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = true) // 소셜 로그인 사용자는 비밀번호 없음
+    @Column(nullable = true)
     private String password;
 
     private String phone;
 
-    // 소셜 로그인 관련 (나중에 사용)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private AuthProvider provider = AuthProvider.LOCAL; // 기본값: 일반 회원가입
+    private AuthProvider provider = AuthProvider.LOCAL;
 
-    @Column(nullable = true) // 일반 회원가입 시 null
+    @Column(nullable = true)
     private String providerId;
 
-    // 이메일 인증 관련 (나중에 사용)
     @Column(nullable = false)
     @Builder.Default
-    private Boolean emailVerified = false; // 기본값: 미인증
+    private Boolean emailVerified = false;
 
-    @Column(nullable = true) // 이메일 인증 기능 추가 전까지 null
+    @Column(nullable = true)
     private String emailVerificationCode;
 
     @Column(nullable = true)
@@ -59,23 +57,21 @@ public class User extends BaseEntity {
     @Column(nullable = true)
     private LocalDateTime emailVerifiedAt;
 
-    // 약관 동의 관련
     @Column(nullable = false)
     @Builder.Default
-    private Boolean termsOfServiceAgreed = false; // 회원가입 시 true로 설정
+    private Boolean termsOfServiceAgreed = false;
 
     @Column(nullable = false)
     @Builder.Default
-    private Boolean privacyPolicyAgreed = false; // 회원가입 시 true로 설정
+    private Boolean privacyPolicyAgreed = false;
 
     @Column(nullable = false)
     @Builder.Default
-    private Boolean marketingAgreed = false; // 선택 약관, 기본값 false
+    private Boolean marketingAgreed = false;
 
     @Column(nullable = true)
     private LocalDateTime termsAgreedAt;
 
-    // JWT 관련
     @Column(nullable = true)
     private String refreshToken;
 

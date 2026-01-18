@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/** JWT 인증 필터 */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,18 +31,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+        String userIdHeader = request.getHeader("X-Auth-User-Id");
 
-        // Authorization 헤더가 없거나 Bearer로 시작하지 않으면 다음 필터로
+        if (userIdHeader != null && !userIdHeader.isEmpty()) {
+            try {
+                Long userId = Long.parseLong(userIdHeader);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userId,
+                                null,
+                                java.util.Collections.singletonList(
+                                        new SimpleGrantedAuthority("ROLE_USER")));
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                log.debug("마이크로서비스 간 인증 성공: userId={} (X-Auth-User-Id 헤더)", userId);
+                filterChain.doFilter(request, response);
+                return;
+            } catch (NumberFormatException e) {
+                log.warn("유효하지 않은 X-Auth-User-Id 헤더: {}", userIdHeader);
+            }
+        }
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            // Bearer 제거
             String token = authHeader.substring(7);
 
-            // 블랙리스트 확인
             if (tokenBlacklistService.isBlacklisted(token)) {
                 log.warn("블랙리스트에 등록된 토큰입니다: {}", token);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -49,13 +69,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // 토큰 검증
             if (jwtUtil.validateToken(token, "access")) {
-                // 사용자 ID 추출
                 Long userId = jwtUtil.extractUserId(token);
                 String email = jwtUtil.extractEmail(token);
 
-                // SecurityContext에 인증 정보 설정
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userId,
@@ -70,8 +87,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             log.error("JWT 인증 중 오류 발생", e);
-            // 인증 실패 시 SecurityContext를 비우지 않고 다음 필터로 진행
-            // (다른 필터나 SecurityConfig에서 처리)
         }
 
         filterChain.doFilter(request, response);
