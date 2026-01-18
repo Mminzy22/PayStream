@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/** User Service Security 설정 */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -19,11 +20,13 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /** PasswordEncoder 빈 등록 */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /** Security Filter Chain 설정 */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -38,7 +41,6 @@ public class SecurityConfig {
                                                 "/users/signup",
                                                 "/users/login",
                                                 "/users/refresh",
-                                                "/users/logout",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**",
                                                 "/swagger-ui.html")

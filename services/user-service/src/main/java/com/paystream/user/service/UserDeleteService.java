@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/** 사용자 삭제 서비스 */
 @Service
 @RequiredArgsConstructor
 public class UserDeleteService {

@@ -3,6 +3,13 @@ spring:
     name: payment-service-test
   profiles:
     active: test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
 
 server:
   port: 0  # 랜덤 포트 사용
@@ -12,6 +19,12 @@ eureka:
     enabled: false  # 테스트 시 Eureka 비활성화
     register-with-eureka: false
     fetch-registry: false
+
+portone:
+  store-id: test-store-id
+  channel-key: test-channel-key
+  secret-key: test-secret-key
+  webhook-secret: test-webhook-secret
 
 logging:
   level:

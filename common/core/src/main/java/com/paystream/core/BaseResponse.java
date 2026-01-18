@@ -33,8 +33,15 @@ public class BaseResponse<T> {
         return of(HttpStatus.OK, data);
     }
 
-    // 4. 생성 완료 (201 CREATED)
     public static <T> BaseResponse<T> created(@Nullable T data) {
         return of(HttpStatus.CREATED, data);
+    }
+
+    public static <T> BaseResponse<T> error(int code, String message) {
+        return of(HttpStatus.valueOf(code), message, null);
+    }
+
+    public static <T> BaseResponse<T> error(HttpStatus status, String message) {
+        return of(status, message, null);
     }
 }

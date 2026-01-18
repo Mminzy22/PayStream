@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/** 사용자 생성 서비스 */
 @Service
 @RequiredArgsConstructor
 public class UserCreateService {
@@ -19,7 +20,6 @@ public class UserCreateService {
 
     @Transactional
     public Long create(SignupRequest request) {
-        // 이메일 중복 확인
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new PayStreamException(ExceptionEnum.USER_ALREADY_EXISTS);
         }

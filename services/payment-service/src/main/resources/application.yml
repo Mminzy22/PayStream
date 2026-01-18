@@ -16,7 +16,6 @@ management:
     health:
       show-details: when-authorized
 
-# Swagger 설정
 springdoc:
   api-docs:
     enabled: true
@@ -40,3 +39,9 @@ logging:
   level:
     com.paystream.payment: DEBUG
     org.springframework.cloud: DEBUG
+
+portone:
+  secret-key: ${PORTONE_SECRET_KEY:}
+  store-id: ${PORTONE_STORE_ID:}
+  channel-key: ${PORTONE_CHANNEL_KEY:} # Channel Key (프론트엔드에서 사용)
+  webhook-secret: ${PORTONE_WEBHOOK_SECRET:}
