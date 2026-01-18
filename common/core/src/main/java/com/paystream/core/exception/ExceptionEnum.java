@@ -37,6 +37,14 @@ public enum ExceptionEnum {
     INVALID_REFRESH_TOKEN("U0004", HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
     EXPIRED_REFRESH_TOKEN("U0005", HttpStatus.UNAUTHORIZED, "만료된 리프레시 토큰입니다."),
     EMAIL_NOT_VERIFIED("U0006", HttpStatus.FORBIDDEN, "이메일 인증이 완료되지 않았습니다."),
+
+    // payment-service -> P0001
+    PAYMENT_NOT_FOUND("P0001", HttpStatus.NOT_FOUND, "존재하지 않는 결제 정보입니다."),
+    PAYMENT_ALREADY_EXISTS("P0002", HttpStatus.CONFLICT, "이미 존재하는 주문 번호입니다."),
+    PAYMENT_AMOUNT_MISMATCH("P0003", HttpStatus.BAD_REQUEST, "결제 금액이 일치하지 않습니다."),
+    PAYMENT_MERCHANT_UID_MISMATCH("P0004", HttpStatus.BAD_REQUEST, "주문 번호가 일치하지 않습니다."),
+    PAYMENT_NOT_PAID("P0005", HttpStatus.BAD_REQUEST, "결제 완료된 건만 취소할 수 있습니다."),
+    PAYMENT_PORTONE_ERROR("P0006", HttpStatus.INTERNAL_SERVER_ERROR, "포트원 API 호출 중 오류가 발생했습니다."),
     ;
 
     private String code;
