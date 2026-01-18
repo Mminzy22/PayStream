@@ -6,6 +6,14 @@ spring:
     name: inventory-service
   profiles:
     default: local
+  # kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest # consumer 그룹이 미리 안만들어져있다면 미리 생성해서 가장 빠른 메시지를 읽어옴, 미리 만들어져있다면 존재하는 consumer 부터 읽음, 만약 이 설정을 안하게 된다면 기존에 쌓여있던 메시지는 읽지 않고 무시하게됌.
+      group-id: inventory-group
 
 eureka:
   client:
