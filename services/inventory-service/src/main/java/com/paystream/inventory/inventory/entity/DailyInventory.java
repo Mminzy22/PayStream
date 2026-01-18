@@ -14,8 +14,13 @@ import lombok.*;
 public class DailyInventory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "inventory_seq_gen")
+    @SequenceGenerator(
+            name = "inventory_seq_gen",
+            sequenceName = "inventory_seq", // DB에 생성될 시퀀스 이름
+            initialValue = 1,
+            allocationSize = 50)
+    private Long id;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
