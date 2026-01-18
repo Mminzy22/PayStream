@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -19,25 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CachedBodyHttpServletRequestTest {
 
     @Mock private HttpServletRequest request;
-    @Mock private ServletInputStream servletInputStream;
 
     private static final String TEST_BODY = "{\"test\":\"data\",\"number\":123}";
     private static final byte[] TEST_BODY_BYTES = TEST_BODY.getBytes(StandardCharsets.UTF_8);
-
-    @BeforeEach
-    void setUp() throws IOException {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(TEST_BODY_BYTES);
-        when(request.getInputStream()).thenReturn(servletInputStream);
-        when(servletInputStream.read(any(byte[].class), anyInt(), anyInt()))
-                .thenAnswer(
-                        invocation -> {
-                            byte[] buffer = invocation.getArgument(0);
-                            int offset = invocation.getArgument(1);
-                            int length = invocation.getArgument(2);
-                            return byteArrayInputStream.read(buffer, offset, length);
-                        });
-        when(servletInputStream.read()).thenAnswer(invocation -> byteArrayInputStream.read());
-    }
 
     @Test
     void constructor_shouldCacheBody() throws IOException {
