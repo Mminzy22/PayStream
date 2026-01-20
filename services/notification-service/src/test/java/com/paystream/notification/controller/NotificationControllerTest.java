@@ -40,7 +40,8 @@ import org.springframework.test.web.servlet.MockMvc;
         properties = {
             "eureka.client.enabled=false",
             "eureka.client.register-with-eureka=false",
-            "eureka.client.fetch-registry=false"
+            "eureka.client.fetch-registry=false",
+            "spring.task.scheduling.enabled=false" // 테스트에서 스케줄러 비활성화
         })
 class NotificationControllerTest {
 

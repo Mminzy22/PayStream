@@ -29,6 +29,7 @@ public class NotificationController {
      * @return 생성된 알림 ID
      */
     @PostMapping
+    @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
     public BaseResponse<Long> create(@Valid @RequestBody NotificationRequest request) {
         Long id = notificationCreateService.create(request);
         return BaseResponse.created(id);
