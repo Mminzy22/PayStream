@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/** 헬스체크 컨트롤러 서비스별로 ping 엔드포인트를 제공합니다. */
 @RestController
 @RequestMapping("/users")
 public class PingController {

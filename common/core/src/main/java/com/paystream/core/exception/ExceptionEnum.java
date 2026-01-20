@@ -19,13 +19,16 @@ public enum ExceptionEnum {
        user-service -> U0001
     */
 
-    STORE_NOT_FOUND("I0001", HttpStatus.NOT_FOUND, "존재하지 않는 가게입니다."),
-    STORE_ALREADY_EXISTS("I0002", HttpStatus.CONFLICT, "이미 존재하는 가게 이름입니다."),
-    STORE_DELETION_BLOCKED("I0003", HttpStatus.CONFLICT, "삭제가 불가능한 가게가 있습니다 다시 확인해주세요."),
-    STORE_ACCESS_DENIED("I0004", HttpStatus.FORBIDDEN, "가게 주인이 맞는지 다시 확인해주세요."),
-    PRODUCT_NOT_FOUND("I0005", HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
-    PRODUCT_ALREADY_EXISTS("I0006", HttpStatus.CONFLICT, "이미 존재하는 상품입니다."),
-    PRODUCT_DELETION_BLOCKED("I0007", HttpStatus.CONFLICT, "삭제가 불가능한 상품이 있습니다 다시 확인해주세요."),
+    NOT_STORE_HOST("I0001", HttpStatus.FORBIDDEN, "해당 가게의 HostId와 다릅니다."),
+    STORE_NOT_FOUND("I0002", HttpStatus.NOT_FOUND, "존재하지 않는 가게입니다."),
+    STORE_ALREADY_EXISTS("I0003", HttpStatus.CONFLICT, "이미 존재하는 가게 이름입니다."),
+    STORE_DELETION_BLOCKED("I0004", HttpStatus.CONFLICT, "삭제가 불가능한 가게가 있습니다 다시 확인해주세요."),
+    STORE_ACCESS_DENIED("I0005", HttpStatus.FORBIDDEN, "가게 주인이 맞는지 다시 확인해주세요."),
+    PRODUCT_NOT_FOUND("I0006", HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
+    PRODUCT_ALREADY_EXISTS("I0007", HttpStatus.CONFLICT, "이미 존재하는 상품입니다."),
+    PRODUCT_DELETION_BLOCKED("I0008", HttpStatus.CONFLICT, "삭제가 불가능한 상품이 있습니다 다시 확인해주세요."),
+    PRODUCT_STORE_MISMATCH("I0009", HttpStatus.BAD_REQUEST, "가게에 포함된 상품이 아닙니다."),
+    INVENTORY_NOT_FOUND("I0010", HttpStatus.NOT_FOUND, "상품의 재고가 존재하지 않습니다."),
 
     // user-service -> U0001
     USER_NOT_FOUND("U0001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
@@ -37,6 +40,14 @@ public enum ExceptionEnum {
 
     // notification-service -> N0001
     NOTIFICATION_NOT_FOUND("N0001", HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
+
+    // payment-service -> P0001
+    PAYMENT_NOT_FOUND("P0001", HttpStatus.NOT_FOUND, "존재하지 않는 결제 정보입니다."),
+    PAYMENT_ALREADY_EXISTS("P0002", HttpStatus.CONFLICT, "이미 존재하는 주문 번호입니다."),
+    PAYMENT_AMOUNT_MISMATCH("P0003", HttpStatus.BAD_REQUEST, "결제 금액이 일치하지 않습니다."),
+    PAYMENT_MERCHANT_UID_MISMATCH("P0004", HttpStatus.BAD_REQUEST, "주문 번호가 일치하지 않습니다."),
+    PAYMENT_NOT_PAID("P0005", HttpStatus.BAD_REQUEST, "결제 완료된 건만 취소할 수 있습니다."),
+    PAYMENT_PORTONE_ERROR("P0006", HttpStatus.INTERNAL_SERVER_ERROR, "포트원 API 호출 중 오류가 발생했습니다."),
     ;
 
     private String code;

@@ -36,6 +36,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
+        // OPTIONS 요청은 CORS preflight이므로 인증 검사 건너뛰기
+        if (request.getMethod() == org.springframework.http.HttpMethod.OPTIONS) {
+            return chain.filter(exchange);
+        }
+
         boolean isWhitelist = isWhitelist(request);
         if (isWhitelist) {
             return chain.filter(exchange);

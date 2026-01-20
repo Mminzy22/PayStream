@@ -19,14 +19,12 @@ public class StoreUpdateService {
     private final StoreRepository storeRepository;
 
     @Transactional
-    public StoreResponse update(Long id, StoreUpdateRequest request) {
-        // 실제 있는 hostId인지 검증
-
+    public StoreResponse update(Long id, String hostId, StoreUpdateRequest request) {
         // hostId를 통해 해당 가게의 소유주가 맞는지 확인
         Store store = storeRepository.findById(id).orElseThrow(EntityNotFoundException::new);
 
         // 소유주가 아닌 경우 예외를 발생
-        if (!store.getHostId().equals(request.getHostId())) {
+        if (!store.getHostId().equals(hostId)) {
             throw new PayStreamException(STORE_ACCESS_DENIED);
         }
 

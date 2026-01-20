@@ -5,14 +5,12 @@ import com.paystream.core.BaseEntity;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.store.dto.request.StoreUpdateRequest;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.*;
 
 @ToString
 @Getter
@@ -79,7 +77,7 @@ public class Store extends BaseEntity {
 
     public void addProduct(Product product) {
         this.products.add(product);
-        product.setStore(this);
+        product.assignStore(this);
     }
 
     public void update(StoreUpdateRequest request) {

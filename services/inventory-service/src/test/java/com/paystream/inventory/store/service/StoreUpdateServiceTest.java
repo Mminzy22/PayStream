@@ -36,15 +36,15 @@ class StoreUpdateServiceTest {
         Store savedStore = storeRepository.save(foundStore);
 
         Long updateId = savedStore.getId();
+        String hostId = "1";
         StoreUpdateRequest request =
                 StoreUpdateRequest.builder()
-                        .hostId("1")
                         .checkInTime(LocalTime.of(15, 0))
                         .checkOutTime(LocalTime.of(10, 0))
                         .build();
 
         // when
-        StoreResponse response = storeUpdateService.update(updateId, request);
+        StoreResponse response = storeUpdateService.update(updateId, hostId, request);
 
         // then
         assertThat(response)

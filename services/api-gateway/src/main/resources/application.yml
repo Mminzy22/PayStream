@@ -34,10 +34,10 @@ springdoc:
       url: http://localhost:8000/api/notification/v3/api-docs
     urls[2]:
       name: 주문 서비스
-      url: http://locaclhost:8000/api/orders/v3/api-docs
+      url: http://localhost:8000/api/orders/v3/api-docs
     urls[3]:
       name: 결제 서비스
-      url: http://locaclhost:8000/api/payments/v3/api-docs
+      url: http://localhost:8000/api/payments/v3/api-docs
     urls[4]:
       name: 유저 서비스
       url: http://localhost:8000/api/users/v3/api-docs
@@ -53,3 +53,4 @@ whitelist:
     - /users/signup
     - /users/login
     - /users/refresh
+    - /payments/webhook

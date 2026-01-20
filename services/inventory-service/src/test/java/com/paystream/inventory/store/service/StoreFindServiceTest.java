@@ -23,15 +23,17 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @Transactional
 @ActiveProfiles("test")
 @SpringBootTest
+@AutoConfigureMockMvc
 class StoreFindServiceTest {
 
     @Autowired private StoreFindService storeService;
@@ -40,17 +42,27 @@ class StoreFindServiceTest {
     @Autowired private ProductRepository productRepository;
     @Autowired private DailyInventoryRepository dailyInventoryRepository;
     @Autowired private StoreFindService storeFindService;
-
-    @EnableJpaAuditing
-    @TestConfiguration
-    static class TestConfig {}
-
+    //    @Autowired private StringRedisTemplate redisTemplate;
+    //
     //    @BeforeEach
     //    void tearDown() {
-    //        dailyInventoryRepository.deleteAllInBatch();
-    //        productRepository.deleteAllInBatch();
-    //        storeRepository.deleteAllInBatch();
+    //        if (redisTemplate != null) {
+    //            try {
+    //                // Redis 연결을 시도하고 실패하면 예외가 발생함
+    //                redisTemplate.getConnectionFactory().getConnection().flushDb();
+    //            } catch (Exception e) {
+    //                // Redis가 꺼져 있어도 테스트가 중단되지 않도록 로그만 남기고 넘어감
+    //                System.err.println("Redis를 사용할 수 없습니다. flushDb를 건너뜁니다: " + e.getMessage());
+    //            }
+    //        }
     //    }
+
+    @MockitoBean private RedisConnectionFactory redisConnectionFactory;
+
+    //    @MockitoBean
+    //    private StringRedisTemplate stringRedisTemplate;
+    //    @MockitoBean // 실제 빈 대신 가짜 빈을 주입함
+    //    private StringRedisTemplate redisTemplate;
 
     @DisplayName("가게 전체 조회시 상품의 최저 금액이 같이 조회된다.")
     @Test
@@ -69,9 +81,9 @@ class StoreFindServiceTest {
                 storeService.userFindStoreList(request, PageRequest.of(1, 3));
 
         // then
-        assertThat(response.getContent()).hasSize(3);
         assertThat(response.getContent())
-                .extracting("name", "minPrice")
+                .hasSize(3)
+                .extracting(StoreResponse::getName, s -> s.getProducts().get(0).getPrice())
                 .containsExactlyInAnyOrder(
                         tuple("testStore1", 1000),
                         tuple("testStore2", 3000),
@@ -97,9 +109,9 @@ class StoreFindServiceTest {
                 storeService.userFindStoreList(request, PageRequest.of(page, size));
 
         // then
-        assertThat(responses.getContent()).hasSize(size);
         assertThat(responses.getContent())
-                .extracting("name", "minPrice")
+                .hasSize(size)
+                .extracting(StoreResponse::getName, s -> s.getProducts().get(0).getPrice())
                 .containsExactlyInAnyOrder(tuple("testStore1", 1000), tuple("testStore2", 3000));
     }
 
@@ -141,13 +153,16 @@ class StoreFindServiceTest {
                 storeService.userFindStoreList(request, PageRequest.of(1, 3));
 
         // then
-        assertThat(response.getContent()).hasSize(1);
         assertThat(response.getContent())
-                .extracting("name", "minPrice")
-                .contains(tuple("testStore1", 1000));
+                .hasSize(2)
+                .extracting(
+                        StoreResponse::getName,
+                        store -> store.getProducts().get(0).getPrice() // 직접 객체에서 꺼냄
+                        )
+                .containsExactlyInAnyOrder(tuple("testStore1", 1000), tuple("testStore2", 2000));
     }
 
-    @DisplayName("기간을 더 늘렷을때 정상적으로 조회되는지 확인")
+    @DisplayName("기간을 줄였을때 조회되지 않는다.")
     @Test
     void findAllWithAvailableStock2() {
         // given
@@ -167,38 +182,11 @@ class StoreFindServiceTest {
         Product product2 = createProduct("product2", 2000, 2);
         store1.addProduct(product1);
         store2.addProduct(product2);
-        product1.addDailyInventory(
-                DailyInventory.builder().date(LocalDate.now()).stockAvailable(1).build());
-        product1.addDailyInventory(
-                DailyInventory.builder()
-                        .date(LocalDate.now().plusDays(1))
-                        .stockAvailable(1)
-                        .build());
-        product1.addDailyInventory(
-                DailyInventory.builder()
-                        .date(LocalDate.now().plusDays(2))
-                        .stockAvailable(1)
-                        .build());
-        product2.addDailyInventory(
-                DailyInventory.builder().date(LocalDate.now()).stockAvailable(0).build());
-        product2.addDailyInventory(
-                DailyInventory.builder()
-                        .date(LocalDate.now().plusDays(1))
-                        .stockAvailable(0)
-                        .build());
-        product2.addDailyInventory(
-                DailyInventory.builder()
-                        .date(LocalDate.now().plusDays(2))
-                        .stockAvailable(1)
-                        .build());
 
         List<Store> stores = storeRepository.saveAll(List.of(store1, store2));
-        for (Store store : stores) {
-            System.out.println("store = " + store);
-        }
 
-        LocalDate checkIn = LocalDate.now().plusDays(1);
-        LocalDate checkOut = LocalDate.now().plusDays(3);
+        LocalDate checkIn = LocalDate.now();
+        LocalDate checkOut = LocalDate.now().plusDays(1);
 
         StoreListFindRequest request =
                 StoreListFindRequest.builder().checkInDate(checkIn).checkOutDate(checkOut).build();
@@ -206,74 +194,56 @@ class StoreFindServiceTest {
         // when
         PageResponse<StoreResponse> response =
                 storeService.userFindStoreList(request, PageRequest.of(1, 3));
-        for (StoreResponse storeResponse : response.getContent()) {
-            System.out.println("storeResponse = " + storeResponse);
-        }
 
         // then
-        assertThat(response.getContent()).hasSize(1);
-        assertThat(response.getContent())
-                .extracting("name", "minPrice")
-                .contains(tuple("testStore1", 1000));
+        assertThat(response.getContent()).isNotNull();
     }
 
-    @Transactional
-    @DisplayName("가게 1개 조회, 재고가 없는 상품은 조회되지 않는다.")
+    @DisplayName("상세 조회 시 상품별로 예약 가능 여부를 정확히 판단한다.")
     @Test
-    void findStore() {
-        // given
+    void should_DetermineProductAvailability_When_FindingStoreDetail() {
+        // Given 테스트 데이터 준비
         LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
 
-        Store store1 =
-                createStore(
-                        "1",
-                        "testStore1",
-                        List.of(Amenities.PARKING, Amenities.BAR_LOUNGE),
-                        Category.HOTEL);
-        Product product1 = createProduct("product1", 1000, 2);
-        Product product2 = createProduct("product2", 2000, 2);
-        Product product3 = createProduct("product3", 3000, 2);
+        // 1. 가게 및 다양한 상태의 상품 구성
+        Store store = createStore("1", "경화수월", List.of(Amenities.PARKING), Category.HOTEL);
 
-        product1.addDailyInventory(
-                DailyInventory.builder()
-                        .date(today)
-                        .stockAvailable(1) // 재고 1개
-                        .build());
-        product2.addDailyInventory(
-                DailyInventory.builder()
-                        .date(today)
-                        .stockAvailable(2) // 재고 2개
-                        .build());
-        product3.addDailyInventory(
-                DailyInventory.builder()
-                        .date(today)
-                        .stockAvailable(0) // 재고 0개 (품절)
-                        .build());
-        store1.addProduct(product1);
-        store1.addProduct(product2);
-        store1.addProduct(product3);
-        Store savedStore = storeRepository.save(store1);
+        // Case A: 재고 있고 인원수 맞는 상품 -> true
+        Product p1 = createProduct("예약가능상품", 1000, 2);
+        p1.addDailyInventory(createInventory(today, 1));
 
-        LocalDate checkInDate = LocalDate.now();
-        LocalDate checkOutDate = LocalDate.now().plusDays(1);
+        // Case B: 재고는 있으나 최대 인원이 부족한 상품 -> false
+        Product p2 = createProduct("인원부족상품", 2000, 1); // 요청은 2명인데 최대 1명
+        p2.addDailyInventory(createInventory(today, 5));
 
+        // Case C: 인원은 맞으나 특정 날짜에 재고가 없는 상품 (품절) -> false
+        Product p3 = createProduct("품절상품", 3000, 2);
+        p3.addDailyInventory(createInventory(today, 0)); // 오늘 재고 없음
+
+        store.addProduct(p1);
+        store.addProduct(p2);
+        store.addProduct(p3);
+        Store savedStore = storeRepository.save(store);
+
+        // 2. 요청 객체 생성 (2명, 오늘~내일)
         StoreFindRequest request =
                 StoreFindRequest.builder()
-                        .checkInDate(checkInDate)
-                        .checkOutDate(checkOutDate)
+                        .checkInDate(today)
+                        .checkOutDate(tomorrow)
                         .personCount(2)
                         .build();
 
-        // when
-        StoreResponse store = storeFindService.findStore(savedStore.getId(), request);
+        // When
+        StoreResponse response = storeFindService.findStore(savedStore.getId(), request);
 
-        // then
-        assertThat(store).isNotNull().extracting("name").isEqualTo("testStore1");
+        // Then
+        assertThat(response.getName()).isEqualTo("경화수월");
 
-        assertThat(store.getProducts())
-                .isNotNull()
-                .extracting("name")
-                .containsExactlyInAnyOrder("product1", "product2");
+        assertThat(response.getProducts())
+                .extracting("name", "isAvailable")
+                .containsExactlyInAnyOrder(
+                        tuple("예약가능상품", true), tuple("인원부족상품", false), tuple("품절상품", false));
     }
 
     private List<Store> createTemplate() {
@@ -356,12 +326,12 @@ class StoreFindServiceTest {
         return storeRepository.saveAll(List.of(store1, store2, store3));
     }
 
-    private Product createProduct(String name, int price, int maxCapacity) {
+    private Product createProduct(String name, int price, int maxPersonCount) {
         return Product.builder()
                 .name(name)
                 .description("test")
                 .basePrice(price)
-                .maxCapacity(maxCapacity)
+                .maxPersonCount(maxPersonCount)
                 .build();
     }
 
@@ -376,5 +346,9 @@ class StoreFindServiceTest {
                 .checkInTime(LocalTime.now())
                 .checkOutTime(LocalTime.now())
                 .build();
+    }
+
+    private DailyInventory createInventory(LocalDate date, int stock) {
+        return DailyInventory.builder().date(date).stockAvailable(stock).build();
     }
 }

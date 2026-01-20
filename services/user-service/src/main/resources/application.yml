@@ -1,11 +1,11 @@
 server:
-  port: 8085   # user-service 포트
+  port: 8085
 
 spring:
   application:
     name: user-service
   profiles:
-    active: local   # 기본 실행 프로필 (application-local.yml 불러옴)
+    active: local
 
 eureka:
   client:

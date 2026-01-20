@@ -14,7 +14,9 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
+@Slf4j
 @Transactional
 @ActiveProfiles("test")
 @SpringBootTest
@@ -146,88 +149,6 @@ class StoreQueryDslRepositoryTest {
                                                 Amenities.BREAKFAST_INCLUDED));
     }
 
-    @Transactional
-    @DisplayName("가게별 상품 2개를 넣으면 모든 가게와 상품들이 조회된다. (지연로딩)")
-    @Test
-    void findAllWithProducts() {
-        // given
-        Store store1 =
-                createStore(
-                        "1",
-                        "testStore1",
-                        List.of(Amenities.PARKING, Amenities.BAR_LOUNGE),
-                        Category.HOTEL,
-                        "서울시",
-                        "강남구");
-        Store store2 =
-                createStore(
-                        "1",
-                        "testStore2",
-                        List.of(Amenities.PARKING, Amenities.RESTAURANT),
-                        Category.PENSION,
-                        "서울시",
-                        "강남구");
-        Store store3 =
-                createStore(
-                        "1",
-                        "testStore3",
-                        List.of(Amenities.BAR_LOUNGE, Amenities.BREAKFAST_INCLUDED),
-                        Category.GLAMPING,
-                        "서울시",
-                        "강남구");
-        store1.addProduct(createProduct("product1", 1000, 2));
-        store1.addProduct(createProduct("product2", 2000, 2));
-        store2.addProduct(createProduct("product3", 3000, 2));
-        store2.addProduct(createProduct("product4", 4000, 2));
-        store3.addProduct(createProduct("product5", 5000, 2));
-        store3.addProduct(createProduct("product6", 6000, 2));
-
-        storeRepository.saveAll(List.of(store1, store2, store3));
-
-        // when & then
-        List<Store> stores = storeRepository.findAll();
-
-        assertThat(stores)
-                .hasSize(3)
-                .satisfiesExactlyInAnyOrder(
-                        store ->
-                                assertThat(store)
-                                        .extracting("hostId", "name")
-                                        .containsExactly("1", "testStore1")
-                                        .satisfies(
-                                                s ->
-                                                        assertThat(store.getProducts())
-                                                                .extracting(
-                                                                        "name") // List<Product> ->
-                                                                // List<String> 변환
-                                                                .containsExactlyInAnyOrder(
-                                                                        "product1", "product2")),
-                        store ->
-                                assertThat(store)
-                                        .extracting("hostId", "name")
-                                        .containsExactly("1", "testStore2")
-                                        .satisfies(
-                                                s ->
-                                                        assertThat(store.getProducts())
-                                                                .extracting(
-                                                                        "name") // List<Product> ->
-                                                                // List<String> 변환
-                                                                .containsExactlyInAnyOrder(
-                                                                        "product3", "product4")),
-                        store ->
-                                assertThat(store)
-                                        .extracting("hostId", "name")
-                                        .containsExactly("1", "testStore3")
-                                        .satisfies(
-                                                s ->
-                                                        assertThat(store.getProducts())
-                                                                .extracting(
-                                                                        "name") // List<Product> ->
-                                                                // List<String> 변환
-                                                                .containsExactlyInAnyOrder(
-                                                                        "product5", "product6")));
-    }
-
     @DisplayName("가게별 상품 2개를 넣으면 모든 가게와 상품들이 조회된다. (N+1 해결)")
     @Test
     void findAllWithProductsNPlusOne() {
@@ -245,6 +166,12 @@ class StoreQueryDslRepositoryTest {
         Page<Store> stores =
                 storeQueryDslRepository.findAllByFetchJoin(
                         storeListFindRequest, PageRequest.of(0, 3));
+
+        for (Store store : stores) {
+            log.info("store {}", store);
+            store.getProducts().forEach(product -> log.info("product {}", product.getId()));
+        }
+
         // then
         assertThat(stores)
                 .hasSize(3)
@@ -306,7 +233,7 @@ class StoreQueryDslRepositoryTest {
                         storeListFindRequest, PageRequest.of(0, 3));
 
         // then
-        assertThat(stores)
+        assertThat(stores.getContent())
                 .hasSize(3)
                 .satisfiesExactlyInAnyOrder(
                         store ->
@@ -434,7 +361,6 @@ class StoreQueryDslRepositoryTest {
         // when
         Page<Store> stores =
                 storeQueryDslRepository.findAllByFetchJoin(request, PageRequest.of(0, 3));
-
         // then
         assertThat(stores).hasSize(2).extracting("name").containsExactlyInAnyOrder("경화수월", "경화수수");
     }
@@ -538,7 +464,7 @@ class StoreQueryDslRepositoryTest {
         assertThat(result).hasSize(3);
     }
 
-    @DisplayName("가게ID로 조회시 인원수 초과로 조회되지 않는다.")
+    @DisplayName("가게 상세조회가 정상적으로 조회된다.")
     @Test
     void findOne() {
         // given
@@ -553,25 +479,29 @@ class StoreQueryDslRepositoryTest {
         Product product1 = createProduct("product1", 1000, 2);
         Product product2 = createProduct("product2", 2000, 2);
 
+        store1.addProduct(product1);
+        store1.addProduct(product2);
+
         product1.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
         product1.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
         product2.addDailyInventory(createDailyInventory(LocalDate.now(), 1));
         product2.addDailyInventory(createDailyInventory(LocalDate.now().plusDays(1), 1));
-
-        store1.addProduct(product1);
-        store1.addProduct(product2);
 
         Store savedStore = storeRepository.save(store1);
 
         // when
         Store findStore =
                 storeQueryDslRepository
-                        .findOne(
-                                savedStore.getId(), LocalDate.now(), LocalDate.now().plusDays(1), 3)
+                        .findOne(savedStore.getId(), LocalDate.now(), LocalDate.now().plusDays(1))
                         .orElse(null);
 
         // then
-        assertThat(findStore).isNull();
+        Assertions.assertNotNull(findStore);
+        assertThat(findStore.getProducts())
+                .hasSize(2)
+                .extracting("name", "basePrice", "maxPersonCount")
+                .containsExactly(
+                        Tuple.tuple("product1", 1000, 2), Tuple.tuple("product2", 2000, 2));
     }
 
     private List<Store> createTemplate() {
@@ -650,12 +580,12 @@ class StoreQueryDslRepositoryTest {
                 .build();
     }
 
-    private Product createProduct(String name, int price, int maxCapacity) {
+    private Product createProduct(String name, int price, int maxPersonCount) {
         return Product.builder()
                 .name(name)
                 .description("test")
                 .basePrice(price)
-                .maxCapacity(maxCapacity)
+                .maxPersonCount(maxPersonCount)
                 .build();
     }
 

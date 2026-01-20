@@ -5,6 +5,10 @@ spring:
   config:
     activate:
       on-profile: local
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
   # DB 설정
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -14,7 +18,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -22,6 +26,13 @@ spring:
         highlight_sql: true
         default_batch_fetch_size: 1000
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  # Redis 설정
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
 
 eureka:
   client:
@@ -30,3 +41,6 @@ eureka:
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}
+
+file:
+  upload-dir: ${user.home}/paystream/uploads/

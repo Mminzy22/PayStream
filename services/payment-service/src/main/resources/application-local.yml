@@ -2,7 +2,7 @@ spring:
   config:
     activate:
       on-profile: local
-  # DB 설정
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
@@ -11,7 +11,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -37,3 +37,9 @@ logging:
     org.springframework.cloud: DEBUG
     org.springframework.web: DEBUG
     org.hibernate.type.descriptor.sql: DEBUG
+
+portone:
+  secret-key: ${PORTONE_SECRET_KEY}
+  store-id: ${PORTONE_STORE_ID}
+  channel-key: ${PORTONE_CHANNEL_KEY} # Channel Key (프론트엔드에서 사용)
+  webhook-secret: ${PORTONE_WEBHOOK_SECRET}

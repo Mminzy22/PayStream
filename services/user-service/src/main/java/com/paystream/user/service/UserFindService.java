@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/** 사용자 조회 서비스 */
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
