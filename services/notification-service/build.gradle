@@ -50,6 +50,9 @@ dependencies {
     // Swagger - API 문서화
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
     
+    // Mail - 이메일 발송 기능
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    
     // 공통 라이브러리 가져옴
     implementation project(':common:core')
     
