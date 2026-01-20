@@ -17,16 +17,34 @@ spring:
     console:
       enabled: true
 
+  # Mail 설정 (테스트 환경 - 실제 메일 발송 안 함)
+  mail:
+    host: localhost
+    port: 1025 # Mock SMTP 서버 포트 (실제 메일 발송 안 함)
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+    default-encoding: UTF-8
+
 server:
-  port: 0  # 랜덤 포트 사용
+  port: 0 # 랜덤 포트 사용
 
 eureka:
   client:
-    enabled: false  # 테스트 시 Eureka 비활성화
+    enabled: false # 테스트 시 Eureka 비활성화
     register-with-eureka: false
     fetch-registry: false
+
+  # 스케줄러 비활성화 (테스트 환경)
+  task:
+    scheduling:
+      enabled: false
 
 logging:
   level:
     com.paystream.notification: DEBUG
-
