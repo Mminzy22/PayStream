@@ -44,6 +44,9 @@ dependencies {
     // Eureka Client - 서비스 디스커버리 등록
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     
+    // Feign Client - 마이크로서비스 간 통신
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    
     // Actuator - 헬스 체크 및 모니터링
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     
