@@ -29,6 +29,10 @@ public enum ExceptionEnum {
     PRODUCT_DELETION_BLOCKED("I0008", HttpStatus.CONFLICT, "삭제가 불가능한 상품이 있습니다 다시 확인해주세요."),
     PRODUCT_STORE_MISMATCH("I0009", HttpStatus.BAD_REQUEST, "가게에 포함된 상품이 아닙니다."),
     INVENTORY_NOT_FOUND("I0010", HttpStatus.NOT_FOUND, "상품의 재고가 존재하지 않습니다."),
+    INVALID_DATE_RANGE("I0011", HttpStatus.BAD_REQUEST, "체크인 날짜와 체크아웃 날짜가 바뀌었습니다. 다시 확인해주세요."),
+    OUT_OF_BOOKING_PERIOD("I0012", HttpStatus.BAD_REQUEST, "현재 예약 가능 기간이 아닙니다."),
+    INSUFFICIENT_STOCK("I0013", HttpStatus.CONFLICT, "재고가 부족한 날짜가 있습니다. 다시 확인해주세요."),
+    INVALID_STOCK_CANCEL_REQUEST("I0014", HttpStatus.BAD_REQUEST, "재고 정보가 올바르지 않아 취소할 수 없습니다."),
 
     // user-service -> U0001
     USER_NOT_FOUND("U0001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),

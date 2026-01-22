@@ -1,5 +1,8 @@
 package com.paystream.inventory.inventory.service;
 
+import static com.paystream.core.exception.ExceptionEnum.*;
+
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.annotation.DistributedLock;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
@@ -40,7 +43,7 @@ public class StockManagerService {
     public void decreaseStock(Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
         // 날짜 역전 확인
         if (checkInDate.isAfter(checkOutDate)) {
-            throw new IllegalStateException("체크인 날짜와 체크아웃 날짜가 바뀌었습니다. 다시 확인해주세요.");
+            throw new PayStreamException(INVALID_DATE_RANGE);
         }
 
         List<DailyInventory> inventoryList =
@@ -55,7 +58,7 @@ public class StockManagerService {
                     productId,
                     expectedDays,
                     inventoryList.size());
-            throw new IllegalStateException("현재 예약 가능 기간이 아닙니다.");
+            throw new PayStreamException(OUT_OF_BOOKING_PERIOD);
         }
 
         // 모든 날짜에 재고가 있는지 확인
@@ -64,12 +67,19 @@ public class StockManagerService {
 
         // 재고 감소
         if (inventoryList.isEmpty() || !isStockAvailable) {
-            throw new IllegalStateException("재고가 부족한 날짜가 있습니다. 다시 확인해주세요.");
+            throw new PayStreamException(INSUFFICIENT_STOCK);
         }
 
         inventoryList.forEach(DailyInventory::decreaseStockAvailable);
     }
 
+    /**
+     * 숙소 예약이 취소되면 재고를 증가 시킨다. (단, 기본 설정된 재고보다 많아질 순 없다.)
+     *
+     * @param productId 상품 아이디
+     * @param checkInDate 체크인 날짜
+     * @param checkOutDate 체크아웃 날짜
+     */
     @DistributedLock(key = "'lock:inventory:' + #productId")
     public void increaseStock(Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
         List<DailyInventory> inventoryList =
@@ -78,7 +88,7 @@ public class StockManagerService {
 
         long expectedDays = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         if (expectedDays != inventoryList.size()) {
-            throw new IllegalStateException("재고 정보가 올바르지 않아 취소할 수 없습니다.");
+            throw new PayStreamException(INVALID_STOCK_CANCEL_REQUEST);
         }
 
         inventoryList.forEach(DailyInventory::increaseStockAvailable);

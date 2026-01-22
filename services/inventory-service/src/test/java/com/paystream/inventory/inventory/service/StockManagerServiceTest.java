@@ -3,6 +3,7 @@ package com.paystream.inventory.inventory.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
@@ -168,7 +169,7 @@ class StockManagerServiceTest {
                             stockManagerService.decreaseStock(
                                     productId, CHECK_IN_DATE, CHECK_OUT_DATE);
                             successCount.incrementAndGet();
-                        } catch (IllegalStateException e) {
+                        } catch (PayStreamException e) {
                             if (e.getMessage().equals("재고가 부족한 날짜가 있습니다. 다시 확인해주세요.")) {
                                 failCount.incrementAndGet();
                             }
