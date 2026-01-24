@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.paystream.core.exception.PayStreamException;
+import com.paystream.inventory.config.IntegrationTestSupport;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.product.repository.ProductRepository;
-import com.paystream.inventory.product.service.ProductFindService;
 import com.paystream.inventory.store.entity.Address;
 import com.paystream.inventory.store.entity.Category;
 import com.paystream.inventory.store.entity.Store;
@@ -32,7 +32,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @SpringBootTest
-class StockManagerServiceTest {
+class StockManagerServiceTest extends IntegrationTestSupport {
 
     @Autowired private StockManagerService stockManagerService;
 
@@ -47,7 +47,6 @@ class StockManagerServiceTest {
     private Long productId;
     private static final LocalDate CHECK_IN_DATE = LocalDate.now();
     private static final LocalDate CHECK_OUT_DATE = LocalDate.now().plusDays(2);
-    @Autowired private ProductFindService productFindService;
 
     @BeforeEach
     void setUp() {
@@ -204,7 +203,7 @@ class StockManagerServiceTest {
                         () -> {
                             rLock.lock(); // 락 잡기
                             try {
-                                Thread.sleep(11000); // 5초 대기
+                                Thread.sleep(13000); // 13초 대기
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             } finally {
