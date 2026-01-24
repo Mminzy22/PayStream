@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.paystream.core.exception.PayStreamException;
-import com.paystream.inventory.config.IntegrationTestSupport;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
 import com.paystream.inventory.product.entity.Product;
@@ -32,7 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @SpringBootTest
-class StockManagerServiceTest extends IntegrationTestSupport {
+class StockManagerServiceTest {
 
     @Autowired private StockManagerService stockManagerService;
 
