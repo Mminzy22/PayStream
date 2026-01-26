@@ -15,5 +15,4 @@ public class InventoryEvent {
     Long productId;
     LocalDate checkInDate;
     LocalDate checkOutDate;
-    String eventType;
 }
