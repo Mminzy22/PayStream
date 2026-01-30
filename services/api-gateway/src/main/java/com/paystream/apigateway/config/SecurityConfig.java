@@ -1,19 +1,24 @@
 package com.paystream.apigateway.config;
 
-import com.paystream.apigateway.properties.WhitelistProperties;
+import com.paystream.apigateway.filter.JwtAuthenticationManager;
+import com.paystream.apigateway.util.AuthenticationConverter;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Configuration
@@ -21,13 +26,19 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // 미인증 endpoint 목록
-    private final WhitelistProperties whitelistProperties;
+    private final JwtAuthenticationManager jwtAuthenticationManager;
+    private final AuthenticationConverter authenticationConverter;
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) throws Exception {
         log.info("[SecurityConfig] Configuring SecurityFilterChain with CORS");
-        http.csrf(csrf -> csrf.disable())
+        AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(jwtAuthenticationManager);
+        jwtFilter.setServerAuthenticationConverter(authenticationConverter);
+
+        // 인증 실패 시 발생한 예외(한글 메시지 등)를 그대로 전파
+        jwtFilter.setAuthenticationFailureHandler((exchange, e) -> Mono.error(e));
+
+        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
@@ -35,10 +46,54 @@ public class SecurityConfig {
                         NoOpServerSecurityContextRepository.getInstance()) // stateless
                 .authorizeExchange(
                         exchange -> {
-                            exchange.anyExchange().permitAll();
-                        });
+                            exchange.pathMatchers(HttpMethod.GET, "/*/stores", "/*/stores/**")
+                                    .permitAll();
+                            exchange.pathMatchers(allowAuthorizations()).permitAll();
+                            exchange.anyExchange().authenticated();
+                        })
+                .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .exceptionHandling(
+                        exception ->
+                                exception.authenticationEntryPoint(
+                                        (exchange, e) -> {
+                                            return Mono.fromRunnable(
+                                                    () -> {
+                                                        log.error(
+                                                                ">>> [Security] 인증 실패: {}",
+                                                                e.getMessage());
+                                                        exchange.getResponse()
+                                                                .setStatusCode(
+                                                                        HttpStatus.UNAUTHORIZED);
+                                                    });
+                                        }));
 
         return http.build();
+    }
+
+    /** 허용 URL 설정 (인증 로직을 거치지 않는 Endpoint) */
+    @Bean
+    public String[] allowAuthorizations() {
+        return new String[] {
+            // 공통 및 직접 접속 허용
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+
+            // 각 서비스별 Swagger 경로 허용
+            // /api/inventories/swagger-ui/index.html 같은 패턴 대응
+            "/api/*/swagger-ui/**",
+            "/api/*/v3/api-docs",
+            "/api/*/v3/api-docs/**",
+            "/api/*/swagger-resources/**",
+            "/webjars/**",
+            "/*/webjars/**",
+            "/api/*/ping",
+            "/*/users/signup",
+            "/*/users/login",
+            "/*/users/refresh",
+            "/*/payments/webhook",
+            "/*/webjars/**",
+        };
     }
 
     /** CORS 설정 (WebFlux용) React 프론트엔드에서 API Gateway로의 요청을 허용합니다. */
