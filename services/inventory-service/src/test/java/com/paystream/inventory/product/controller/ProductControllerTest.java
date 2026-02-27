@@ -76,12 +76,12 @@ class ProductControllerTest {
                         .basePersonCount(2)
                         .build();
 
-        storeRepository.save(store);
+        Store savedStore = storeRepository.save(store);
 
         // 상품 생성
         ProductCreateRequest createRequest =
                 ProductCreateRequest.builder()
-                        .storeId(1L)
+                        .storeId(savedStore.getId())
                         .name("테스트 상품")
                         .description("테스트 설명")
                         .basePrice(1000)
@@ -101,7 +101,10 @@ class ProductControllerTest {
 
         MockMultipartFile filePart =
                 new MockMultipartFile(
-                        "file", "test.png", "image/png", "test image content".getBytes());
+                        "file",
+                        "test.png",
+                        MediaType.IMAGE_PNG_VALUE,
+                        "test image content".getBytes());
 
         // when
         // then

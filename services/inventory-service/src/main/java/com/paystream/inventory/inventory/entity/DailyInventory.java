@@ -14,7 +14,12 @@ import lombok.*;
 public class DailyInventory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "inventory_seq_gen")
+    @SequenceGenerator(
+            name = "inventory_seq_gen",
+            sequenceName = "inventory_seq", // DB에 생성될 시퀀스 이름
+            initialValue = 1,
+            allocationSize = 50)
     private Long id;
 
     @Setter
@@ -28,10 +33,18 @@ public class DailyInventory {
     private int stockAvailable; // 가용 재고
 
     public void increaseStockAvailable() {
+        if (this.stockAvailable >= product.getBaseStock()) {
+            throw new IllegalStateException("상품의 기본 재고보다 많습니다.");
+        }
+
         this.stockAvailable++;
     }
 
     public void decreaseStockAvailable() {
+        if (this.stockAvailable <= 0) {
+            throw new IllegalStateException("재고가 부족합니다.");
+        }
+
         this.stockAvailable--;
     }
 

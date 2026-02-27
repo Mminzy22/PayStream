@@ -156,6 +156,18 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.inventory_service == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
+
+    # redis 설정 추가
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     permissions:
       contents: read
     steps:
