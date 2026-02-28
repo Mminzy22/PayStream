@@ -128,4 +128,9 @@ public class Notification extends BaseEntity {
     public void setTemplateCode(String templateCode) {
         this.templateCode = templateCode;
     }
+
+    /** 재시도 횟수 증가 */
+    public void incrementRetryCount() {
+        this.retryCount++;
+    }
 }

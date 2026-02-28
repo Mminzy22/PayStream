@@ -42,6 +42,9 @@ public enum ExceptionEnum {
     EXPIRED_REFRESH_TOKEN("U0005", HttpStatus.UNAUTHORIZED, "만료된 리프레시 토큰입니다."),
     EMAIL_NOT_VERIFIED("U0006", HttpStatus.FORBIDDEN, "이메일 인증이 완료되지 않았습니다."),
 
+    // notification-service -> N0001
+    NOTIFICATION_NOT_FOUND("N0001", HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
+
     // payment-service -> P0001
     PAYMENT_NOT_FOUND("P0001", HttpStatus.NOT_FOUND, "존재하지 않는 결제 정보입니다."),
     PAYMENT_ALREADY_EXISTS("P0002", HttpStatus.CONFLICT, "이미 존재하는 주문 번호입니다."),
