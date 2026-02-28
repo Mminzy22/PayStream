@@ -26,6 +26,9 @@ spring:
         highlight_sql: true
         default_batch_fetch_size: 1000
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc.batch_size: 50           # 한 번에 모아서 보낼 쿼리 개수
+        order_inserts: true           # insert 문 정렬하여 배치 효율 최적화
+        order_updates: true           # update 문 정렬
   # Redis 설정
   data:
     redis:
