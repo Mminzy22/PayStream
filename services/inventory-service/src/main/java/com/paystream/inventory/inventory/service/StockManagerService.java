@@ -11,9 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
 @Service
@@ -21,8 +19,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class StockManagerService {
 
     private final DailyInventoryRepository dailyInventoryRepository;
-    private final RedissonClient redissonClient;
-    private final TransactionTemplate transactionTemplate;
 
     /**
      * 분산락 정리

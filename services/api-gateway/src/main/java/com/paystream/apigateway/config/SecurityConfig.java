@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -46,26 +45,16 @@ public class SecurityConfig {
                         NoOpServerSecurityContextRepository.getInstance()) // stateless
                 .authorizeExchange(
                         exchange -> {
-                            exchange.pathMatchers(HttpMethod.GET, "/*/stores", "/*/stores/**")
+                            exchange.pathMatchers(
+                                            HttpMethod.GET,
+                                            "/*/stores",
+                                            "/*/stores/**") // RESTFUL 방식으로 GET과 POST의 endpoint가 같아
+                                    // 발생하는 문제 해결을 위해 작성
                                     .permitAll();
                             exchange.pathMatchers(allowAuthorizations()).permitAll();
                             exchange.anyExchange().authenticated();
                         })
-                .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-                .exceptionHandling(
-                        exception ->
-                                exception.authenticationEntryPoint(
-                                        (exchange, e) -> {
-                                            return Mono.fromRunnable(
-                                                    () -> {
-                                                        log.error(
-                                                                ">>> [Security] 인증 실패: {}",
-                                                                e.getMessage());
-                                                        exchange.getResponse()
-                                                                .setStatusCode(
-                                                                        HttpStatus.UNAUTHORIZED);
-                                                    });
-                                        }));
+                .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 
         return http.build();
     }
