@@ -6,10 +6,12 @@ import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.annotation.DistributedLock;
 import com.paystream.inventory.inventory.entity.DailyInventory;
 import com.paystream.inventory.inventory.repository.DailyInventoryRepository;
+import com.paystream.inventory.inventory.repository.InventoryQueryDslRepository;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 public class StockManagerService {
 
     private final DailyInventoryRepository dailyInventoryRepository;
+    private final InventoryQueryDslRepository inventoryQueryDslRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
@@ -39,38 +42,32 @@ public class StockManagerService {
     @DistributedLock(key = "'lock:inventory:' + #productId")
     public void reserveStock(
             String userId, Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
-        // 날짜 역전 확인
-        if (checkInDate.isAfter(checkOutDate)) {
-            throw new PayStreamException(INVALID_DATE_RANGE);
-        }
 
-        // 재고 조회
-        List<DailyInventory> inventoryList =
-                dailyInventoryRepository.findInventoriesByDateRange(
-                        productId, checkInDate, checkOutDate);
+        executeWithInventory(
+                productId,
+                checkInDate,
+                checkOutDate,
+                inventoryList -> {
+                    // 모든 날짜에 재고가 있는지 확인
+                    boolean isStockAvailable =
+                            inventoryList.stream().allMatch(DailyInventory::isStockAvailable);
 
-        // 재고 일수 확인
-        validateBookingPeriod(productId, checkInDate, checkOutDate, inventoryList);
+                    if (inventoryList.isEmpty() || !isStockAvailable) {
+                        throw new PayStreamException(INSUFFICIENT_STOCK);
+                    }
 
-        // 모든 날짜에 재고가 있는지 확인
-        boolean isStockAvailable =
-                inventoryList.stream().allMatch(DailyInventory::isStockAvailable);
+                    // 선점 캐시 기록 (10분 TTL)
+                    String reserveKey = "reserve:prod:" + productId + ":user:" + userId;
+                    Boolean isPending =
+                            redisTemplate
+                                    .opsForValue()
+                                    .setIfAbsent(reserveKey, "PENDING", Duration.ofMinutes(10));
 
-        if (inventoryList.isEmpty() || !isStockAvailable) {
-            throw new PayStreamException(INSUFFICIENT_STOCK);
-        }
-
-        // 선점 캐시 기록 (10분 TTL)
-        String reserveKey = "reserve:prod:" + productId + ":user:" + userId;
-        Boolean isPending =
-                redisTemplate
-                        .opsForValue()
-                        .setIfAbsent(reserveKey, "PENDING", Duration.ofMinutes(10));
-
-        // 중복 선점 방지
-        if (Boolean.FALSE.equals(isPending)) {
-            throw new PayStreamException(ALREADY_RESERVED_BY_USER);
-        }
+                    // 중복 선점 방지
+                    if (Boolean.FALSE.equals(isPending)) {
+                        throw new PayStreamException(ALREADY_RESERVED_BY_USER);
+                    }
+                });
     }
 
     /**
@@ -82,29 +79,25 @@ public class StockManagerService {
      */
     @DistributedLock(key = "'lock:inventory:' + #productId")
     public void decreaseStock(Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
-        // 날짜 역전 확인
-        if (checkInDate.isAfter(checkOutDate)) {
-            throw new PayStreamException(INVALID_DATE_RANGE);
-        }
+        executeWithInventory(
+                productId,
+                checkInDate,
+                checkOutDate,
+                inventoryList -> {
+                    // 모든 날짜에 재고가 있는지 확인
+                    boolean isStockAvailable =
+                            inventoryList.stream().allMatch(DailyInventory::isStockAvailable);
 
-        // 재고 조회
-        List<DailyInventory> inventoryList =
-                dailyInventoryRepository.findInventoriesByDateRange(
-                        productId, checkInDate, checkOutDate);
+                    // 재고 감소
+                    if (inventoryList.isEmpty() || !isStockAvailable) {
+                        throw new PayStreamException(INSUFFICIENT_STOCK);
+                    }
 
-        // 재고 일수 확인
-        validateBookingPeriod(productId, checkInDate, checkOutDate, inventoryList);
-
-        // 모든 날짜에 재고가 있는지 확인
-        boolean isStockAvailable =
-                inventoryList.stream().allMatch(DailyInventory::isStockAvailable);
-
-        // 재고 감소
-        if (inventoryList.isEmpty() || !isStockAvailable) {
-            throw new PayStreamException(INSUFFICIENT_STOCK);
-        }
-
-        inventoryList.forEach(DailyInventory::decreaseStockAvailable);
+                    // 재고 감소 진행
+                    //            inventoryList.forEach(DailyInventory::decreaseStockAvailable);
+                    inventoryQueryDslRepository.inventoriesDecreaseBulk(
+                            productId, checkInDate, checkOutDate);
+                });
     }
 
     /**
@@ -116,6 +109,23 @@ public class StockManagerService {
      */
     @DistributedLock(key = "'lock:inventory:' + #productId")
     public void increaseStock(Long productId, LocalDate checkInDate, LocalDate checkOutDate) {
+        executeWithInventory(
+                productId,
+                checkInDate,
+                checkOutDate,
+                inventoryList -> {
+                    // 재고 증가
+                    inventoryQueryDslRepository.inventoriesIncreaseBulk(
+                            productId, checkInDate, checkOutDate);
+                });
+    }
+
+    // 공통 실행 템플릿 메소드
+    private void executeWithInventory(
+            Long productId,
+            LocalDate checkInDate,
+            LocalDate checkOutDate,
+            Consumer<List<DailyInventory>> action) {
         // 날짜 역전 확인
         if (checkInDate.isAfter(checkOutDate)) {
             throw new PayStreamException(INVALID_DATE_RANGE);
@@ -129,11 +139,18 @@ public class StockManagerService {
         // 재고 일수 확인
         validateBookingPeriod(productId, checkInDate, checkOutDate, inventoryList);
 
-        // 재고 증가
-        inventoryList.forEach(DailyInventory::increaseStockAvailable);
+        // 재고 부족시 예외 발생
+        if (inventoryList.isEmpty()) {
+            throw new PayStreamException(INSUFFICIENT_STOCK);
+        }
+
+        action.accept(inventoryList);
     }
 
-    // 재고 일수 검증
+    /**
+     * 예약 기간 내 모든 날짜의 재고 데이터 존재 여부 검증 체크인~체크아웃 사이의 '박수(night)'와 실제 DB에서 조회된 '재고 레코드 개수'가 일치하지 않으면,
+     * 일부 날짜에 재고 설정이 누락된 것으로 간주하고 예외를 발생
+     */
     private void validateBookingPeriod(
             Long productId,
             LocalDate checkInDate,

@@ -5,17 +5,32 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.converter.RecordMessageConverter;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
+import org.springframework.util.backoff.FixedBackOff;
 
 @Configuration
 @EnableKafka
 public class KafkaConfig {
+
+    @Bean
+    public DefaultErrorHandler errorHandler() {
+        // 첫번째 인자: 재시도 간격(ms), 두번째 인자: 최대 재시도 횟수
+        FixedBackOff backOff = new FixedBackOff(1000L, 2); // 3번 실행
+        DefaultErrorHandler handler = new DefaultErrorHandler(backOff);
+
+        // 로그 출력 옵션 (선택사항: 재시도 마다 로그를 남길지 설정)
+        handler.setLogLevel(KafkaException.Level.WARN);
+
+        return handler;
+    }
 
     /**
      * Kafka 메시지 리스너 컨테이너를 생성하는 팩토리 빈입니다. @KafkaListener 어노테이션이 붙은 메서드들을 관리하며, 다중 스레드(Concurrency)
