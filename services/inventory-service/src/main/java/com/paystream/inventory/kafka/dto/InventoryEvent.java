@@ -12,7 +12,8 @@ import lombok.ToString;
 @AllArgsConstructor
 public class InventoryEvent {
 
-    Long productId;
-    LocalDate checkInDate;
-    LocalDate checkOutDate;
+    private String userId;
+    private Long productId;
+    private LocalDate checkInDate;
+    private LocalDate checkOutDate;
 }
