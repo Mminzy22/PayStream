@@ -27,17 +27,6 @@ public class ProductResponse {
 
     private List<String> images;
 
-    // 내부 클래스 정의
-    @Builder
-    @Getter
-    @AllArgsConstructor
-    public static class PriceInfo {
-        private long original; // 원가
-        private long discounted; // 최종가
-        private int discountRate; // 할인율
-        private boolean hasDiscount; // 할인 여부
-    }
-
     public static ProductResponse of(
             Product product,
             boolean isAvailable,
