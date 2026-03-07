@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+/** 토큰 블랙리스트 관리 서비스 */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,13 +25,11 @@ public class TokenBlacklistService {
      */
     public void addToBlacklist(String token) {
         try {
-            // 토큰에서 만료 시간 추출
             Claims claims = jwtUtil.extractClaims(token);
             long expirationTime = claims.getExpiration().getTime();
             long currentTime = System.currentTimeMillis();
             long ttl = expirationTime - currentTime;
 
-            // 만료 시간이 지나지 않았다면 블랙리스트에 추가
             if (ttl > 0) {
                 String key = BLACKLIST_PREFIX + token;
                 redisTemplate.opsForValue().set(key, "blacklisted", ttl, TimeUnit.MILLISECONDS);
@@ -55,7 +54,6 @@ public class TokenBlacklistService {
             return Boolean.TRUE.equals(exists);
         } catch (Exception e) {
             log.error("블랙리스트 확인 중 오류 발생", e);
-            // 오류 발생 시 안전하게 false 반환 (서비스 중단 방지)
             return false;
         }
     }

@@ -15,10 +15,10 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.access-token-expiration:3600000}") // 기본 1시간
+    @Value("${jwt.access-token-expiration:3600000}")
     private Long accessTokenExpiration;
 
-    @Value("${jwt.refresh-token-expiration:604800000}") // 기본 7일
+    @Value("${jwt.refresh-token-expiration:604800000}")
     private Long refreshTokenExpiration;
 
     private SecretKey getSigningKey() {

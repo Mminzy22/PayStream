@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/** 사용자 정보 수정 서비스 */
 @Service
 @RequiredArgsConstructor
 public class UserUpdateService {

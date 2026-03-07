@@ -44,11 +44,20 @@ dependencies {
     // Eureka Client - 서비스 디스커버리 등록
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     
+    // Feign Client - 마이크로서비스 간 통신
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    
     // Actuator - 헬스 체크 및 모니터링
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     
     // Swagger - API 문서화
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+    
+    // Mail - 이메일 발송 기능
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    
+    // 공통 라이브러리 가져옴
+    implementation project(':common:core')
     
     // Kafka - 이벤트 기반 알림 수신 (추후 활성화)
     // implementation 'org.springframework.kafka:spring-kafka'

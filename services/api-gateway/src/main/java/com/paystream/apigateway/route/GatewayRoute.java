@@ -1,12 +1,14 @@
-package com.paystream.apigateway.config;
+package com.paystream.apigateway.route;
 
+import java.util.function.Consumer;
+import org.springframework.cloud.gateway.filter.factory.SpringCloudCircuitBreakerFilterFactory;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class GatewayConfig {
+public class GatewayRoute {
 
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
@@ -20,6 +22,13 @@ public class GatewayConfig {
         addUserRoutes(routes);
 
         return routes.build();
+    }
+
+    private Consumer<SpringCloudCircuitBreakerFilterFactory.Config> circuitBreakerConfig(
+            String service) {
+        return config ->
+                config.setName("customCircuitBreaker")
+                        .setFallbackUri("forward:/fallback/" + service);
     }
 
     // 1. Inventory Service
@@ -47,7 +56,10 @@ public class GatewayConfig {
                                                                         "/stores${segment}")
                                                                 .addRequestHeader(
                                                                         "X-Service-Name",
-                                                                        "inventory-service"))
+                                                                        "inventory-service")
+                                                                .circuitBreaker(
+                                                                        circuitBreakerConfig(
+                                                                                "inventory-service")))
                                         .uri("lb://inventory-service"));
     }
 
@@ -77,7 +89,10 @@ public class GatewayConfig {
                                                                         "/notifications${segment}")
                                                                 .addRequestHeader(
                                                                         "X-Service-Name",
-                                                                        "notification-service"))
+                                                                        "notification-service")
+                                                                .circuitBreaker(
+                                                                        circuitBreakerConfig(
+                                                                                "notification-service")))
                                         .uri("lb://notification-service"));
     }
 
@@ -109,7 +124,10 @@ public class GatewayConfig {
                                                                         "/orders${segment}")
                                                                 .addRequestHeader(
                                                                         "X-Service-Name",
-                                                                        "order-service"))
+                                                                        "order-service")
+                                                                .circuitBreaker(
+                                                                        circuitBreakerConfig(
+                                                                                "order-service")))
                                         .uri("lb://order-service"));
     }
 
@@ -139,7 +157,10 @@ public class GatewayConfig {
                                                                         "/payments${segment}")
                                                                 .addRequestHeader(
                                                                         "X-Service-Name",
-                                                                        "payment-service"))
+                                                                        "payment-service")
+                                                                .circuitBreaker(
+                                                                        circuitBreakerConfig(
+                                                                                "inventory-service")))
                                         .uri("lb://payment-service"));
     }
 
@@ -169,7 +190,10 @@ public class GatewayConfig {
                                                                         "/users${segment}")
                                                                 .addRequestHeader(
                                                                         "X-Service-Name",
-                                                                        "user-service"))
+                                                                        "user-service")
+                                                                .circuitBreaker(
+                                                                        circuitBreakerConfig(
+                                                                                "user-service")))
                                         .uri("lb://user-service"));
     }
 }
