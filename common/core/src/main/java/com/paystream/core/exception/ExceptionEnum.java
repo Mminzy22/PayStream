@@ -32,6 +32,7 @@ public enum ExceptionEnum {
     INVALID_DATE_RANGE("I0011", HttpStatus.BAD_REQUEST, "체크인 날짜와 체크아웃 날짜가 바뀌었습니다. 다시 확인해주세요."),
     OUT_OF_BOOKING_PERIOD("I0012", HttpStatus.BAD_REQUEST, "현재 예약 가능 기간이 아닙니다."),
     INSUFFICIENT_STOCK("I0013", HttpStatus.CONFLICT, "재고가 부족한 날짜가 있습니다. 다시 확인해주세요."),
+    OVER_STOCK_FLOW("I0013", HttpStatus.CONFLICT, "저장 가능한 최대 수량을 초과하였습니다."),
     ALREADY_RESERVED_BY_USER("I0014", HttpStatus.BAD_REQUEST, "이미 해당 사용자가 선점(예약 시도) 중인 상품입니다."),
     RESERVATION_EXPIRED("I0015", HttpStatus.BAD_REQUEST, "유휴시간을 초과했습니다."),
 

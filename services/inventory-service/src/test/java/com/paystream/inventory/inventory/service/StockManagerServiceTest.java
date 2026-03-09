@@ -227,6 +227,7 @@ class StockManagerServiceTest {
                 dailyInventoryRepository.findInventoriesByDateRange(
                         productId, CHECK_IN_DATE, CHECK_OUT_DATE);
         findInventories.forEach(DailyInventory::decreaseStockAvailable);
+        dailyInventoryRepository.flush(); // 수정된 재고를 커밋
 
         int threadCount = 5; // 동시에 들어오는 인원수
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);

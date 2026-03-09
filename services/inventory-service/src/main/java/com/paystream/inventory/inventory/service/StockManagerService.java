@@ -114,6 +114,14 @@ public class StockManagerService {
                 checkInDate,
                 checkOutDate,
                 inventoryList -> {
+                    boolean isStockBelowBase =
+                            inventoryList.stream().allMatch(DailyInventory::isStockBelowBase);
+
+                    // 기본 수량보다 많거나 같은 날짜가 있다면 예외를 발생
+                    if (!isStockBelowBase) {
+                        throw new PayStreamException(OVER_STOCK_FLOW);
+                    }
+
                     // 재고 증가
                     inventoryQueryDslRepository.inventoriesIncreaseBulk(
                             productId, checkInDate, checkOutDate);

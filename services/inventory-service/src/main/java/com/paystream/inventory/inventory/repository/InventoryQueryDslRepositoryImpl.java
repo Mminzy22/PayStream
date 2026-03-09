@@ -39,7 +39,7 @@ public class InventoryQueryDslRepositoryImpl implements InventoryQueryDslReposit
                 .update(dailyInventory)
                 .set(
                         dailyInventory.stockAvailable,
-                        dailyInventory.stockAvailable.add(1)) // subtract: 빼기 연산
+                        dailyInventory.stockAvailable.add(1)) // add: 더하기 연산
                 .where(
                         dailyInventory
                                 .product
