@@ -54,6 +54,12 @@ public enum ExceptionEnum {
     PAYMENT_MERCHANT_UID_MISMATCH("P0004", HttpStatus.BAD_REQUEST, "주문 번호가 일치하지 않습니다."),
     PAYMENT_NOT_PAID("P0005", HttpStatus.BAD_REQUEST, "결제 완료된 건만 취소할 수 있습니다."),
     PAYMENT_PORTONE_ERROR("P0006", HttpStatus.INTERNAL_SERVER_ERROR, "포트원 API 호출 중 오류가 발생했습니다."),
+
+    // order-service -> O0001
+    ORDER_NOT_FOUND("O0001", HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+    ORDER_ALREADY_PAID("O0002", HttpStatus.CONFLICT, "이미 결제 완료된 주문입니다."),
+    ORDER_ALREADY_CANCELLED("O0003", HttpStatus.CONFLICT, "이미 취소된 주문입니다."),
+    ORDER_INVALID_STATUS("O0004", HttpStatus.BAD_REQUEST, "해당 상태에서는 요청할 수 없습니다."),
     ;
 
     private String code;
