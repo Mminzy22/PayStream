@@ -1,20 +1,39 @@
 spring:
+  config:
+    activate:
+      on-profile: local
+
   datasource:
-    url: jdbc:h2:mem:userdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
   jpa:
+    open-in-view: false
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
+        show_sql: true
+        highlight_sql: true
+        default_batch_fetch_size: 1000
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8083
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
 
 logging:
   level:
-    root: INFO
-    com.paystream.user: DEBUG
+    com.paystream.order: DEBUG
     org.springframework.cloud: DEBUG
     org.springframework.web: DEBUG
+    org.hibernate.type.descriptor.sql: DEBUG
