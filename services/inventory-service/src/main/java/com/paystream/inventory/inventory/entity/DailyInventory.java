@@ -32,12 +32,13 @@ public class DailyInventory {
 
     private int stockAvailable; // 가용 재고
 
-    public void increaseStockAvailable() {
-        if (this.stockAvailable >= product.getBaseStock()) {
-            throw new IllegalStateException("상품의 기본 재고보다 많습니다.");
-        }
-
-        this.stockAvailable++;
+    /**
+     * 기본재고보다 많거나 같을 시 false
+     *
+     * @return boolean
+     */
+    public boolean isStockBelowBase() {
+        return this.stockAvailable < product.getBaseStock();
     }
 
     public void decreaseStockAvailable() {
