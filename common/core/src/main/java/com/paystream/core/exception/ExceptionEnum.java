@@ -33,6 +33,10 @@ public enum ExceptionEnum {
     OUT_OF_BOOKING_PERIOD("I0012", HttpStatus.BAD_REQUEST, "현재 예약 가능 기간이 아닙니다."),
     INSUFFICIENT_STOCK("I0013", HttpStatus.CONFLICT, "재고가 부족한 날짜가 있습니다. 다시 확인해주세요."),
     INVALID_STOCK_CANCEL_REQUEST("I0014", HttpStatus.BAD_REQUEST, "재고 정보가 올바르지 않아 취소할 수 없습니다."),
+    PROMOTION_NOT_FOUND("I0015", HttpStatus.NOT_FOUND, "프로모션을 찾을 수 없습니다."),
+    PROMOTION_NOT_PERIOD("I0016", HttpStatus.BAD_REQUEST, "프로모션 날짜를 잘못 입력했습니다. 다시 확인해주세요."),
+    PROMOTION_NOT_RATE("I0017", HttpStatus.BAD_REQUEST, "할인율을 잘못입력하셨습니다."),
+    PROMOTION_DUPLICATE("I0018", HttpStatus.BAD_REQUEST, "중복된 프로모션이 있습니다."),
 
     // user-service -> U0001
     USER_NOT_FOUND("U0001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
