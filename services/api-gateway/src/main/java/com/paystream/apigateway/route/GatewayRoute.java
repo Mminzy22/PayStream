@@ -111,7 +111,7 @@ public class GatewayRoute {
                                                                         "/${path}")
                                                                 .addRequestHeader(
                                                                         "X-Service-Name",
-                                                                        "user-service"))
+                                                                        "order-service"))
                                         .uri("lb://order-service"))
                 .route(
                         "order-service",
@@ -160,7 +160,7 @@ public class GatewayRoute {
                                                                         "payment-service")
                                                                 .circuitBreaker(
                                                                         circuitBreakerConfig(
-                                                                                "inventory-service")))
+                                                                                "payment-service")))
                                         .uri("lb://payment-service"));
     }
 
