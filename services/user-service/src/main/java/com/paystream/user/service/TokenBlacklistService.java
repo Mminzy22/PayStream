@@ -1,5 +1,7 @@
 package com.paystream.user.service;
 
+import com.paystream.core.exception.ExceptionEnum;
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.user.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +39,7 @@ public class TokenBlacklistService {
             }
         } catch (Exception e) {
             log.error("블랙리스트 추가 중 오류 발생", e);
-            throw new RuntimeException("블랙리스트 추가 실패", e);
+            throw new PayStreamException(ExceptionEnum.USER_BLACKLIST_ADD_FAILED);
         }
     }
 

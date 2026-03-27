@@ -3,6 +3,8 @@ package com.paystream.user.controller;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.paystream.core.BaseResponse;
+import com.paystream.core.exception.ExceptionEnum;
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.user.dto.request.LoginRequest;
 import com.paystream.user.dto.request.RefreshTokenRequest;
 import com.paystream.user.dto.request.SignupRequest;
@@ -49,7 +51,7 @@ public class AuthController {
     public BaseResponse<String> logout(
             @RequestHeader(value = AUTHORIZATION, required = false) String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Authorization 헤더에 Bearer 토큰이 필요합니다.");
+            throw new PayStreamException(ExceptionEnum.USER_MISSING_BEARER_TOKEN);
         }
 
         String accessToken = authorization.substring(7);
