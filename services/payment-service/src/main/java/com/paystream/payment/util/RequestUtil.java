@@ -1,5 +1,7 @@
 package com.paystream.payment.util;
 
+import com.paystream.core.exception.ExceptionEnum;
+import com.paystream.core.exception.PayStreamException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /** HTTP 요청 관련 유틸리티 */
@@ -10,18 +12,18 @@ public class RequestUtil {
      *
      * @param request HTTP 요청
      * @return 사용자 ID
-     * @throws RuntimeException 헤더가 없거나 유효하지 않은 경우
+     * @throws PayStreamException 헤더가 없거나 유효하지 않은 경우
      */
     public static Long getCurrentUserId(HttpServletRequest request) {
         String userIdHeader = request.getHeader("X-Auth-User-Id");
         if (userIdHeader == null) {
-            throw new RuntimeException("인증된 사용자 정보를 찾을 수 없습니다. API Gateway를 통해 요청해야 합니다.");
+            throw new PayStreamException(ExceptionEnum.PAYMENT_MISSING_AUTH_USER_ID);
         }
 
         try {
             return Long.parseLong(userIdHeader);
         } catch (NumberFormatException e) {
-            throw new RuntimeException("유효하지 않은 사용자 ID입니다: " + userIdHeader);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_INVALID_AUTH_USER_ID);
         }
     }
 }

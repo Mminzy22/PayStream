@@ -2,6 +2,8 @@ package com.paystream.payment.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paystream.core.exception.ExceptionEnum;
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.payment.dto.PortOnePaymentResponse;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -84,17 +86,17 @@ public class PortOneService {
                             .block();
 
             if (response == null) {
-                throw new RuntimeException("포트원 API 응답이 null입니다.");
+                throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
             }
 
             return parsePaymentData(response);
 
         } catch (WebClientResponseException e) {
             handleWebClientResponseException(e, paymentId);
-            throw new RuntimeException("포트원 결제 조회 실패: " + e.getMessage(), e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
         } catch (Exception e) {
             log.error("포트원 결제 조회 중 오류 발생: paymentId={}, error={}", paymentId, e.getMessage(), e);
-            throw new RuntimeException("포트원 결제 조회 실패: " + e.getMessage(), e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
         }
     }
 
@@ -118,12 +120,12 @@ public class PortOneService {
                             .block();
 
             if (response == null) {
-                throw new RuntimeException("포트원 취소 API 응답이 null입니다.");
+                throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
             }
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode().value() == 409) {
-                throw new RuntimeException("포트원 결제 취소 처리 중입니다. 잠시 후 다시 시도해주세요.", e);
+                throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_CANCEL_CONFLICT);
             }
             log.error(
                     "포트원 취소 API 호출 중 오류 발생: paymentId={}, status={}, error={}",
@@ -131,10 +133,10 @@ public class PortOneService {
                     e.getStatusCode(),
                     e.getMessage(),
                     e);
-            throw new RuntimeException("포트원 결제 취소 실패: " + e.getMessage(), e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
         } catch (Exception e) {
             log.error("포트원 결제 취소 중 오류 발생: paymentId={}, error={}", paymentId, e.getMessage(), e);
-            throw new RuntimeException("포트원 결제 취소 실패: " + e.getMessage(), e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
         }
     }
 
@@ -162,7 +164,7 @@ public class PortOneService {
                             .block();
 
             if (response == null) {
-                throw new RuntimeException("포트원 API 응답이 null입니다.");
+                throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
             }
 
             List<PortOnePaymentResponse.PaymentData> paymentList = new ArrayList<>();
@@ -189,16 +191,13 @@ public class PortOneService {
                 try {
                     JsonNode errorBody = objectMapper.readTree(responseBody);
                     if (errorBody.has("type") && errorBody.has("message")) {
-                        String errorType = errorBody.get("type").asText();
-                        String errorMessage = errorBody.get("message").asText();
-                        throw new RuntimeException(
-                                "포트원 API 요청 형식 오류 (" + errorType + "): " + errorMessage, e);
+                        throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_BAD_REQUEST);
                     }
                 } catch (Exception parseException) {
                 }
             }
 
-            throw new RuntimeException("포트원 결제 목록 조회 실패: " + e.getMessage(), e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
         } catch (Exception e) {
             log.error(
                     "포트원 결제 목록 조회 중 오류 발생: page={}, size={}, error={}",
@@ -206,7 +205,7 @@ public class PortOneService {
                     size,
                     e.getMessage(),
                     e);
-            throw new RuntimeException("포트원 결제 목록 조회 실패: " + e.getMessage(), e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_ERROR);
         }
     }
 
@@ -286,7 +285,7 @@ public class PortOneService {
 
     private void validateApiSecret() {
         if (apiSecret == null || apiSecret.isEmpty()) {
-            throw new RuntimeException("포트원 API Secret이 설정되지 않았습니다.");
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_API_SECRET_MISSING);
         }
     }
 
@@ -296,25 +295,22 @@ public class PortOneService {
 
         if (statusCode == 401) {
             log.error("포트원 API 인증 실패 (401): paymentId={}", paymentId);
-            throw new RuntimeException("포트원 API 인증 실패: API Secret을 확인하세요.", e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_UNAUTHORIZED);
         }
         if (statusCode == 400) {
             log.error("포트원 API 요청 형식 오류 (400): paymentId={}", paymentId);
             try {
                 JsonNode errorBody = objectMapper.readTree(responseBody);
                 if (errorBody.has("type") && errorBody.has("message")) {
-                    String errorType = errorBody.get("type").asText();
-                    String errorMessage = errorBody.get("message").asText();
-                    throw new RuntimeException(
-                            "포트원 API 요청 형식 오류 (" + errorType + "): " + errorMessage, e);
+                    throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_BAD_REQUEST);
                 }
             } catch (Exception parseException) {
             }
-            throw new RuntimeException("포트원 API 요청 형식 오류: paymentId 형식이나 엔드포인트를 확인하세요.", e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_BAD_REQUEST);
         }
         if (statusCode == 404) {
             log.error("포트원 결제 건을 찾을 수 없음 (404): paymentId={}", paymentId);
-            throw new RuntimeException("포트원 결제 건을 찾을 수 없습니다. paymentId를 확인하세요.", e);
+            throw new PayStreamException(ExceptionEnum.PAYMENT_PORTONE_NOT_FOUND);
         }
         log.error(
                 "포트원 API 호출 중 오류 발생: paymentId={}, status={}, error={}",
