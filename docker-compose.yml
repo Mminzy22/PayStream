@@ -43,7 +43,7 @@ services:
 
   # Kafka
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.6.1
     ports:
       - "29092:29092"
     environment:
@@ -62,9 +62,9 @@ services:
 
   # kafka-ui
   kafka-ui:
-    image: provectuslabs/kafka-ui:latest
+    image: provectuslabs/kafka-ui:v0.7.2
     ports:
-      - "8080:8080"
+      - "8088:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
