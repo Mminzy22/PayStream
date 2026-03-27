@@ -6,6 +6,11 @@ spring:
     name: order-service
   profiles:
     active: local
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 eureka:
   client:
