@@ -1,6 +1,8 @@
 package com.paystream.order.controller;
 
 import com.paystream.core.BaseResponse;
+import com.paystream.core.exception.ExceptionEnum;
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.order.dto.OrderCreateRequest;
 import com.paystream.order.dto.OrderResponse;
 import com.paystream.order.service.OrderService;
@@ -48,13 +50,13 @@ public class OrderController {
     private Long getCurrentUserId(HttpServletRequest request) {
         String userIdHeader = request.getHeader("X-Auth-User-Id");
         if (userIdHeader == null) {
-            throw new RuntimeException("인증된 사용자 정보를 찾을 수 없습니다. API Gateway를 통해 요청해야 합니다.");
+            throw new PayStreamException(ExceptionEnum.ORDER_MISSING_AUTH_USER_ID);
         }
 
         try {
             return Long.parseLong(userIdHeader);
         } catch (NumberFormatException e) {
-            throw new RuntimeException("유효하지 않은 사용자 ID입니다: " + userIdHeader);
+            throw new PayStreamException(ExceptionEnum.ORDER_INVALID_AUTH_USER_ID);
         }
     }
 }

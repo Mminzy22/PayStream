@@ -1,6 +1,8 @@
 package com.paystream.order.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paystream.core.exception.ExceptionEnum;
+import com.paystream.core.exception.PayStreamException;
 import com.paystream.order.event.OrderCreatedEvent;
 import com.paystream.order.kafka.dto.InventoryReservePayload;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +44,7 @@ public class OrderReserveEventListener {
                     event.orderId(),
                     e.getMessage(),
                     e);
-            throw new RuntimeException("재고 선점 이벤트 발행에 실패했습니다.", e);
+            throw new PayStreamException(ExceptionEnum.ORDER_EVENT_PUBLISH_FAILED);
         }
     }
 }
