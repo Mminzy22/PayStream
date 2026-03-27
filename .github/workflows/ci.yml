@@ -62,7 +62,6 @@ jobs:
               - 'gradlew*'
               - '.github/workflows/**'
               - 'common/core/**'
-              - 'services/**'
 
   build-common-core:
     name: Build common-core
@@ -93,7 +92,7 @@ jobs:
   build-api-gateway:
     name: Build api-gateway
     needs: detect-changes
-    if: needs.detect-changes.outputs.api_gateway == 'true' || needs.detect-changes.outputs.any == 'true'
+    if: needs.detect-changes.outputs.api_gateway == 'true' || needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -119,7 +118,7 @@ jobs:
   build-eureka-server:
     name: Build eureka-server
     needs: detect-changes
-    if: needs.detect-changes.outputs.eureka_server == 'true' || needs.detect-changes.outputs.any == 'true'
+    if: needs.detect-changes.outputs.eureka_server == 'true' || needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -145,7 +144,7 @@ jobs:
   build-inventory-service:
     name: Build inventory-service
     needs: detect-changes
-    if: needs.detect-changes.outputs.inventory_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    if: needs.detect-changes.outputs.inventory_service == 'true' || needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
 
     # redis 설정 추가
@@ -183,7 +182,7 @@ jobs:
   build-notification-service:
     name: Build notification-service
     needs: detect-changes
-    if: needs.detect-changes.outputs.notification_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    if: needs.detect-changes.outputs.notification_service == 'true' || needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -209,7 +208,7 @@ jobs:
   build-order-service:
     name: Build order-service
     needs: detect-changes
-    if: needs.detect-changes.outputs.order_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    if: needs.detect-changes.outputs.order_service == 'true' || needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -235,7 +234,7 @@ jobs:
   build-payment-service:
     name: Build payment-service
     needs: detect-changes
-    if: needs.detect-changes.outputs.payment_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    if: needs.detect-changes.outputs.payment_service == 'true' || needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -261,7 +260,7 @@ jobs:
   build-user-service:
     name: Build user-service
     needs: detect-changes
-    if: needs.detect-changes.outputs.user_service == 'true' || needs.detect-changes.outputs.any == 'true'
+    if: needs.detect-changes.outputs.user_service == 'true' || needs.detect-changes.outputs.common_core == 'true' || needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
