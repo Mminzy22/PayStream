@@ -73,7 +73,8 @@ public enum ExceptionEnum {
     ORDER_INVALID_AUTH_USER_ID("O0006", HttpStatus.BAD_REQUEST, "인증 사용자 헤더 형식이 올바르지 않습니다."),
     ORDER_EVENT_PUBLISH_FAILED("O0007", HttpStatus.INTERNAL_SERVER_ERROR, "재고 선점 이벤트 발행에 실패했습니다."),
 
-    USER_MISSING_BEARER_TOKEN("U0007", HttpStatus.BAD_REQUEST, "Authorization 헤더에 Bearer 토큰이 필요합니다."),
+    USER_MISSING_BEARER_TOKEN(
+            "U0007", HttpStatus.BAD_REQUEST, "Authorization 헤더에 Bearer 토큰이 필요합니다."),
     USER_BLACKLIST_ADD_FAILED("U0008", HttpStatus.INTERNAL_SERVER_ERROR, "블랙리스트 추가에 실패했습니다."),
     ;
 
