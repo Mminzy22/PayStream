@@ -1,44 +1,34 @@
-package com.paystream.order.entity;
+package com.paystream.order.dto;
 
-import com.paystream.core.BaseEntity;
-import jakarta.persistence.*;
+import com.paystream.order.entity.Order;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "orders")
-public class Order extends BaseEntity {
+public class OrderResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "user_id", nullable = false)
     private Long userId;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-
-    @Column(nullable = false)
+    private String status;
     private BigDecimal amount;
-
-    /** 결제 요청 시 사용하는 주문 번호 (merchant_uid, 포트원 등 연동용) */
-    @Column(unique = true)
     private String merchantUid;
-
-    /** 주문명 (결제창 등에 표시) */
-    @Column(nullable = true)
     private String name;
-
-    @Column(name = "product_id", nullable = false)
     private Long productId;
-
-    @Column(name = "check_in_date", nullable = false)
     private LocalDate checkInDate;
-
-    @Column(name = "check_out_date", nullable = false)
     private LocalDate checkOutDate;
+
+    public static OrderResponse from(Order order) {
+        OrderResponse response = new OrderResponse();
+        response.setId(order.getId());
+        response.setUserId(order.getUserId());
+        response.setStatus(order.getStatus().name());
+        response.setAmount(order.getAmount());
+        response.setMerchantUid(order.getMerchantUid());
+        response.setName(order.getName());
+        response.setProductId(order.getProductId());
+        response.setCheckInDate(order.getCheckInDate());
+        response.setCheckOutDate(order.getCheckOutDate());
+        return response;
+    }
 
     public Long getId() {
         return id;
@@ -56,11 +46,11 @@ public class Order extends BaseEntity {
         this.userId = userId;
     }
 
-    public OrderStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
