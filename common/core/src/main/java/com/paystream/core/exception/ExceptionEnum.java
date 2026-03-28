@@ -8,8 +8,10 @@ public enum ExceptionEnum {
 
     // System Exception
     RUNTIME_EXCEPTION("E0001", HttpStatus.BAD_REQUEST),
-    ACCESS_DENIED_EXCEPTION("E0002", HttpStatus.UNAUTHORIZED),
+    ACCESS_DENIED_EXCEPTION("E0002", HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자 입니다."),
     INTERNAL_SERVER_ERROR("E0003", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_STATUS_VALUE("E0004", HttpStatus.BAD_REQUEST, "상태값을 다시 확인해주세요."),
+    IS_NOT_CREATE_USER("E0005", HttpStatus.FORBIDDEN, "사용자의 정보가 다릅니다."),
 
     /*
        inventory-service -> I0001
@@ -37,6 +39,7 @@ public enum ExceptionEnum {
     PROMOTION_NOT_PERIOD("I0016", HttpStatus.BAD_REQUEST, "프로모션 날짜를 잘못 입력했습니다. 다시 확인해주세요."),
     PROMOTION_NOT_RATE("I0017", HttpStatus.BAD_REQUEST, "할인율을 잘못입력하셨습니다."),
     PROMOTION_DUPLICATE("I0018", HttpStatus.BAD_REQUEST, "중복된 프로모션이 있습니다."),
+    PROMOTION_TYPE_DOES_NOT_EXIST("I0019", HttpStatus.BAD_REQUEST, "입력하신 프로모션 적용 타입이 존재하지 않습니다."),
 
     // user-service -> U0001
     USER_NOT_FOUND("U0001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),

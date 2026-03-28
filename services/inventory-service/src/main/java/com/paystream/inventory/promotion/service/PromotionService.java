@@ -12,15 +12,17 @@ import com.paystream.inventory.promotion.repository.PromotionRepository;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PromotionService {
     private final PromotionRepository promotionRepository;
 
     public Long create(PromotionRequest request) {
         // 기간 역전 검증
-        if (!validatePeriod(request.getStartDate(), request.getEndDate())) {
+        if (validatePeriod(request.getStartDate(), request.getEndDate())) {
             throw new PayStreamException(PROMOTION_NOT_PERIOD);
         }
 
@@ -30,18 +32,19 @@ public class PromotionService {
         }
 
         // 중복된 프로모션이 있는지 검증
-        if (!validateDuplicate(
+        if (validateDuplicate(
                 request.getTargetType(),
                 request.getTargetId(),
                 request.getStartDate(),
                 request.getEndDate())) {
             throw new PayStreamException(PROMOTION_DUPLICATE);
         }
-
-        return promotionRepository.save(request.toEntity()).getId();
+        Promotion promotion = request.toEntity();
+        promotion.updateStatus(PromotionStatus.ACTIVE);
+        return promotionRepository.save(promotion).getId();
     }
 
-    public Long update(Long id, PromotionRequest request) {
+    public Long update(Long id, String currentUserId, PromotionRequest request) {
         // 할인율 범위 제한 확인
         if (!validateDiscountRate(request.getDiscountType(), request.getDiscountValue())) {
             throw new PayStreamException(PROMOTION_NOT_RATE);
@@ -52,17 +55,25 @@ public class PromotionService {
                         .findById(id)
                         .orElseThrow(() -> new PayStreamException(PROMOTION_NOT_FOUND));
 
+        if (currentUserId.equals(promotion.getCreateUserId())) {
+            throw new PayStreamException(IS_NOT_CREATE_USER);
+        }
+
         promotion.update(request);
 
         return promotion.getId();
     }
 
     // 프로모션 종료
-    public void finished(Long id) {
+    public void finished(Long id, String currentUserId) {
         Promotion promotion =
                 promotionRepository
                         .findById(id)
                         .orElseThrow(() -> new PayStreamException(PROMOTION_NOT_FOUND));
+
+        if (currentUserId.equals(promotion.getCreateUserId())) {
+            throw new PayStreamException(IS_NOT_CREATE_USER);
+        }
 
         promotion.updateStatus(PromotionStatus.FINISHED);
     }
@@ -85,7 +96,13 @@ public class PromotionService {
     // 중복된 프로모션 상품이 있는지 검증
     private boolean validateDuplicate(
             String targetType, Long targetId, LocalDate startDate, LocalDate endDate) {
-        TargetType type = TargetType.valueOf(targetType);
+
+        TargetType type = null;
+        try {
+            type = TargetType.valueOf(targetType);
+        } catch (IllegalArgumentException e) {
+            throw new PayStreamException(PROMOTION_TYPE_DOES_NOT_EXIST);
+        }
 
         return promotionRepository.existsOverlappingPromotion(type, targetId, startDate, endDate);
     }

@@ -1,6 +1,5 @@
 package com.paystream.inventory.promotion.dto.response;
 
-import com.paystream.core.BaseEntity;
 import com.paystream.inventory.promotion.entity.Promotion;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -10,7 +9,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PromotionResponse extends BaseEntity {
+public class PromotionResponse {
 
     private String title;
     private String targetType; // STORE, PRODUCT

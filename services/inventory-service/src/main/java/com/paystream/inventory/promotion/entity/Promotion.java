@@ -18,6 +18,9 @@ public class Promotion extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String createUserId; // 생성자 ID
+
     private String title;
 
     @Enumerated(EnumType.STRING)
