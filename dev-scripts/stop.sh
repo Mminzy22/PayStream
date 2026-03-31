@@ -34,6 +34,7 @@ SERVICES=(
 # Redis 설정 (기본값)
 REDIS_PORT=${REDIS_PORT:-6379}
 REDIS_CONTAINER_NAME="paystream-redis"
+KAFKA_PORT=${KAFKA_PORT:-29092}
 
 # 서비스 종료 함수
 stop_service() {
@@ -205,8 +206,39 @@ stop_redis() {
     echo -e "${YELLOW}⚠️  Redis가 실행 중이 아닙니다.${NC}"
 }
 
+# Kafka 종료 함수
+stop_kafka() {
+    echo -e "${YELLOW}🛑 Kafka 종료 중...${NC}"
+
+    if is_docker_running && [ -f "$PROJECT_ROOT/docker-compose.yml" ]; then
+        cd "$PROJECT_ROOT"
+        if command -v docker-compose > /dev/null 2>&1; then
+            docker-compose stop kafka kafka-ui > /dev/null 2>&1 || true
+        elif docker compose version > /dev/null 2>&1; then
+            docker compose stop kafka kafka-ui > /dev/null 2>&1 || true
+        fi
+    fi
+
+    if command -v lsof > /dev/null 2>&1; then
+        kafka_pids=$(lsof -ti:$KAFKA_PORT 2>/dev/null || true)
+        if [ -n "$kafka_pids" ]; then
+            for pid in $kafka_pids; do
+                kill "$pid" 2>/dev/null || true
+                sleep 1
+                if ps -p "$pid" > /dev/null 2>&1; then
+                    kill -9 "$pid" 2>/dev/null || true
+                fi
+            done
+        fi
+    fi
+
+    echo -e "${GREEN}💚 Kafka 종료 처리 완료${NC}"
+}
+
 # Redis 종료
 stop_redis
+# Kafka 종료
+stop_kafka
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}모든 서비스 종료 완료!${NC}"

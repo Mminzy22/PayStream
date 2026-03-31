@@ -121,6 +121,8 @@ check_port() {
 REDIS_HOST=${REDIS_HOST:-localhost}
 REDIS_PORT=${REDIS_PORT:-6379}
 REDIS_CONTAINER_NAME="paystream-redis"
+KAFKA_PORT=${KAFKA_PORT:-29092}
+KAFKA_CONTAINER_NAME="paystream-kafka"
 
 # Docker가 실행 중인지 확인하는 함수
 is_docker_running() {
@@ -330,6 +332,53 @@ start_redis() {
     echo -e "${YELLOW}⚠️  Redis 없이 서비스를 계속 실행합니다. (토큰 블랙리스트 기능이 작동하지 않을 수 있습니다)${NC}"
 }
 
+# Kafka 시작 함수
+start_kafka() {
+    echo -e "${GREEN}🔥 Kafka 시작 중...${NC}"
+
+    # 포트가 이미 사용 중이면 기존 인스턴스 사용
+    if check_port "$KAFKA_PORT"; then
+        echo -e "${YELLOW}⚠️  Kafka 포트 $KAFKA_PORT가 이미 사용 중입니다. 기존 인스턴스를 사용합니다.${NC}"
+        return
+    fi
+
+    # Docker가 실행 중이 아니면 자동 시작 시도
+    if ! is_docker_running; then
+        echo -e "${YELLOW}🐳 Docker daemon이 실행 중이 아닙니다. Docker Desktop을 시작합니다...${NC}"
+        if ! start_docker_desktop; then
+            echo -e "${RED}👿 Docker Desktop 시작 실패. Kafka 없이 서비스를 계속 실행합니다.${NC}"
+            echo -e "${YELLOW}💡 수동으로 Docker Desktop을 시작한 후 다시 실행하세요.${NC}"
+            return
+        fi
+    fi
+
+    # Docker Compose로 Kafka 시작
+    if [ -f "$PROJECT_ROOT/docker-compose.yml" ]; then
+        cd "$PROJECT_ROOT"
+        if command -v docker-compose > /dev/null 2>&1; then
+            if docker-compose up -d kafka kafka-ui > /dev/null 2>&1; then
+                sleep 3
+                if check_port "$KAFKA_PORT"; then
+                    echo -e "${GREEN}🐳 Kafka Docker Compose 시작 완료${NC}"
+                    return
+                fi
+            fi
+        elif docker compose version > /dev/null 2>&1; then
+            if docker compose up -d kafka kafka-ui > /dev/null 2>&1; then
+                sleep 3
+                if check_port "$KAFKA_PORT"; then
+                    echo -e "${GREEN}🐳 Kafka Docker Compose 시작 완료${NC}"
+                    return
+                fi
+            fi
+        fi
+    fi
+
+    # Docker Compose로 시작되지 않으면 안내
+    echo -e "${RED}👿 Kafka 시작 실패. docker-compose 설정 또는 환경변수를 확인하세요.${NC}"
+    echo -e "${YELLOW}💡 수동 실행: docker compose up -d kafka kafka-ui${NC}"
+}
+
 # Gradle Wrapper 실행 권한 확인
 if [ ! -x "./gradlew" ]; then
     chmod +x ./gradlew
@@ -337,6 +386,8 @@ fi
 
 # Redis 시작 (Eureka Server보다 먼저)
 start_redis
+# Kafka 시작 (서비스보다 먼저)
+start_kafka
 
 # 서비스 실행 함수
 start_service() {
@@ -395,6 +446,8 @@ echo -e "  - Eureka Dashboard: ${GREEN}http://localhost:8761${NC}"
 echo -e "  - API Gateway: ${GREEN}http://localhost:8000${NC}"
 echo -e "  - Swagger UI: ${GREEN}http://localhost:8000/swagger-ui.html${NC}"
 echo -e "  - Redis: ${GREEN}localhost:${REDIS_PORT}${NC}"
+echo -e "  - Kafka: ${GREEN}localhost:${KAFKA_PORT}${NC}"
+echo -e "  - Kafka UI: ${GREEN}http://localhost:8080${NC}"
 echo ""
 echo -e "로그 확인: ${YELLOW}dev-scripts/pids/*.log${NC}"
 echo -e "서비스 종료: ${YELLOW}./dev-scripts/stop.sh${NC}"
