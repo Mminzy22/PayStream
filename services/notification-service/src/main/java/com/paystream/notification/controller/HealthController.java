@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 /** 헬스 체크 컨트롤러 - 서비스 정상 동작 확인용 엔드포인트 제공 */
 @Slf4j
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/notifications")
 public class HealthController {
 
     /**

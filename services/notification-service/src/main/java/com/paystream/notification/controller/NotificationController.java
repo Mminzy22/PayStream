@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 /** 알림 컨트롤러 - 알림 관련 REST API 엔드포인트 제공 */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/notifications")
+@RequestMapping("/notifications")
 public class NotificationController {
 
     private final NotificationCreateService notificationCreateService;
