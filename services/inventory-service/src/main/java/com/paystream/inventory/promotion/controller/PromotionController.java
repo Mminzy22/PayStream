@@ -1,9 +1,8 @@
 package com.paystream.inventory.promotion.controller;
 
-import static com.paystream.core.exception.ExceptionEnum.ACCESS_DENIED_EXCEPTION;
+import static com.paystream.inventory.utils.AuthUtils.getCurrentUserId;
 
 import com.paystream.core.BaseResponse;
-import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.promotion.dto.request.PromotionFindRequest;
 import com.paystream.inventory.promotion.dto.request.PromotionRequest;
 import com.paystream.inventory.promotion.dto.response.PromotionResponse;
@@ -91,15 +90,5 @@ public class PromotionController {
         String currentUserId = getCurrentUserId(request);
         promotionService.finished(id, currentUserId);
         return BaseResponse.of(HttpStatus.OK, "성공적으로 처리가 완료되었습니다.", null);
-    }
-
-    private String getCurrentUserId(HttpServletRequest request) {
-        String hostId = request.getHeader("X-Auth-User-Id");
-
-        if (hostId == null || hostId.isEmpty()) {
-            throw new PayStreamException(ACCESS_DENIED_EXCEPTION);
-        }
-
-        return hostId;
     }
 }

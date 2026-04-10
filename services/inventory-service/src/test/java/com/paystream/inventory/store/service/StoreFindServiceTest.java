@@ -332,6 +332,7 @@ class StoreFindServiceTest {
                         .discountValue(10)
                         .startDate(today)
                         .endDate(today)
+                        .createUserId("1")
                         .build());
 
         // 상품 프로모션1 (이게 더 큼)
@@ -343,6 +344,7 @@ class StoreFindServiceTest {
                         .discountValue(15_000)
                         .startDate(today)
                         .endDate(today)
+                        .createUserId("1")
                         .build());
 
         // 상품 프로모션2 (가게가 더 큼)
@@ -354,6 +356,7 @@ class StoreFindServiceTest {
                         .discountValue(15_000)
                         .startDate(today)
                         .endDate(today)
+                        .createUserId("1")
                         .build());
 
         StoreFindRequest request = new StoreFindRequest(2, today, today.plusDays(2));
@@ -496,6 +499,7 @@ class StoreFindServiceTest {
                 .discountValue(value)
                 .startDate(LocalDate.now().minusDays(1))
                 .endDate(LocalDate.now().plusDays(1))
+                .createUserId("1")
                 .build();
     }
 

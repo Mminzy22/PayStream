@@ -17,4 +17,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                             + "AND i.date >= :checkInDate AND i.date < :checkOutDate")
     List<Product> findAvailableProducts(
             List<Long> storeIds, LocalDate checkInDate, LocalDate checkOutDate);
+
+    List<Product> findAllByStore_HostId(String storeHostId);
 }

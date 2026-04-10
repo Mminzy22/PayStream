@@ -15,6 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 public class StoreListFindRequest {
 
+    private String ownerId;
     private String name;
     private String province;
     private String city;

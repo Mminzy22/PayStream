@@ -11,4 +11,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     Boolean existsByName(String name);
 
     List<Store> findByIdIn(List<Long> ids);
+
+    List<Store> findAllByHostId(String hostId);
 }

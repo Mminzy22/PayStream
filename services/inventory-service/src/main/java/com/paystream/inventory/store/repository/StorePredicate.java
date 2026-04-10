@@ -9,6 +9,14 @@ import java.util.List;
 
 public class StorePredicate {
 
+    public static BooleanExpression hostIdEqual(String hostId) {
+        if (hostId == null || hostId.isEmpty()) {
+            return null;
+        }
+
+        return store.hostId.eq(hostId);
+    }
+
     public static BooleanExpression nameLike(String name) {
         if (name == null || name.isEmpty()) {
             return null;

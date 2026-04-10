@@ -20,9 +20,11 @@ import com.paystream.inventory.promotion.repository.PromotionRepository;
 import com.paystream.inventory.promotion.service.DiscountCalculate;
 import com.paystream.inventory.store.dto.request.StoreFindRequest;
 import com.paystream.inventory.store.dto.request.StoreListFindRequest;
+import com.paystream.inventory.store.dto.response.StoreBaseResponse;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.entity.Store;
 import com.paystream.inventory.store.repository.StoreQueryDslRepository;
+import com.paystream.inventory.store.repository.StoreRepository;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -42,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StoreFindService {
 
+    private final StoreRepository storeRepository;
     private final StorageService storageService;
     private final ProductRepository productRepository;
     private final StoreQueryDslRepository storeQueryDslRepository;
@@ -53,8 +56,8 @@ public class StoreFindService {
     @Cacheable(value = "stores", keyGenerator = "customKeyGenerator")
     public PageResponse<StoreResponse> userFindStoreList(
             @CacheKeyParam StoreListFindRequest request, Pageable reqPageable) {
-        Pageable pageable =
-                PageRequest.of(reqPageable.getPageNumber() - 1, reqPageable.getPageSize());
+        int pageNumber = Math.max(0, reqPageable.getPageNumber() - 1);
+        Pageable pageable = PageRequest.of(pageNumber, reqPageable.getPageSize());
 
         // 가게 전체 조회
         Page<Store> stores = storeQueryDslRepository.findAllByFetchJoin(request, pageable);
@@ -235,6 +238,33 @@ public class StoreFindService {
                         .toList();
 
         return StoreResponse.ofWithProducts(store, productResponses);
+    }
+
+    /**
+     * 유저가 등록한 가게들의 리스트로 조회
+     *
+     * @param request
+     * @param reqPageable
+     * @return 유자가 갖고 있는 가게들을 Page 형식으로 조회
+     */
+    public PageResponse<StoreResponse> listUserStores(
+            String userId, StoreListFindRequest request, Pageable reqPageable) {
+        // 소유 가게만 조회
+        request.setOwnerId(userId);
+
+        return this.userFindStoreList(request, reqPageable);
+    }
+
+    /**
+     * 유저가 갖고 있는 가게들의 기본정보 리스트 조회 (단순 조회용)
+     *
+     * @param userId
+     * @return 유저가 갖고 있는 가게들을 조회
+     */
+    public List<StoreBaseResponse> getUserStoreList(String userId) {
+        List<Store> findAllUserStore = storeRepository.findAllByHostId(userId);
+
+        return findAllUserStore.stream().map(StoreBaseResponse::from).toList();
     }
 
     // 예약 가능 여부 확인

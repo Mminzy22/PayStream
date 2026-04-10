@@ -1,8 +1,11 @@
 package com.paystream.inventory.store.controller;
 
+import static com.paystream.inventory.utils.AuthUtils.getCurrentUserId;
+
 import com.paystream.core.BaseResponse;
 import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.store.dto.request.*;
+import com.paystream.inventory.store.dto.response.StoreBaseResponse;
 import com.paystream.inventory.store.dto.response.StoreResponse;
 import com.paystream.inventory.store.service.StoreCreateService;
 import com.paystream.inventory.store.service.StoreDeleteService;
@@ -10,6 +13,7 @@ import com.paystream.inventory.store.service.StoreFindService;
 import com.paystream.inventory.store.service.StoreUpdateService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -45,7 +49,7 @@ public class StoreController {
     @PostMapping
     public BaseResponse<Long> created(
             HttpServletRequest request, @Valid @RequestBody StoreCreateRequest createRequest) {
-        String hostId = request.getHeader("X-Auth-User-Id");
+        String hostId = getCurrentUserId(request);
         Long id = storeCreateService.create(hostId, createRequest);
         return BaseResponse.created(id);
     }
@@ -55,7 +59,7 @@ public class StoreController {
             @PathVariable Long id,
             HttpServletRequest request,
             @Valid @RequestBody StoreUpdateRequest updateRequest) {
-        String hostId = request.getHeader("X-Auth-User-Id");
+        String hostId = getCurrentUserId(request);
         StoreResponse response = storeUpdateService.update(id, hostId, updateRequest);
         return BaseResponse.ok(response);
     }
@@ -63,8 +67,34 @@ public class StoreController {
     @DeleteMapping
     public BaseResponse<String> deleted(
             HttpServletRequest request, @Valid @RequestBody StoreDeleteRequest deleteRequest) {
-        String hostId = request.getHeader("X-Auth-User-Id");
+        String hostId = getCurrentUserId(request);
         storeDeleteService.deleted(hostId, deleteRequest);
         return BaseResponse.ok("성공적으로 제거 되었습니다.");
+    }
+
+    @GetMapping("/user")
+    public BaseResponse<PageResponse<StoreResponse>> findOwnedStores(
+            @Valid @ModelAttribute StoreListFindRequest request,
+            @PageableDefault(page = 1, size = 10) Pageable pageable,
+            HttpServletRequest req) {
+        String hostId = getCurrentUserId(req);
+        PageResponse<StoreResponse> response =
+                storeFindService.listUserStores(hostId, request, pageable);
+
+        return BaseResponse.ok(response);
+    }
+
+    /**
+     * 소유자가 갖고 있는 가게에 대한 정보만을 조회한다. (상품, 재고 x)
+     *
+     * @param req
+     * @return 기본적인 가게에 대한 정보
+     */
+    @GetMapping("/user/list")
+    public BaseResponse<List<StoreBaseResponse>> findOwnedStoreList(HttpServletRequest req) {
+        String hostId = getCurrentUserId(req);
+        List<StoreBaseResponse> response = storeFindService.getUserStoreList(hostId);
+
+        return BaseResponse.ok(response);
     }
 }

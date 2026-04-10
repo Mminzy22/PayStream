@@ -1,10 +1,13 @@
 package com.paystream.inventory.product.controller;
 
+import static com.paystream.inventory.utils.AuthUtils.getCurrentUserId;
+
 import com.paystream.core.BaseResponse;
 import com.paystream.inventory.product.dto.request.ProductCreateRequest;
 import com.paystream.inventory.product.dto.request.ProductDeleteRequest;
 import com.paystream.inventory.product.dto.request.ProductUpdateRequest;
 import com.paystream.inventory.product.dto.response.ProductDetailResponse;
+import com.paystream.inventory.product.dto.response.ProductResponse;
 import com.paystream.inventory.product.service.ProductCreateService;
 import com.paystream.inventory.product.service.ProductDeleteService;
 import com.paystream.inventory.product.service.ProductFindService;
@@ -59,7 +62,7 @@ public class ProductController {
             HttpServletRequest request,
             @Valid @RequestPart("createRequest") ProductCreateRequest createRequest,
             @RequestPart("file") List<MultipartFile> files) {
-        String hostId = request.getHeader("X-Auth-User-Id");
+        String hostId = getCurrentUserId(request);
         Long savedProductId = productCreateService.create(hostId, createRequest, files);
 
         return BaseResponse.created(savedProductId);
@@ -70,7 +73,7 @@ public class ProductController {
             @PathVariable Long productId,
             HttpServletRequest request,
             @Valid @RequestBody ProductUpdateRequest updateRequest) {
-        String hostId = request.getHeader("X-Auth-User-Id");
+        String hostId = getCurrentUserId(request);
         Long updatedProductId = productUpdateService.update(hostId, productId, updateRequest);
 
         return BaseResponse.created(updatedProductId);
@@ -81,9 +84,24 @@ public class ProductController {
             @PathVariable Long productId,
             HttpServletRequest request,
             @Valid @RequestBody ProductDeleteRequest deleteRequest) {
-        String hostId = request.getHeader("X-Auth-User-Id");
+        String hostId = getCurrentUserId(request);
         productDeleteService.delete(hostId, productId, deleteRequest);
 
         return BaseResponse.ok("성공적으로 삭제되었습니다.");
+    }
+
+    /**
+     * 소유자가 갖고 있는 가게의 상품에 대한 정보만을 조회한다.
+     *
+     * @param request
+     * @return 기본적인 상품에 대한 정보
+     */
+    @GetMapping("/user/list")
+    public BaseResponse<List<ProductResponse>> findOwnedProductList(HttpServletRequest request) {
+        String hostId = getCurrentUserId(request);
+
+        List<ProductResponse> response = productFindService.listUserProducts(hostId);
+
+        return BaseResponse.ok(response);
     }
 }

@@ -7,6 +7,7 @@ import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.inventory.dto.response.DailyInventoryResponse;
 import com.paystream.inventory.photo.service.StorageService;
 import com.paystream.inventory.product.dto.response.ProductDetailResponse;
+import com.paystream.inventory.product.dto.response.ProductResponse;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.product.repository.ProductRepository;
 import com.paystream.inventory.promotion.dto.response.DiscountResult;
@@ -100,6 +101,18 @@ public class ProductFindService {
         DiscountResult discount = getDiscountResult(findProduct);
 
         return ProductDetailResponse.of(findProduct, dailyInventories, imageUrls, discount);
+    }
+
+    /**
+     * 유저가 등록한 가게의 기본적인 상품 리스트 조회 (단순 조회용)
+     *
+     * @param userId
+     * @return 유저가 갖고 있는 상품들을 조회
+     */
+    public List<ProductResponse> listUserProducts(String userId) {
+        List<Product> findAllUserProduct = productRepository.findAllByStore_HostId(userId);
+
+        return findAllUserProduct.stream().map(ProductResponse::from).toList();
     }
 
     // 할인율 계산

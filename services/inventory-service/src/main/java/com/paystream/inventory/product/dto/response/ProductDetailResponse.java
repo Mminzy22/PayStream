@@ -5,30 +5,24 @@ import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.promotion.dto.response.DiscountResult;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-@Builder
+@SuperBuilder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDetailResponse {
+public class ProductDetailResponse extends ProductResponse {
 
-    private Long productId;
-    private String name;
     private String description;
-    private int minPersonCount;
-    private int maxPersonCount;
     private int personAddPrice;
-    private PriceInfo price;
     private List<DailyInventoryResponse> dailyInventories;
-    private List<String> images;
 
-    private static ProductDetailResponse.ProductDetailResponseBuilder createBuilder(
+    private static ProductDetailResponse.ProductDetailResponseBuilder<?, ?> createBuilder(
             Product product, DiscountResult dr) {
         return ProductDetailResponse.builder()
-                .productId(product.getId())
+                .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .minPersonCount(product.getMinPersonCount())
