@@ -18,9 +18,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PromotionRequest {
 
-    @NotBlank(message = "생성자ID는 필수 입니다.")
-    private String createUserId;
-
     @NotBlank(message = "제목은 필수 항목입니다.")
     private String title;
 
@@ -46,7 +43,6 @@ public class PromotionRequest {
 
     public Promotion toEntity() {
         return Promotion.builder()
-                .createUserId(createUserId)
                 .title(title)
                 .targetType(TargetType.valueOf(targetType))
                 .targetId(targetId)

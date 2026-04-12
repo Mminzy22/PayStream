@@ -18,8 +18,11 @@ public class Promotion extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(nullable = false)
     private String createUserId; // 생성자 ID
+
+    @Setter private String modifiedUserId; // 수정자 ID
 
     private String title;
 

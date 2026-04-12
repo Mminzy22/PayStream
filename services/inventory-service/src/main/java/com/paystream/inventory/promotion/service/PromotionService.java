@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PromotionService {
     private final PromotionRepository promotionRepository;
 
-    public Long create(PromotionRequest request) {
+    public Long create(String currentUserId, PromotionRequest request) {
         // 기간 역전 검증
         if (validatePeriod(request.getStartDate(), request.getEndDate())) {
             throw new PayStreamException(PROMOTION_NOT_PERIOD);
@@ -40,6 +40,7 @@ public class PromotionService {
             throw new PayStreamException(PROMOTION_DUPLICATE);
         }
         Promotion promotion = request.toEntity();
+        promotion.setCreateUserId(currentUserId);
         promotion.updateStatus(PromotionStatus.ACTIVE);
         return promotionRepository.save(promotion).getId();
     }
@@ -55,9 +56,8 @@ public class PromotionService {
                         .findById(id)
                         .orElseThrow(() -> new PayStreamException(PROMOTION_NOT_FOUND));
 
-        if (currentUserId.equals(promotion.getCreateUserId())) {
-            throw new PayStreamException(IS_NOT_CREATE_USER);
-        }
+        // 수정자 ID
+        promotion.setModifiedUserId(currentUserId);
 
         promotion.update(request);
 
