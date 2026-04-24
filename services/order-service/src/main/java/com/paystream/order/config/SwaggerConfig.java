@@ -1,4 +1,4 @@
-package com.paystream.payment.config;
+package com.paystream.order.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -21,11 +21,14 @@ public class SwaggerConfig {
                         List.of(
                                 new Server()
                                         .url("http://localhost:8000/api")
-                                        .description("API Gateway")));
+                                        .description("API Gateway"),
+                                new Server()
+                                        .url("http://localhost:8083")
+                                        .description("Order Service")));
     }
 
     private Info apiInfo() {
-        return new Info().title("Payment API").description("Payment API").version("0.0.1-SNAPSHOT");
+        return new Info().title("Order API").description("Order API").version("0.0.1-SNAPSHOT");
     }
 
     private Components components() {

@@ -1,11 +1,16 @@
 server:
-  port: 8083   # order-service 포트
+  port: 8083
 
 spring:
   application:
     name: order-service
   profiles:
-    active: local   # 기본 실행 프로필 (application-local.yml 불러옴)
+    active: local
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 eureka:
   client:
@@ -26,7 +31,16 @@ management:
     health:
       show-details: when-authorized
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    tagsSorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+
 logging:
   level:
-    com.paystream.user: DEBUG
+    com.paystream.order: DEBUG
     org.springframework.cloud: DEBUG

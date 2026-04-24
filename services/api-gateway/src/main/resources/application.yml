@@ -31,7 +31,7 @@ springdoc:
       url: http://localhost:8000/api/inventories/v3/api-docs
     urls[1]:
       name: 알림 서비스
-      url: http://localhost:8000/api/notification/v3/api-docs
+      url: http://localhost:8000/api/notifications/v3/api-docs
     urls[2]:
       name: 주문 서비스
       url: http://localhost:8000/api/orders/v3/api-docs

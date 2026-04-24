@@ -190,7 +190,7 @@ class StockManagerServiceTest {
 
     @DisplayName("다른 쓰레드가 이미 락을 점유하고 있으면 락 획득 실패 예외가 발생한다.")
     @Test
-    void throwExceptionWhenLockAcquisitionFails() {
+    void throwExceptionWhenLockAcquisitionFails() throws InterruptedException {
         // given
         String lockKey = "lock:inventory:" + productId;
         RLock rLock = redissonClient.getLock(lockKey);
@@ -211,6 +211,9 @@ class StockManagerServiceTest {
                         });
         lockPreemptor.start();
 
+        // 다른 쓰레드가 락을 획득할 수 있도록 잠시 대기
+        Thread.sleep(1000);
+
         // then
         assertThatThrownBy(
                         () ->
@@ -227,6 +230,7 @@ class StockManagerServiceTest {
                 dailyInventoryRepository.findInventoriesByDateRange(
                         productId, CHECK_IN_DATE, CHECK_OUT_DATE);
         findInventories.forEach(DailyInventory::decreaseStockAvailable);
+        dailyInventoryRepository.flush(); // 수정된 재고를 커밋
 
         int threadCount = 5; // 동시에 들어오는 인원수
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);

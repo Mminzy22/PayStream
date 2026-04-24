@@ -1,18 +1,8 @@
 plugins {
-    id 'java'
     id 'org.springframework.boot' version '3.5.6'
-    id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.paystream'
-version = '0.0.1-SNAPSHOT'
 description = 'Order Service'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
 
 configurations {
     compileOnly {
@@ -20,45 +10,39 @@ configurations {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
-ext {
-    springCloudVersion = "2025.0.0"   // Spring Boot 3.5.x와 호환
-}
-
 dependencies {
-    // spring boot starter
+    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // lombok
+    // Spring Cloud
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-
-    // spring cloud
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     // Development
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    // test
+    // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // JPA + H2 (로컬)
+    // DB & JPA
+    runtimeOnly 'org.postgresql:postgresql' // local, dev
+    runtimeOnly 'com.h2database:h2' // test
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    runtimeOnly 'com.h2database:h2'
 
-}
+    // Swagger - API 문서화
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
 
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    }
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
+    // 공통 라이브러리
+    implementation project(':common:core')
 }

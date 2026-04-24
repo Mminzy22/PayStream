@@ -1,7 +1,8 @@
 package com.paystream.notification.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ class HealthControllerTests {
     @Test
     @DisplayName("ping 엔드포인트 - 정상 응답 확인")
     void testPingEndpoint() throws Exception {
-        mockMvc.perform(get("/api/notifications/ping"))
+        mockMvc.perform(get("/notifications/ping"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.service").value("notification-service"))
                 .andExpect(jsonPath("$.status").value("UP"))
@@ -33,7 +34,7 @@ class HealthControllerTests {
     @Test
     @DisplayName("info 엔드포인트 - 서비스 정보 조회")
     void testInfoEndpoint() throws Exception {
-        mockMvc.perform(get("/api/notifications/info"))
+        mockMvc.perform(get("/notifications/info"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("PayStream Notification Service"))
                 .andExpect(jsonPath("$.version").value("0.0.1-SNAPSHOT"))

@@ -33,6 +33,7 @@ MSA 서비스를 한 번에 실행하고 종료하는 스크립트입니다.
 - **자동 순서 관리**: Eureka Server를 먼저 실행하고, 다른 서비스들이 등록할 수 있도록 대기합니다.
 - **중복 실행 방지**: 이미 실행 중인 서비스는 건너뜁니다.
 - **포트 충돌 확인**: 포트가 이미 사용 중인 경우 해당 서비스를 건너뜁니다.
+- **인프라 자동 실행**: Redis, Kafka, Kafka UI를 Docker Compose로 자동 시작/종료합니다.
 - **로그 관리**: 각 서비스의 로그는 `dev-scripts/pids/*.log`에 저장됩니다.
 - **PID 관리**: 각 서비스의 PID는 `dev-scripts/pids/*.pid`에 저장되어 종료 시 사용됩니다.
 
@@ -42,6 +43,8 @@ MSA 서비스를 한 번에 실행하고 종료하는 스크립트입니다.
 
 - **Eureka Dashboard**: http://localhost:8761
 - **API Gateway**: http://localhost:8000
+- **Kafka Broker**: localhost:29092
+- **Kafka UI**: http://localhost:8080
 
 ## 로그 확인
 

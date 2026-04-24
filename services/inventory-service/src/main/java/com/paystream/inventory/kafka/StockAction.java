@@ -1,8 +1,8 @@
 package com.paystream.inventory.kafka;
 
-import java.time.LocalDate;
+import com.paystream.inventory.kafka.dto.InventoryEvent;
 
 @FunctionalInterface
 public interface StockAction {
-    void execute(Long productId, LocalDate checkInDate, LocalDate checkOutDate);
+    void execute(InventoryEvent event);
 }

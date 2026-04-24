@@ -75,7 +75,7 @@ class NotificationControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/notifications")
+                        post("/notifications")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -96,7 +96,7 @@ class NotificationControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/notifications")
+                        post("/notifications")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -120,7 +120,7 @@ class NotificationControllerTest {
         when(notificationFindService.findById(notificationId)).thenReturn(response);
 
         // when & then
-        mockMvc.perform(get("/api/notifications/{id}", notificationId))
+        mockMvc.perform(get("/notifications/{id}", notificationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(notificationId))
                 .andExpect(jsonPath("$.data.userId").value(1L))
@@ -157,7 +157,7 @@ class NotificationControllerTest {
         when(notificationFindService.findByUserId(userId)).thenReturn(responses);
 
         // when & then
-        mockMvc.perform(get("/api/notifications/users/{userId}", userId))
+        mockMvc.perform(get("/notifications/users/{userId}", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -187,7 +187,7 @@ class NotificationControllerTest {
 
         // when & then
         mockMvc.perform(
-                        put("/api/notifications/{id}", notificationId)
+                        put("/notifications/{id}", notificationId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
