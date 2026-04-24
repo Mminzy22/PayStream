@@ -40,9 +40,9 @@ public enum ExceptionEnum {
     PROMOTION_NOT_RATE("I0017", HttpStatus.BAD_REQUEST, "할인율을 잘못입력하셨습니다."),
     PROMOTION_DUPLICATE("I0018", HttpStatus.BAD_REQUEST, "중복된 프로모션이 있습니다."),
     PROMOTION_TYPE_DOES_NOT_EXIST("I0019", HttpStatus.BAD_REQUEST, "입력하신 프로모션 적용 타입이 존재하지 않습니다."),
-    OVER_STOCK_FLOW("I0013", HttpStatus.CONFLICT, "저장 가능한 최대 수량을 초과하였습니다."),
-    ALREADY_RESERVED_BY_USER("I0014", HttpStatus.BAD_REQUEST, "이미 해당 사용자가 선점(예약 시도) 중인 상품입니다."),
-    RESERVATION_EXPIRED("I0015", HttpStatus.BAD_REQUEST, "유휴시간을 초과했습니다."),
+    OVER_STOCK_FLOW("I0020", HttpStatus.CONFLICT, "저장 가능한 최대 수량을 초과하였습니다."),
+    ALREADY_RESERVED_BY_USER("I0021", HttpStatus.BAD_REQUEST, "이미 해당 사용자가 선점(예약 시도) 중인 상품입니다."),
+    RESERVATION_EXPIRED("I0022", HttpStatus.BAD_REQUEST, "유휴시간을 초과했습니다."),
 
     // user-service -> U0001
     USER_NOT_FOUND("U0001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
