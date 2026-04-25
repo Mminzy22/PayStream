@@ -42,6 +42,7 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                         .leftJoin(store.amenities)
                         .fetchJoin()
                         .where(
+                                hostIdEqual(request.getOwnerId()),
                                 nameLike(request.getName()),
                                 categoryEqual(request.getCategory()),
                                 addressEqual(request.getProvince(), request.getCity()),

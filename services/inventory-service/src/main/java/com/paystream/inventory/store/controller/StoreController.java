@@ -3,68 +3,50 @@ package com.paystream.inventory.store.controller;
 import com.paystream.core.BaseResponse;
 import com.paystream.inventory.config.PageResponse;
 import com.paystream.inventory.store.dto.request.*;
+import com.paystream.inventory.store.dto.response.StoreBaseResponse;
 import com.paystream.inventory.store.dto.response.StoreResponse;
-import com.paystream.inventory.store.service.StoreCreateService;
-import com.paystream.inventory.store.service.StoreDeleteService;
-import com.paystream.inventory.store.service.StoreFindService;
-import com.paystream.inventory.store.service.StoreUpdateService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/stores")
-public class StoreController {
+@Tag(name = "Store", description = "가게 관련 API")
+public interface StoreController {
 
-    private final StoreFindService storeFindService;
-    private final StoreCreateService storeCreateService;
-    private final StoreUpdateService storeUpdateService;
-    private final StoreDeleteService storeDeleteService;
+    @Operation(summary = "가게 전체 조회")
+    BaseResponse<PageResponse<StoreResponse>> findAll(
+            StoreListFindRequest request, Pageable pageable);
 
-    @GetMapping
-    public BaseResponse<PageResponse<StoreResponse>> findAll(
-            @Valid @ModelAttribute StoreListFindRequest request,
-            @PageableDefault(page = 1, size = 10) Pageable pageable) {
-        PageResponse<StoreResponse> responses =
-                storeFindService.userFindStoreList(request, pageable);
-        return BaseResponse.ok(responses);
-    }
+    @Operation(summary = "가게 상세 조회")
+    BaseResponse<StoreResponse> findById(Long id, StoreFindRequest request);
 
-    @GetMapping("{id}")
-    public BaseResponse<StoreResponse> findById(
-            @PathVariable Long id, @Valid @ModelAttribute StoreFindRequest request) {
-        StoreResponse store = storeFindService.findStore(id, request);
+    @Operation(
+            summary = "가게 생성",
+            security = {@SecurityRequirement(name = "X-Auth-User-Id")})
+    BaseResponse<Long> created(HttpServletRequest request, StoreCreateRequest createRequest);
 
-        return BaseResponse.ok(store);
-    }
+    @Operation(
+            summary = "가게 정보 수정",
+            security = {@SecurityRequirement(name = "X-Auth-User-Id")})
+    BaseResponse<StoreResponse> updated(
+            Long id, HttpServletRequest request, StoreUpdateRequest updateRequest);
 
-    @PostMapping
-    public BaseResponse<Long> created(
-            HttpServletRequest request, @Valid @RequestBody StoreCreateRequest createRequest) {
-        String hostId = request.getHeader("X-Auth-User-Id");
-        Long id = storeCreateService.create(hostId, createRequest);
-        return BaseResponse.created(id);
-    }
+    @Operation(
+            summary = "가게 삭제",
+            security = {@SecurityRequirement(name = "X-Auth-User-Id")})
+    BaseResponse<String> deleted(HttpServletRequest request, StoreDeleteRequest deleteRequest);
 
-    @PutMapping("{id}")
-    public BaseResponse<StoreResponse> updated(
-            @PathVariable Long id,
-            HttpServletRequest request,
-            @Valid @RequestBody StoreUpdateRequest updateRequest) {
-        String hostId = request.getHeader("X-Auth-User-Id");
-        StoreResponse response = storeUpdateService.update(id, hostId, updateRequest);
-        return BaseResponse.ok(response);
-    }
+    @Operation(
+            summary = "내 소유 가게 페이징 조회",
+            security = {@SecurityRequirement(name = "X-Auth-User-Id")})
+    BaseResponse<PageResponse<StoreResponse>> findOwnedStores(
+            StoreListFindRequest request, Pageable pageable, HttpServletRequest req);
 
-    @DeleteMapping
-    public BaseResponse<String> deleted(
-            HttpServletRequest request, @Valid @RequestBody StoreDeleteRequest deleteRequest) {
-        String hostId = request.getHeader("X-Auth-User-Id");
-        storeDeleteService.deleted(hostId, deleteRequest);
-        return BaseResponse.ok("성공적으로 제거 되었습니다.");
-    }
+    @Operation(
+            summary = "내 소유 가게 리스트 조회",
+            description = "소유자가 갖고 있는 가게에 대한 정보만을 조회한다. (상품, 재고 x)",
+            security = {@SecurityRequirement(name = "X-Auth-User-Id")})
+    BaseResponse<List<StoreBaseResponse>> findOwnedStoreList(HttpServletRequest req);
 }

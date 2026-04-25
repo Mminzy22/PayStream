@@ -7,8 +7,14 @@ import com.paystream.core.exception.PayStreamException;
 import com.paystream.inventory.inventory.dto.response.DailyInventoryResponse;
 import com.paystream.inventory.photo.service.StorageService;
 import com.paystream.inventory.product.dto.response.ProductDetailResponse;
+import com.paystream.inventory.product.dto.response.ProductResponse;
 import com.paystream.inventory.product.entity.Product;
 import com.paystream.inventory.product.repository.ProductRepository;
+import com.paystream.inventory.promotion.dto.response.DiscountResult;
+import com.paystream.inventory.promotion.entity.Promotion;
+import com.paystream.inventory.promotion.entity.TargetType;
+import com.paystream.inventory.promotion.repository.PromotionRepository;
+import com.paystream.inventory.promotion.service.DiscountCalculate;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +30,8 @@ public class ProductFindService {
 
     private final ProductRepository productRepository;
     private final StorageService storageService;
+    private final PromotionRepository promotionRepository;
+    private final DiscountCalculate discountCalculate;
 
     /**
      * 상품 정보 조회
@@ -43,7 +51,15 @@ public class ProductFindService {
                         .map(photo -> storageService.getImageUrl(photo.getFileName()))
                         .toList();
 
-        return ProductDetailResponse.of(findProduct, imageUrls);
+        // 할인율 계산
+        DiscountResult discount = getDiscountResult(findProduct);
+
+        return ProductDetailResponse.of(findProduct, imageUrls, discount);
+    }
+
+    private static List<Promotion> getPromotions(
+            List<Promotion> allPromotions, TargetType product) {
+        return allPromotions.stream().filter(p -> p.getTargetType() == product).toList();
     }
 
     /**
@@ -81,6 +97,34 @@ public class ProductFindService {
                         .map(photo -> storageService.getImageUrl(photo.getFileName()))
                         .toList();
 
-        return ProductDetailResponse.of(findProduct, dailyInventories, imageUrls);
+        // 할인율 계산
+        DiscountResult discount = getDiscountResult(findProduct);
+
+        return ProductDetailResponse.of(findProduct, dailyInventories, imageUrls, discount);
+    }
+
+    /**
+     * 유저가 등록한 가게의 기본적인 상품 리스트 조회 (단순 조회용)
+     *
+     * @param userId
+     * @return 유저가 갖고 있는 상품들을 조회
+     */
+    public List<ProductResponse> listUserProducts(String userId) {
+        List<Product> findAllUserProduct = productRepository.findAllByStore_HostId(userId);
+
+        return findAllUserProduct.stream().map(ProductResponse::from).toList();
+    }
+
+    // 할인율 계산
+    private DiscountResult getDiscountResult(Product findProduct) {
+        List<Promotion> allPromotions =
+                promotionRepository.findAllValidPromotions(
+                        List.of(findProduct.getStore().getId()), List.of(findProduct.getId()));
+
+        List<Promotion> currentStorePromo = getPromotions(allPromotions, TargetType.STORE);
+        List<Promotion> currentProductPromo = getPromotions(allPromotions, TargetType.PRODUCT);
+
+        return discountCalculate.calculateBestDiscount(
+                findProduct.getBasePrice(), currentStorePromo, currentProductPromo);
     }
 }

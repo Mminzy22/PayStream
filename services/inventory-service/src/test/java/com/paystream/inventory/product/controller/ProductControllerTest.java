@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 class ProductControllerTest {
 
-    @Autowired private ProductController controller;
+    @Autowired private ProductControllerImpl controller;
 
     @Autowired private ObjectMapper objectMapper;
 

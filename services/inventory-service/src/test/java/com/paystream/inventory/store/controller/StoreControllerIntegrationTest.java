@@ -27,6 +27,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,11 @@ public class StoreControllerIntegrationTest {
     @Autowired private StoreRepository storeRepository;
 
     @Autowired private StoreQueryDslRepository storeQueryDslRepository;
+
+    @BeforeEach
+    void setUp() {
+        storeRepository.deleteAllInBatch();
+    }
 
     @DisplayName("가게 전체 조회 Controller 통합 테스트")
     @Test
@@ -102,9 +108,12 @@ public class StoreControllerIntegrationTest {
         List<StoreResponse> expectedResponse =
                 List.of(
                         StoreResponse.of(
-                                foundStore, ProductResponse.of(foundProduct, true, List.of())),
+                                foundStore,
+                                ProductResponse.of(foundProduct, true, List.of(), 25000, 25000, 0)),
                         StoreResponse.of(
-                                foundStore2, ProductResponse.of(foundProduct2, true, List.of())),
+                                foundStore2,
+                                ProductResponse.of(
+                                        foundProduct2, true, List.of(), 30000, 30000, 0)),
                         StoreResponse.of(notFoundStore, null) // 상품이 없기 때문에 0
                         );
         Page<StoreResponse> pageResponse =

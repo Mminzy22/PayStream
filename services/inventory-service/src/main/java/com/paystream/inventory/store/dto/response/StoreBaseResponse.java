@@ -1,36 +1,37 @@
 package com.paystream.inventory.store.dto.response;
 
-import com.paystream.inventory.product.dto.response.ProductResponse;
+import com.paystream.inventory.store.entity.Address;
 import com.paystream.inventory.store.entity.Amenities;
+import com.paystream.inventory.store.entity.Category;
 import com.paystream.inventory.store.entity.Store;
-import java.util.Collections;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@ToString
 @SuperBuilder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoreResponse extends StoreBaseResponse {
+public class StoreBaseResponse {
 
-    private List<ProductResponse> products;
+    private Long id;
+    private String hostId;
+    private String name;
+    private String description;
+    private Address address;
+    private Category category;
+    private LocalTime checkInTime;
+    private LocalTime checkOutTime;
+    private double rating;
+    private int reviewCount;
+    private String rules;
+    private List<String> amenities;
 
-    public static StoreResponse of(Store store, ProductResponse product) {
-        return createBaseBuilder(store).products(Collections.singletonList(product)).build();
-    }
-
-    public static StoreResponse of(Store store) {
-        return createBaseBuilder(store).build();
-    }
-
-    public static StoreResponse ofWithProducts(Store store, List<ProductResponse> products) {
-        return createBaseBuilder(store).products(products).build();
-    }
-
-    private static StoreResponseBuilder<?, ?> createBaseBuilder(Store store) {
+    public static StoreBaseResponse from(Store store) {
         List<String> responseAmenities =
                 Optional.ofNullable(store.getAmenities()).orElseGet(List::of).stream()
                         .map(Amenities::getDisplayName)
@@ -47,6 +48,8 @@ public class StoreResponse extends StoreBaseResponse {
                 .checkOutTime(store.getCheckOutTime())
                 .rating(store.getRating())
                 .reviewCount(store.getReviewCount())
-                .amenities(responseAmenities);
+                .rules(store.getRule())
+                .amenities(responseAmenities)
+                .build();
     }
 }
