@@ -295,17 +295,17 @@ class StoreFindServiceTest {
         // A호텔 검증: 10만 -> 8만 (20%)
         StoreResponse resA = findResponseByName(response, "A 호텔");
         assertThat(resA.getProducts().get(0).getPrice().getDiscounted()).isEqualTo(80_000L);
-        assertThat(resA.getProducts().get(0).getPrice().getDiscountRate()).isEqualTo(20);
+        assertThat(resA.getProducts().get(0).getPrice().getDiscountRate()).isEqualTo(20.0);
 
         // B 리조트 검증: 15만 -> 10만 (33%)
         StoreResponse resB = findResponseByName(response, "B 글램핑");
         assertThat(resB.getProducts().get(0).getPrice().getDiscounted()).isEqualTo(100_000L);
-        assertThat(resB.getProducts().get(0).getPrice().getDiscountRate()).isEqualTo(33);
+        assertThat(resB.getProducts().get(0).getPrice().getDiscountRate()).isEqualTo(33.3);
 
         // C 펜션 검증: 5만 -> 5만 (0%)
         StoreResponse resC = findResponseByName(response, "C 펜션");
         assertThat(resC.getProducts().get(0).getPrice().getDiscounted()).isEqualTo(50_000L);
-        assertThat(resC.getProducts().get(0).getPrice().getDiscountRate()).isEqualTo(0);
+        assertThat(resC.getProducts().get(0).getPrice().getDiscountRate()).isEqualTo(0.0);
     }
 
     @DisplayName("가게 상세 조회시, 가게 할인과 상품 할인 중 혜택이 큰 것이 적용되어 응답된다.")
