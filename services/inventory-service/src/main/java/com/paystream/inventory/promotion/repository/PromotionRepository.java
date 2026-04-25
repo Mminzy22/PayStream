@@ -48,4 +48,6 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
             LocalDate startDate,
             LocalDate endDate,
             Pageable pageable);
+
+    List<Promotion> findByTargetId(Long targetId);
 }

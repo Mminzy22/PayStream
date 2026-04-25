@@ -5,6 +5,7 @@ import com.paystream.inventory.product.dto.request.ProductCreateRequest;
 import com.paystream.inventory.product.dto.request.ProductDeleteRequest;
 import com.paystream.inventory.product.dto.request.ProductUpdateRequest;
 import com.paystream.inventory.product.dto.response.ProductDetailResponse;
+import com.paystream.inventory.product.dto.response.ProductPriceHistoryResponse;
 import com.paystream.inventory.product.dto.response.ProductResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -63,4 +64,8 @@ public interface ProductController {
             description = "로그인한 사용자가 소유한 상품 목록을 조회합니다.",
             security = {@SecurityRequirement(name = "X-Auth-User-Id")})
     BaseResponse<List<ProductResponse>> findOwnedProductList(HttpServletRequest request);
+
+    @Operation(summary = "역대 최저가 숙소 조회", description = "해당 숙소의 역대 ")
+    BaseResponse<List<ProductPriceHistoryResponse>> getProductPriceHistory(
+            @PathVariable Long productId);
 }
