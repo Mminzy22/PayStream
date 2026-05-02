@@ -87,7 +87,7 @@ class ProductPriceHistoryServiceTest {
         }
         promotionRepository.saveAll(promotions);
 
-        Long productId = 1L;
+        Long productId = savedProduct.getId();
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = LocalDate.now().plusDays(2);
 
