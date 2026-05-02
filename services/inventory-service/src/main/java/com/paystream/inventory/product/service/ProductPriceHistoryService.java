@@ -11,6 +11,7 @@ import com.paystream.inventory.product.repository.ProductRepository;
 import com.paystream.inventory.promotion.dto.response.DiscountResult;
 import com.paystream.inventory.promotion.entity.Promotion;
 import com.paystream.inventory.promotion.repository.PromotionRepository;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,14 @@ public class ProductPriceHistoryService {
     private final ProductRepository productRepository;
     private final PromotionRepository promotionRepository;
 
+    // 날짜를 최대 1년로 설정해서 1개월, 3개월, 6개월, 1년까지 조회가능. 날짜는 커스텀이 가능.
     /** 숙소의 세일 내역을 포함한 상세 데이터 조회 */
-    public List<ProductPriceHistoryResponse> getPriceHistoryDetails(Long productId) {
+    public List<ProductPriceHistoryResponse> getPriceHistoryDetails(
+            Long productId, LocalDate startDate, LocalDate endDate) {
+        if (!startDate.isBefore(endDate)) {
+            throw new PayStreamException(ExceptionEnum.INVALID_DATE_RANGE);
+        }
+
         Product findProduct =
                 productRepository
                         .findById(productId)
@@ -33,7 +40,8 @@ public class ProductPriceHistoryService {
 
         // 조회한 숙소id로 promotion을 조회하고, 적용됐던 할인 이력을 가져온다.
         List<Promotion> targetPromotionList =
-                promotionRepository.findByTargetId(findProduct.getId());
+                promotionRepository.findByProductTargetIdBetweenDate(
+                        findProduct.getId(), startDate, endDate);
 
         if (targetPromotionList.isEmpty()) {
             throw new PayStreamException(ExceptionEnum.PROMOTION_NOT_FOUND);

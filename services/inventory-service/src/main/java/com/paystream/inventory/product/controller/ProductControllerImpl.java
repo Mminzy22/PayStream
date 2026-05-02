@@ -102,9 +102,11 @@ public class ProductControllerImpl implements ProductController {
     @GetMapping("{productId}/price-history")
     @Override
     public BaseResponse<List<ProductPriceHistoryResponse>> getProductPriceHistory(
-            @PathVariable Long productId) {
+            @PathVariable Long productId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
         List<ProductPriceHistoryResponse> response =
-                productPriceHistoryService.getPriceHistoryDetails(productId);
+                productPriceHistoryService.getPriceHistoryDetails(productId, startDate, endDate);
 
         return BaseResponse.ok(response);
     }

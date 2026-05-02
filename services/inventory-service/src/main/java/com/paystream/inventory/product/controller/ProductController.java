@@ -67,5 +67,7 @@ public interface ProductController {
 
     @Operation(summary = "역대 최저가 숙소 조회", description = "해당 숙소의 역대 ")
     BaseResponse<List<ProductPriceHistoryResponse>> getProductPriceHistory(
-            @PathVariable Long productId);
+            @PathVariable Long productId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate);
 }
