@@ -1,5 +1,7 @@
 package com.paystream.inventory.product.service;
 
+import static com.paystream.core.exception.ExceptionEnum.DATE_EXCEEDS_MAX_RANGE;
+import static com.paystream.core.exception.ExceptionEnum.INVALID_DATE_RANGE;
 import static com.paystream.inventory.promotion.service.DiscountCalculate.calculateAmount;
 import static com.paystream.inventory.promotion.service.DiscountCalculate.createDiscountResult;
 
@@ -30,7 +32,13 @@ public class ProductPriceHistoryService {
     public List<ProductPriceHistoryResponse> getPriceHistoryDetails(
             Long productId, LocalDate startDate, LocalDate endDate) {
         if (!startDate.isBefore(endDate)) {
-            throw new PayStreamException(ExceptionEnum.INVALID_DATE_RANGE);
+            throw new PayStreamException(INVALID_DATE_RANGE);
+        }
+
+        // 오늘 기준 최대 1년 전까지만 조회
+        LocalDate nowBeforeOneYears = LocalDate.now().minusYears(1);
+        if (startDate.isBefore(nowBeforeOneYears)) {
+            throw new PayStreamException(DATE_EXCEEDS_MAX_RANGE);
         }
 
         Product findProduct =
