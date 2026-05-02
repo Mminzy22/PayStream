@@ -10,6 +10,6 @@ import lombok.Getter;
 public class PriceInfo {
     private long original; // 원가
     private long discounted; // 최종가
-    private int discountRate; // 할인율
+    private double discountRate; // 할인율
     private boolean hasDiscount; // 할인 여부
 }

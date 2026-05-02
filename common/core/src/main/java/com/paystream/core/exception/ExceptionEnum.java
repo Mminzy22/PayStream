@@ -12,6 +12,7 @@ public enum ExceptionEnum {
     INTERNAL_SERVER_ERROR("E0003", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_STATUS_VALUE("E0004", HttpStatus.BAD_REQUEST, "상태값을 다시 확인해주세요."),
     IS_NOT_CREATE_USER("E0005", HttpStatus.FORBIDDEN, "사용자의 정보가 다릅니다."),
+    INVALID_DATE_RANGE("E0006", HttpStatus.BAD_REQUEST, " 날짜 범위가 잘못되었습니다."),
 
     /*
        inventory-service -> I0001
@@ -31,7 +32,6 @@ public enum ExceptionEnum {
     PRODUCT_DELETION_BLOCKED("I0008", HttpStatus.CONFLICT, "삭제가 불가능한 상품이 있습니다 다시 확인해주세요."),
     PRODUCT_STORE_MISMATCH("I0009", HttpStatus.BAD_REQUEST, "가게에 포함된 상품이 아닙니다."),
     INVENTORY_NOT_FOUND("I0010", HttpStatus.NOT_FOUND, "상품의 재고가 존재하지 않습니다."),
-    INVALID_DATE_RANGE("I0011", HttpStatus.BAD_REQUEST, "체크인 날짜와 체크아웃 날짜가 바뀌었습니다. 다시 확인해주세요."),
     OUT_OF_BOOKING_PERIOD("I0012", HttpStatus.BAD_REQUEST, "현재 예약 가능 기간이 아닙니다."),
     INSUFFICIENT_STOCK("I0013", HttpStatus.CONFLICT, "재고가 부족한 날짜가 있습니다. 다시 확인해주세요."),
     INVALID_STOCK_CANCEL_REQUEST("I0014", HttpStatus.BAD_REQUEST, "재고 정보가 올바르지 않아 취소할 수 없습니다."),
@@ -43,6 +43,7 @@ public enum ExceptionEnum {
     OVER_STOCK_FLOW("I0020", HttpStatus.CONFLICT, "저장 가능한 최대 수량을 초과하였습니다."),
     ALREADY_RESERVED_BY_USER("I0021", HttpStatus.BAD_REQUEST, "이미 해당 사용자가 선점(예약 시도) 중인 상품입니다."),
     RESERVATION_EXPIRED("I0022", HttpStatus.BAD_REQUEST, "유휴시간을 초과했습니다."),
+    DATE_EXCEEDS_MAX_RANGE("I0023", HttpStatus.BAD_REQUEST, "시작일 기준 최대 1년까지만 조회할 수 잇습니다."),
 
     // user-service -> U0001
     USER_NOT_FOUND("U0001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),

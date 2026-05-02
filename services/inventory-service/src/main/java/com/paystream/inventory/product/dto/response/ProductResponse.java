@@ -33,7 +33,7 @@ public class ProductResponse {
             List<String> images,
             long originalPrice,
             long finalPrice,
-            int rate) {
+            double rate) {
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -45,7 +45,7 @@ public class ProductResponse {
                                 .original(originalPrice)
                                 .discounted(finalPrice)
                                 .discountRate(rate)
-                                .hasDiscount(rate > 0)
+                                .hasDiscount(rate > 0.0)
                                 .build())
                 .isAvailable(isAvailable)
                 .images(images)

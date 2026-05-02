@@ -7,11 +7,9 @@ import com.paystream.inventory.product.dto.request.ProductCreateRequest;
 import com.paystream.inventory.product.dto.request.ProductDeleteRequest;
 import com.paystream.inventory.product.dto.request.ProductUpdateRequest;
 import com.paystream.inventory.product.dto.response.ProductDetailResponse;
+import com.paystream.inventory.product.dto.response.ProductPriceHistoryResponse;
 import com.paystream.inventory.product.dto.response.ProductResponse;
-import com.paystream.inventory.product.service.ProductCreateService;
-import com.paystream.inventory.product.service.ProductDeleteService;
-import com.paystream.inventory.product.service.ProductFindService;
-import com.paystream.inventory.product.service.ProductUpdateService;
+import com.paystream.inventory.product.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -30,6 +28,7 @@ public class ProductControllerImpl implements ProductController {
     private final ProductCreateService productCreateService;
     private final ProductUpdateService productUpdateService;
     private final ProductDeleteService productDeleteService;
+    private final ProductPriceHistoryService productPriceHistoryService;
 
     @GetMapping("/{productId}")
     @Override
@@ -96,6 +95,18 @@ public class ProductControllerImpl implements ProductController {
         String hostId = getCurrentUserId(request);
 
         List<ProductResponse> response = productFindService.listUserProducts(hostId);
+
+        return BaseResponse.ok(response);
+    }
+
+    @GetMapping("{productId}/price-history")
+    @Override
+    public BaseResponse<List<ProductPriceHistoryResponse>> getProductPriceHistory(
+            @PathVariable Long productId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        List<ProductPriceHistoryResponse> response =
+                productPriceHistoryService.getPriceHistoryDetails(productId, startDate, endDate);
 
         return BaseResponse.ok(response);
     }

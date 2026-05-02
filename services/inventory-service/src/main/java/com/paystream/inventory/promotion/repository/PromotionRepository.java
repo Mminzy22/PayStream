@@ -48,4 +48,14 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
             LocalDate startDate,
             LocalDate endDate,
             Pageable pageable);
+
+    @Query(
+            "SELECT p FROM Promotion p "
+                    + "WHERE p.targetId = :targetId "
+                    + "AND p.targetType = com.paystream.inventory.promotion.entity.TargetType.PRODUCT "
+                    + "AND p.startDate >= :startDate "
+                    + "AND p.endDate <= :endDate "
+                    + "ORDER BY p.startDate DESC")
+    List<Promotion> findByProductTargetIdBetweenDate(
+            Long targetId, LocalDate startDate, LocalDate endDate);
 }

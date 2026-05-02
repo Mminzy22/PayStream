@@ -30,33 +30,25 @@ public class Store extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String hostId;
 
-    @Column(nullable = false)
     private String name;
 
     private String description;
 
-    @Column(nullable = false)
-    @Embedded
-    private Address address;
+    @Embedded private Address address;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Category category;
 
     // 체크인 시간
-    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH")
     private LocalTime checkInTime;
 
     // 체크아웃 시간
-    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH")
     private LocalTime checkOutTime;
 
-    @Column(nullable = false)
     private int basePersonCount;
 
     @Builder.Default private double rating = 0.0;
@@ -67,7 +59,7 @@ public class Store extends BaseEntity {
     @Builder.Default
     @ElementCollection
     @CollectionTable(name = "store_amenities", joinColumns = @JoinColumn(name = "store_id"))
-    @Column(name = "amenity", nullable = false)
+    @Column(name = "amenity")
     @Enumerated(EnumType.STRING)
     private List<Amenities> amenities = new ArrayList<>();
 
